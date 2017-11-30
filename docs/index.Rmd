@@ -2,11 +2,16 @@
 title: "index"
 author: "Cyril"
 date: "November 30, 2017"
-output: html_document
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 ## R Markdown
@@ -23,8 +28,12 @@ summary(cars)
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+## Scatterplot
+```{r scatterplot}
+
+
+g <- ggplot(data =mpg, aes(x=displ, y= hwy))
+g + geom_point()
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
