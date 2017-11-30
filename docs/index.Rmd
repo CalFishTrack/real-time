@@ -108,5 +108,38 @@ axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
 mtext("log of May Flow at Wilkins during outmigration", side=4, line=3, cex.lab=1, col="red")
 ```
 
+## Let's do some data wrangling with Tidyr
 
+```{r}
+library(tidyverse)
 
+gapminder <- read_csv("https://raw.githubusercontent.com/OHI-Science/data-science-training/master/data/gapminder.csv")
+gapminder
+
+## Useful functions to get to know your data
+head(gapminder)
+tail(gapminder)
+
+str(gapminder)
+
+## column headers
+names(gapminder)
+
+## data dimensions
+dim(gapminder)
+ncol(gapminder)
+nrow(gapminder)
+
+filter(gapminder, lifeExp < 29)
+
+mean(filter(gapminder, country == "Sweden")$lifeExp)
+
+## pipe operator `%>%` for sweden example
+
+gapminder %>% 
+  filter(country == "Sweden") %>%
+ summarize(meanlifeExp= mean(lifeExp))
+
+```
+
+`read_csv` is from the `readr` package (part of the tidyverse). It is not `read.csv`, which is part of base R.
