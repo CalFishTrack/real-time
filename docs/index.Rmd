@@ -37,3 +37,40 @@ g + geom_point()
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#### I need color
+```{r scatterplot in color}
+
+
+f <- ggplot(data =mpg, aes(x=displ, y= hwy))
+f + geom_point(aes(color = class))
+```
+
+#### I need B&W for journal
+
+#### I need color
+```{r scatterplot in b&w}
+
+
+h <- ggplot(data =mpg, aes(x=displ, y= hwy))
+h + geom_point(aes(shape = class))
+```
+
+### `Shape` now...
+
+```{r shapesize}
+ggplot(data =mpg, aes(x=cty, y= hwy, size = class)) +
+  geom_point() +
+  geom_jitter(color= "red")
+
+```
+
+#### Let's play with labels
+
+```{r labels}
+ggplot(data = ,mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title = "monkey business", x = "bananas", y = "fights") +
+  theme_bw()
+```
