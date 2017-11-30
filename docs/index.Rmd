@@ -76,3 +76,37 @@ ggplot(data = ,mpg, aes(x = displ, y = hwy)) +
   theme_bw()
 ```
 
+# Now with Mill Ck data
+
+``` {r bring in data and massage}
+wilkins <- read.csv("../data/Wilkins-2000-2016.csv")
+mill <- read.csv(file = "../data/Mill_Ck_Pop.csv", )
+
+## Add 2016 estimate to mill
+mill <- rbind(mill, c(2016,92))
+
+wilkins$return_year <- wilkins$Year+3
+
+wilkins <- merge(wilkins, mill, by.y = "Year", by.x = "return_year", all.x = TRUE)
+
+wilkins$Date <- as.POSIXct(wilkins$Date, format= "%m/%d/%Y")
+wilkins$Julian <- format(wilkins$Date, format = "%j")
+
+````
+
+## Does flow during outmigration influence returning adults on Mill Ck?
+
+``` {r returning adults vs flow}
+flow_means <- aggregate(wilkins[wilkins$Julian>120,"Flow"], by=list(wilkins[wilkins$Julian>120, "Year"]), FUN=mean)
+par(mar=c(5, 4, 4, 8) + 0.1)
+barplot(height= unique(wilkins[wilkins$Julian>120,"Mill_Ck_Pop"]), axes = TRUE, col="gray", xlim=c(0.7,20), ylim=c(0,1450))
+#axis(side = 1, labels = c(2000:2016)+3, at = c(2000:2016))
+par(new = T)
+plot(flow_means$Group.1, log(flow_means$x), ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+#abline(a = 5000, b=0)
+axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+mtext("log of May Flow at Wilkins during outmigration", side=4, line=3, cex.lab=1, col="red")
+```
+
+
+
