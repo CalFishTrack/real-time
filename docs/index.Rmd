@@ -76,7 +76,7 @@ ggplot(data = ,mpg, aes(x = displ, y = hwy)) +
   theme_bw()
 ```
 
-# Now with Mill Ck data
+## Now with Mill Ck data
 
 ``` {r bring in data and massage}
 wilkins <- read.csv("../data/Wilkins-2000-2016.csv")
@@ -94,7 +94,7 @@ wilkins$Julian <- format(wilkins$Date, format = "%j")
 
 ````
 
-## Does flow during outmigration influence returning adults on Mill Ck?
+### Does flow during outmigration influence returning adults on Mill Ck?
 
 ``` {r returning adults vs flow}
 flow_means <- aggregate(wilkins[wilkins$Julian>120,"Flow"], by=list(wilkins[wilkins$Julian>120, "Year"]), FUN=mean)
