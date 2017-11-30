@@ -60,8 +60,9 @@ h + geom_point(aes(shape = class))
 
 ```{r shapesize}
 ggplot(data =mpg, aes(x=cty, y= hwy, size = class)) +
-  geom_point() +
-  geom_jitter(color= "red")
+  geom_jitter(color= "red") +
+  geom_point(alpha = 0.5)
+  
 
 ```
 
@@ -74,3 +75,4 @@ ggplot(data = ,mpg, aes(x = displ, y = hwy)) +
   labs(title = "monkey business", x = "bananas", y = "fights") +
   theme_bw()
 ```
+
