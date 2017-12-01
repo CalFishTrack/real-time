@@ -110,7 +110,7 @@ mtext("log of May Flow at Wilkins during outmigration", side=4, line=3, cex.lab=
 
 ## Let's do some data wrangling with Tidyr
 
-```{r}
+```{r dplyr beginnings}
 library(tidyverse)
 
 gapminder <- read_csv("https://raw.githubusercontent.com/OHI-Science/data-science-training/master/data/gapminder.csv")
@@ -134,12 +134,60 @@ filter(gapminder, lifeExp < 29)
 
 mean(filter(gapminder, country == "Sweden")$lifeExp)
 
+```
+
+`read_csv` is from the `readr` package (part of the tidyverse). It is not `read.csv`, which is part of base R.
+
+## Using pipe operator `%>%` from `dplyr`
+
+```{r using pipe operator}
+
 ## pipe operator `%>%` for sweden example
 
 gapminder %>% 
   filter(country == "Sweden") %>%
  summarize(meanlifeExp= mean(lifeExp))
 
+select(gapminder, year, lifeExp)
+
+gapminder %>% 
+  select(year, lifeExp) %>% 
+  tail()
+
+## Combine what we've learned
+
+gapminder %>% 
+  filter(country == "Cambodia") %>% 
+  select(country, year, pop, gdpPercap)
+
+## Or
+
+gapminder %>% 
+  filter(country == "Cambodia") %>% 
+  select(-continent, -lifeExp)
+
+gapminder %>% 
+  filter(country == "Mexico", year == 2002)
+
+## `mutate()` to add columns
+
+gapminder %>% 
+  mutate(gdp = pop * gdpPercap)
+
+gapminder %>% 
+  mutate(index = 1:nrow(gapminder))
+
+gapminder %>% 
+  filter(country %in% c("Egypt", "Vietnam")) %>% 
+  group_by(country) %>% 
+  summarise(max(gdpPercap))
+
+## Let's keeo the year associated with the max_gdpPercap
+gapminder %>% 
+  group_by(country) %>% 
+  mutate(max_gdpPercap = max(gdpPercap)) %>% 
+  filter(max_gdpPercap == gdpPercap) %>% 
+  arrange(desc(max_gdpPercap))
+
 ```
 
-`read_csv` is from the `readr` package (part of the tidyverse). It is not `read.csv`, which is part of base R.
