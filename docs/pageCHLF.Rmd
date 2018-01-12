@@ -1,0 +1,79 @@
+---
+title: |
+  | Sacramento River Valley 
+  | Salmonid Tagging Project
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r logos, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/NOAA logo.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0px; right:0px; width:100px;')
+htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:110px; width:200px;')
+```
+
+<br/>
+
+
+# *Hatchery-origin late-fall run Chinook salmon*
+
+<br/>
+
+## Tagging Statistics
+``` {r bring in data and massage, echo=FALSE, warning=FALSE}
+
+library(knitr)
+
+lf <- read.csv(file = "../data/Tagged_Fish_Metadata.txt", )
+
+lf$DateTagged <- as.POSIXct(lf$DateTagged, format = "%m/%d/%Y %H:%M:%S")
+
+tagging <- aggregate(list('Tagging Start Date'=lf$DateTagged), by=list('Release Group' = lf$Rel_group), FUN=head,1)
+
+tagging <- merge(tagging, aggregate(list('Tagging End Date'=lf$DateTagged), by=list('Release Group' = lf$Rel_group), FUN=tail,1), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Min Length'=lf$Length), by=list('Release Group' = lf$Rel_group), FUN=min), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Mean Length'=lf$Length), by=list('Release Group' = lf$Rel_group), FUN=mean), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Max Length'=lf$Length), by=list('Release Group' = lf$Rel_group), FUN=max), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Min Weight'=lf$Weight), by=list('Release Group' = lf$Rel_group), FUN=min), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Mean Weight'=lf$Weight), by=list('Release Group' = lf$Rel_group), FUN=mean), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Max Weight'=lf$Weight), by=list('Release Group' = lf$Rel_group), FUN=max), by='Release Group')
+
+tagging <- merge(tagging, aggregate(list('Count'=lf$Length), by=list('Release Group' = lf$Rel_group), FUN=length), by='Release Group')
+
+tagging$Mean.Length <- round(tagging$Mean.Length,1)
+tagging$Mean.Weight <- round(tagging$Mean.Weight,1)
+
+
+kable(tagging)
+
+````
+```{r barplot of tagging sizes}
+
+hist(lf$Length, main = "Tagged fish lengths", xlab = "Fork Length (mm)", ylab = "Count")
+box()
+
+```
+
+## Release Details
+
+Not yet available.
+
+## Real-time Fish Detections
+
+Not yet available.

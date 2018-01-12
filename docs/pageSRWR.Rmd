@@ -1,0 +1,33 @@
+---
+title: |
+  | Sacramento River Valley 
+  | Salmonid Tagging Project
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r logos, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/NOAA logo.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0px; right:0px; width:100px;')
+htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:110px; width:200px;')
+```
+
+<br/>
+
+
+# *Natural-origin winter-run Chinook salmon*
+
+## Status
+
+No fish have been tagged as of `r format(Sys.time(), '%B %d, %Y')`.
+
