@@ -34,8 +34,6 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 
 library(knitr)
 
-rm(list = ls())
-
 setwd("C:/Users/cmichel/Desktop/Real-time data massaging")
 
 gen_locs <- read.csv("SR3017_locs.csv", stringsAsFactors = F)
