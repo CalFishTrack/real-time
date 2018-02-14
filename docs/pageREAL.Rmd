@@ -1,0 +1,164 @@
+---
+title: |
+  | Sacramento River Valley 
+  | Salmonid Tagging Project
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r logos, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/NOAA logo.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0px; right:0px; width:100px;')
+htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:110px; width:200px;')
+```
+
+<br/>
+
+
+# *Real-time tracking of tagged outmigrating salmon*
+
+<br/>
+
+## Detection statistics
+``` {r bring in data and massage, echo=FALSE, warning=FALSE}
+
+library(knitr)
+
+rm(list = ls())
+
+setwd("C:/Users/cmichel/Desktop/Real-time data massaging")
+
+gen_locs <- read.csv("SR3017_locs.csv", stringsAsFactors = F)
+dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
+
+files <- dir(pattern = "*.csv", path = dirs, full.names = T)
+
+
+downloads <- data.frame()
+for (i in 1:length(files)) {
+  hour <- read.csv(files[i], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
+  recv <- read.csv(files[i], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
+  hour <- substr(hour, start = 13, stop = 31)
+  recv <- substr(recv, start = 16, stop = 21)
+  downloads <- rbind(downloads, cbind(recv, hour))
+}
+
+
+downloads$start <- as.POSIXct(downloads$hour, format = "%m/%d/%Y %H:%M:%S")
+downloads$end <- downloads$start +(60*60)
+downloads <-  merge(downloads, gen_locs,  by = "recv")
+downloads <- downloads[order(downloads$recv, downloads$start),]
+downloads$gapstart <- as.POSIXct(NA)
+downloads$gapend <- as.POSIXct(NA)
+for (i in 2:nrow(downloads)){
+  if(downloads[i-1, "recv"] == downloads[i, "recv"] & difftime(downloads[i, "start"], downloads[i-1, "start"], units = "hours") > 1.25 )
+  {downloads[i,"gapstart"] <- downloads[i-1, "end"]
+   downloads[i,"gapend"] <- downloads[i, "start"]
+  }
+}
+
+gaps <- downloads[is.na(downloads$gapstart) == F,]
+
+gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
+gaps$start <- NULL
+gaps$end <- NULL
+
+
+
+detects <- data.frame()
+for (i in 1:length(files)) {
+  test <- read.csv(files[i], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
+  colnames(test) <- colnames(test)[-1]
+  test[,ncol(test)] <- NULL
+  test$recv <- substr(files[i], nchar(files[i])-22, nchar(files[i])-18)
+  end1 <- head(grep("--", test$Internal),1)
+  end2 <- head(grep("File End", test$Internal),1)
+  end_final <- min(c(end1,end2))
+  test <- test[-c(end_final:nrow(test)),]
+  detects <- rbind(detects, test)
+}
+
+locs <- detects[detects$TagCode == " GPS Fix  ",]
+N <- unlist(gregexpr(pattern ='N',locs$Internal))
+locs$lat <- as.numeric(substr(locs$Internal, start = 1, stop = N-1))
+locs$lon <- as.numeric(substr(locs$Internal, start = N+1, stop= nchar(locs$Internal)-2))
+locs$lat <- round(locs$lat, 0)/100
+locs$lon <- round(locs$lon, 0)/100*-1
+
+coords <- unique(locs[,c("recv", "lat", "lon")])
+
+detects <- detects[!detects$TagCode == " GPS Fix  ",]
+
+detects$DateTime1 <- as.POSIXct(detects$DateTime, format = "%m/%d/%Y %H:%M:%S.%OS")
+
+tags <- sort(table(detects$TagCode), decreasing = T)
+tags <- tags[tags>1]
+
+detects_good <- detects[detects$TagCode %in% rownames(tags),]
+
+detects_good <- merge(detects_good, coords, by = "recv", all.x = T)
+
+detects_good <- merge(detects_good, gen_locs, by = "recv", all.x = T)
+
+stats <- aggregate(list(Arrival = detects_good$DateTime1), 
+                   by = list(TagCode = detects_good$TagCode, 
+                   location = detects_good$location), 
+                   FUN = min)
+
+stats <- merge(stats, 
+               aggregate(list(Departure = detects_good$DateTime1), 
+                         by = list(TagCode = detects_good$TagCode, 
+                         location = detects_good$location), 
+                         FUN = max), 
+               by = c("TagCode", "location"))
+
+stats <- merge(stats, 
+               aggregate(list(Detection_count = detects_good$DateTime1), 
+                         by = list(TagCode = detects_good$TagCode, 
+                         location = detects_good$location), 
+                         FUN = length), 
+               by = c("TagCode","location"))
+
+stats <- merge(stats, 
+               aggregate(list(Last_download = downloads$end), 
+                                by= list(location = downloads$location), 
+                                FUN = max), 
+               by = "location")
+
+
+kable(stats)
+
+````
+
+
+## Download gaps
+
+```{r print gaps data, echo=FALSE, warning=FALSE}
+kable(gaps, row.names = F)
+```
+
+
+## Real-time Fish Detections
+
+```{r print plots of fish detections, echo = FALSE}
+for (i in unique(detects_good$location)){
+  temp <- detects_good[detects_good$location == i,]
+  
+  plot(temp$DateTime1, as.factor(temp$TagCode), ylab = "Tag code", yaxt = "n", xlab = "Date",
+            main = paste("Location:", i, ", coordinates", unique(temp$lat), unique(temp$lon)))
+
+  axis(2, at = c(1:length(unique(temp$TagCode))), labels = unique(temp$TagCode))
+  
+}
+
+```
