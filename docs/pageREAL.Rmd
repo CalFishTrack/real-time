@@ -161,6 +161,9 @@ kable(stats)
 
 
 ````
+
+<br/>
+
 ## Incomplete Downloads
 
 ```{r print incomplete downloads}
