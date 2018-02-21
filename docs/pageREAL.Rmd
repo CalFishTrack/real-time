@@ -163,7 +163,7 @@ kable(stats)
 ````
 ## Incomplete Downloads
 
-```{r print gaps data}
+```{r print incomplete downloads}
 
 print(incomplete_shortname)
 ```
