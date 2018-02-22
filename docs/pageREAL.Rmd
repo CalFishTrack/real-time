@@ -27,10 +27,8 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 
 # *Real-time tracking of tagged outmigrating salmon*
 
-<br/>
 
-## Detection statistics
-``` {r bring in data and massage, echo=FALSE, warning=FALSE}
+```{r bring in data, massage, mention last hour download, echo=FALSE, warning=FALSE}
 
 library(knitr)
 
@@ -68,8 +66,12 @@ downloads$gapstart <- as.POSIXct(NA)
 downloads$gapend <- as.POSIXct(NA)
 for (i in 2:nrow(downloads)){
   if(downloads[i-1, "recv"] == downloads[i, "recv"] & difftime(downloads[i, "start"], downloads[i-1, "start"], units = "hours") > 1.25 )
-  {downloads[i,"gapstart"] <- downloads[i-1, "end"]
-   downloads[i,"gapend"] <- downloads[i, "start"]
+  {downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
+   downloads[i-1,"gapend"] <- downloads[i, "start"]
+  }
+  if (downloads[i-1, "recv"] != downloads[i, "recv"] & difftime(Sys.time(), downloads[i-1, "start"], units = "hours") > 1.25) {
+   downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
+   downloads[i-1,"gapend"] <- Sys.time()
   }
 }
 
@@ -156,6 +158,15 @@ stats <- merge(stats,
                                 FUN = max), 
                by = "location")
 
+latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
+
+```
+*Data current as of `r latest`*
+
+<br/>
+
+## Tag Detection statistics
+``` {r print tagstats, echo=FALSE, warning=FALSE}
 
 kable(stats)
 
@@ -163,21 +174,6 @@ kable(stats)
 ````
 
 <br/>
-
-## Incomplete Downloads
-
-```{r print incomplete downloads}
-
-print(incomplete_shortname)
-```
-
-
-## Download gaps
-
-```{r print gaps data, echo=FALSE, warning=FALSE}
-kable(gaps, row.names = F)
-```
-
 
 ## Real-time Fish Detections
 
@@ -193,3 +189,21 @@ for (i in unique(detects_good[!is.na(detects_good$location),"location"])){
 }
 
 ```
+
+<br/>
+
+## Corrupted Downloads
+
+```{r print incomplete downloads}
+
+print(incomplete_shortname)
+```
+
+<br/>
+
+## Download gaps
+
+```{r print gaps data, echo=FALSE, warning=FALSE}
+kable(gaps[,-2], row.names = F)
+```
+
