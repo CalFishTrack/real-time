@@ -14,7 +14,7 @@ library(tidyverse)
 ```
 
 ```{r logos, echo=FALSE}
-htmltools::img(src = knitr::image_uri("../data/NOAA logo.png"), 
+htmltools::img(src = knitr::image_uri("../data/NOAA logo.jpg"), 
                alt = 'logo', 
                style = 'position:absolute; top:0px; right:0px; width:100px;')
 htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"), 
