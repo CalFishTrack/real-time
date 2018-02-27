@@ -32,17 +32,16 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 
 library(knitr)
 
-setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging", sep = ""))
-
 gen_locs <- read.csv("SR3017_locs.csv", stringsAsFactors = F)
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging", sep = ""))
 
 files <- dir(pattern = "*.csv", path = dirs, full.names = T)
 
 
 downloads <- data.frame()
 for (i in 1:length(files)) {
-
+  
   if (substr(read.csv(files[i], nrows = 1, header = F)[,1] , 1,4) == "Site") {
     hour <- read.csv(files[i], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
     recv <- read.csv(files[i], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
@@ -67,11 +66,11 @@ downloads$gapend <- as.POSIXct(NA)
 for (i in 2:nrow(downloads)){
   if(downloads[i-1, "recv"] == downloads[i, "recv"] & difftime(downloads[i, "start"], downloads[i-1, "start"], units = "hours") > 1.25 )
   {downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
-   downloads[i-1,"gapend"] <- downloads[i, "start"]
+  downloads[i-1,"gapend"] <- downloads[i, "start"]
   }
   if (downloads[i-1, "recv"] != downloads[i, "recv"] & difftime(Sys.time(), downloads[i-1, "start"], units = "hours") > 1.25) {
-   downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
-   downloads[i-1,"gapend"] <- Sys.time()
+    downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
+    downloads[i-1,"gapend"] <- Sys.time()
   }
 }
 
@@ -101,8 +100,8 @@ for (i in 1:length(files)) {
     incomplete_downloads <- rbind(incomplete_downloads, files[i])
   }
   else {
-    end_final <- min(c(end1,end2))
-    test <- test[-c(end_final:nrow(test)),]
+    test1 <- test[!test$TagCode == "",]
+    test2 <- test1[!test1$TagCode == " TagCode",]
     detects <- rbind(detects, test)
   }
 }
@@ -135,30 +134,31 @@ detects_good <- merge(detects_good, gen_locs, by = "recv", all.x = T)
 
 stats <- aggregate(list(Arrival = detects_good$DateTime1), 
                    by = list(TagCode = detects_good$TagCode, 
-                   location = detects_good$location), 
+                             location = detects_good$location), 
                    FUN = min)
 
 stats <- merge(stats, 
                aggregate(list(Departure = detects_good$DateTime1), 
                          by = list(TagCode = detects_good$TagCode, 
-                         location = detects_good$location), 
+                                   location = detects_good$location), 
                          FUN = max), 
                by = c("TagCode", "location"))
 
 stats <- merge(stats, 
                aggregate(list(Detection_count = detects_good$DateTime1), 
                          by = list(TagCode = detects_good$TagCode, 
-                         location = detects_good$location), 
+                                   location = detects_good$location), 
                          FUN = length), 
                by = c("TagCode","location"))
 
 stats <- merge(stats, 
                aggregate(list(Last_download = downloads$end), 
-                                by= list(location = downloads$location), 
-                                FUN = max), 
+                         by= list(location = downloads$location), 
+                         FUN = max), 
                by = "location")
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
+
 
 ```
 *Data current as of `r latest`*
