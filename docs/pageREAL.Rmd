@@ -32,9 +32,11 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 
 library(knitr)
 
-gen_locs <- read.csv("SR3017_locs.csv", stringsAsFactors = F)
+
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging", sep = ""))
+
+gen_locs <- read.csv("SR3017_locs.csv", stringsAsFactors = F)
 
 files <- dir(pattern = "*.csv", path = dirs, full.names = T)
 
@@ -87,8 +89,7 @@ incomplete_downloads <- NULL
 for (i in 1:length(files)) {
   if (substr(read.csv(files[i], nrows = 1, header = F)[,1] , 1,4) == "Site") {
     test <- read.csv(files[i], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
-  }
-  else {
+  } else {
     test <- read.csv(files[i], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
   } 
   colnames(test) <- colnames(test)[-1]
@@ -96,13 +97,15 @@ for (i in 1:length(files)) {
   test$recv <- substr(files[i], nchar(files[i])-22, nchar(files[i])-18)
   end1 <- head(grep("--", test$Internal),1)
   end2 <- head(grep("File End", test$Internal),1)
-  if (length(end1) + length(end2) == 0) {
+  end_final <- head(grep(".-- Done", test$Internal),1)
+  
+  if (length(end_final) == 0) {
     incomplete_downloads <- rbind(incomplete_downloads, files[i])
-  }
-  else {
-    test1 <- test[!test$TagCode == "",]
-    test2 <- test1[!test1$TagCode == " TagCode",]
-    detects <- rbind(detects, test)
+  } else {
+    test1 <- test[-c(end_final:nrow(test)),]
+    test2 <- test1[!test1$TagCode == "",]
+    test3 <- test2[!test2$TagCode == " TagCode",]
+    detects <- rbind(detects, test3)
   }
 }
 
