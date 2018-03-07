@@ -37,17 +37,17 @@ The San Francisco Bay-Delta is both the hub for the infrastructure for Californi
 
 This work will have significant implications for understanding movement, distribution, and survival of all four runs of Central Valley Chinook salmon. For more information on specific runs and our preliminary efforts in real-time tracking of these fish, click on a link below:
 
-[Hatchery-origin late-fall Chinook salmon](pageCHLF.html)
+[Hatchery-origin late-fall Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageCHLF.html)
 
-[Natural-origin winter-run Chinook salmon](pageSRWR.html)
+[Natural-origin winter-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageSRWR.html)
 
-[Hatchery-origin winter-run Chinook salmon](pageLSWR.html)
+[Hatchery-origin winter-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageLSWR.html)
 
-[Natural-origin spring-run Chinook salmon](pageSRSR.html)
+[Natural-origin spring-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageSRSR.html)
 
-[Hatchery-origin fall-run Chinook salmon](pageNHFR.html)
+[Hatchery-origin fall-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageNHFR.html)
 
-[Natural-origin green sturgeon](pageSRGS.html)
+[Natural-origin green sturgeon](https://cyrilmichel.github.io/ds-repo/pageSRGS.html)
 
 <br />
 
@@ -65,21 +65,22 @@ None currently available.
 
 ## Study Area
 
-<br />
 
-### Map of receiver and release locations in the Central Valley
+
+
+#### Map of receiver and release locations in the Central Valley
 ![](../data/JSATS_Full.png)
 
 <br />
 
-### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
+#### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
 
 ![](../data/JSATS_Delta.png)
 
 <br />
 <br />
 
-
+<br />
 
 For realtime tracking diagnostics, click here:
 [Real-time tracking diagnostics](pageREAL.html)
