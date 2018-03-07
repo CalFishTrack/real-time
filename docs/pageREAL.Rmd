@@ -25,142 +25,292 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 <br/>
 
 
-# *Real-time tracking of tagged outmigrating salmon*
+# *Real-time tracking Diagnostics*
 
 
-```{r bring in data, massage, mention last hour download, echo=FALSE, warning=FALSE}
+```{r bring in data, massage, create new data files, print diagnostics, echo=FALSE, warning=FALSE}
 
 library(knitr)
-
+library(dplyr)
 
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging", sep = ""))
 
-gen_locs <- read.csv("SR3017_locs.csv", stringsAsFactors = F)
+#ATS_processed_files <- read.csv("ATS_processed_files.csv", stringsAsFactors = F)
+TECKNO_processed_files <- read.csv("TECKNO_processed_files.csv", stringsAsFactors = F)
+gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+downloads <- read.csv("downloads.csv", stringsAsFactors = F)
+downloads$end <- as.POSIXct(downloads$end, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+downloads$start <- as.POSIXct(downloads$start, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
 
-files <- dir(pattern = "*.csv", path = dirs, full.names = T)
+corrupted_downloads <- read.csv("corrupted_downloads.csv", stringsAsFactors = F)
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 
-downloads <- data.frame()
-for (i in 1:length(files)) {
+detects <- read.csv("detects_final.csv", stringsAsFactors = F)
+detects$DateTime1 <- as.POSIXct(detects$DateTime1, format = "%Y-%m-%d %H:%M:%OS")
+
+## Find all Teckno file names
+TECKNO_all_files <- as.data.frame(dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/Real-time data massaging/data", full.names = T))
+colnames(TECKNO_all_files) <- "x"
+TECKNO_all_files$x <- as.character(TECKNO_all_files$x)
+## Select only newest TECKNO files for massaging
+TECKNO_files <- as.data.frame(TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,])
+colnames(TECKNO_files) <- "x"
+TECKNO_files$x <- as.character(TECKNO_files$x)
+
+## Find all ATS file names
+#ATS_all_files <- as.data.frame(dir(pattern = "*.csv", path = dirs, full.names = T))
+#colnames(ATS_all_files) <- "x"
+#ATS_all_files$x <- as.character(ATS_all_files$x)
+## Select only newest ATS files for massaging
+#ATS_files <- ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,]
+ATS_files <- data.frame()
+
+
+#### Data massage ATS files first ####
+
+downloads_new_all <- data.frame()
+
+if (nrow(ATS_files) > 0) {
+  downloads_new <- data.frame()
+  for (i in 1:nrow(ATS_files)) {
+    
+    if (substr(read.csv(ATS_files[i,], nrows = 1, header = F)[,1] , 1,4) == "Site") {
+      hour <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
+      recv <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
+    }
+    else {
+      recv <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
+      hour <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 19, nrows = 1, header = F)
+    }
+    hour <- substr(hour, start = 13, stop = 31)
+    recv <- substr(recv, start = 16, stop = 21)
+    downloads_new <- rbind(downloads_new, cbind(recv, hour))
+  }
   
-  if (substr(read.csv(files[i], nrows = 1, header = F)[,1] , 1,4) == "Site") {
-    hour <- read.csv(files[i], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
-    recv <- read.csv(files[i], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
+  downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
+  downloads_new$end <- downloads_new$start +(60*60)
+  downloads_new <-  merge(downloads_new, gen_locs,  by = "recv")
+
+  downloads_new_all <- rbind(downloads_new_all, downloads_new)
+  
+  detects_new <- data.frame()
+  corrupted_downloads_new <- NULL
+  for (i in 1:nrow(ATS_files)) {
+    if (substr(read.csv(ATS_files[i,], nrows = 1, header = F)[,1] , 1,4) == "Site") {
+      test <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
+    } else {
+      test <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
+    } 
+    colnames(test) <- colnames(test)[-1]
+    test[,ncol(test)] <- NULL
+    test$recv <- substr(ATS_files[i,], nchar(ATS_files[i,])-22, nchar(ATS_files[i,])-18)
+    end1 <- head(grep("--", test$Internal),1)
+    end2 <- head(grep("File End", test$Internal),1)
+    end_final <- head(grep(".-- Done", test$Internal),1)
+  
+    if (length(end_final) == 0) {
+      corrupted_downloads_new <- rbind(corrupted_downloads_new, ATS_files[i,])
+    } else {
+      test1 <- test[-c(end_final:nrow(test)),]
+      test2 <- test1[!test1$TagCode == "",]
+      test3 <- test2[!test2$TagCode == " TagCode",]
+      detects_new <- rbind(detects_new, test3)
+    }
   }
-  else {
-    recv <- read.csv(files[i], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
-    hour <- read.csv(files[i], stringsAsFactors = F, skip = 19, nrows = 1, header = F)
-  }
-  hour <- substr(hour, start = 13, stop = 31)
-  recv <- substr(recv, start = 16, stop = 21)
-  downloads <- rbind(downloads, cbind(recv, hour))
+
+  shortname <- regexpr(corrupted_downloads_new, pattern = "Data")[1]
+  incomplete_shortname <- substr(corrupted_downloads_new, shortname+5, nchar(corrupted_downloads_new))
+  corrupted <- strsplit(incomplete_shortname, "/")
+  corrupted2 <- unlist(lapply(corrupted, tail, 1))
+  corrupted_downloads <- rbind(corrupted_downloads,corrupted2)
+
+  #locs <- detects_new[detects_new$TagCode == " GPS Fix  ",]
+  #N <- unlist(gregexpr(pattern ='N',locs$Internal))
+  #locs$lat <- as.numeric(substr(locs$Internal, start = 1, stop = N-1))
+  #locs$lon <- as.numeric(substr(locs$Internal, start = N+1, stop= nchar(locs$Internal)-2))
+  #locs$lat <- round(locs$lat, 0)/100
+  #locs$lon <- round(locs$lon, 0)/100*-1
+  
+  #coords <- unique(locs[,c("recv", "lat", "lon")])
+  
+  detects_new <- detects_new[!detects_new$TagCode == " GPS Fix  ",]
+  
+  detects_new$DateTime1 <- as.POSIXct(detects_new$DateTime, format = "%m/%d/%Y %H:%M:%S.%OS", tz = "Etc/GMT+8")
+  
+  #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
+  
+  #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
+  
+  detects <- rbind(detects, detects_new)
+  
+  ATS_processed_files <- rbind(ATS_processed_files, ATS_files)
+  
 }
 
 
 
-downloads$start <- as.POSIXct(downloads$hour, format = "%m/%d/%Y %H:%M:%S")
-downloads$end <- downloads$start +(60*60)
-downloads <-  merge(downloads, gen_locs,  by = "recv")
-downloads <- downloads[order(downloads$recv, downloads$start),]
+
+#### Now data massage TECKNO files ####
+
+
+
+
+
+if (nrow(TECKNO_files) > 0) {
+  downloads_new <- data.frame()
+  for (i in 1:nrow(TECKNO_files)) {
+    test <- try(read.csv(TECKNO_files[i,], header = F, stringsAsFactors = F ), silent = T) 
+    if (inherits(test, "try-error")) {
+      next
+    } else {
+      test1 <- tail(test[nchar(test$V5) > 4,],1)
+      hour <- test1$V3
+      recv <- test1$V1
+      downloads_new <- rbind(downloads_new, cbind(recv, hour))
+    }
+  }
+
+  downloads_new$end <- as.POSIXct(downloads_new$hour, tz = "GMT")
+  downloads_new$start <- downloads_new$end -(60*60)
+  downloads_new <-  merge(downloads_new, gen_locs,  by = "recv")
+
+  
+  ## Now change all times to PST to match ATS receivers
+  attributes(downloads_new$start)$tzone <- "Etc/GMT+8"
+  attributes(downloads_new$end)$tzone <- "Etc/GMT+8"
+
+  downloads_new_all <- rbind(downloads_new_all, downloads_new)
+
+  detects_new <- data.frame()
+
+  ## Put in progress bar
+  #pb <- txtProgressBar(min = 0, max = nrow(TECKNO_files), style = 3)
+  
+  for (i in 1:nrow(TECKNO_files)) {
+    res <- try(read.csv(TECKNO_files[i,], header = F), silent = T) 
+    if (inherits(res, "try-error")) {
+      corrupted <- strsplit(TECKNO_files[i,], "/")
+      corrupted2 <- unlist(lapply(corrupted, tail, 1))
+      corrupted_downloads <- rbind(corrupted_downloads,corrupted2)
+      ## Also make corrupted downloads more palateable
+      next
+    } else {
+      start <- nchar(read.csv(TECKNO_files[i,],stringsAsFactors = F, header = F)$V5)
+      start <- head(which(start==4),1)
+      if (length(start) > 0) {
+        test <- read.csv(TECKNO_files[i,], skip = start-1, header = F, stringsAsFactors = F )
+        test1 <- test[nchar(test$V5)==4,]
+        detects_new <- rbind(detects_new, test1)
+      
+      }    
+    }
+    #setTxtProgressBar(pb, i)
+  }
+  #close(pb)
+  
+  colnames(detects_new) <- c("recv", "V2", "DateTime", "dec_seconds", "TagCode", "V6", "V7", "V8", "V9")
+  detects_new <- detects_new[!detects_new$V2 == "N",]
+  ## In this step, append datetime to milliseconds, but make sure the 6 decimal places are represented for all cases, even when there are trailering zeros
+  detects_new$DateTime1 <- paste(detects_new$DateTime, substr(formatC(as.numeric(detects_new$dec_seconds),format='f', digits=6 ),2,8), sep = "")
+  ## Make a POSIX class, note that TECKNO detections are in GMT, will need to convert to local time
+  detects_new$DateTime1 <- as.POSIXct(detects_new$DateTime1, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
+  attributes(detects_new$DateTime1)$tzone <- "Etc/GMT+8"
+  
+  #detects_new1 <- detects[0,]
+  #detects_new1 <- bind_rows(detects_new1, detects_new[,c("recv", "TagCode", "DateTime", "DateTime1")])
+  detects_new <- merge(detects_new, gen_locs[,c("recv", "location", "general_location")])
+  detects <- rbind(detects, detects_new)
+  
+  TECKNO_processed_files <- rbind(TECKNO_processed_files, TECKNO_files)
+  
+}
+
+downloads <- rbind(downloads, downloads_new_all)
+
+## Check for hourly download gaps ##
 downloads$gapstart <- as.POSIXct(NA)
 downloads$gapend <- as.POSIXct(NA)
+
+downloads <- downloads[order(downloads$recv, downloads$start),]
+
 for (i in 2:nrow(downloads)){
   if(downloads[i-1, "recv"] == downloads[i, "recv"] & difftime(downloads[i, "start"], downloads[i-1, "start"], units = "hours") > 1.25 )
   {downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
   downloads[i-1,"gapend"] <- downloads[i, "start"]
   }
-  if (downloads[i-1, "recv"] != downloads[i, "recv"] & difftime(Sys.time(), downloads[i-1, "start"], units = "hours") > 1.25) {
+  if (downloads[i-1, "recv"] != downloads[i, "recv"] & difftime(Sys.time(), downloads[i-1, "start"], units = "hours") > 2.2) {
     downloads[i-1,"gapstart"] <- downloads[i-1, "end"]
     downloads[i-1,"gapend"] <- Sys.time()
   }
 }
 
 gaps <- downloads[is.na(downloads$gapstart) == F,]
+gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
 
 gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
 gaps$start <- NULL
 gaps$end <- NULL
 
+downloads$gapstart <- NULL
+downloads$gapend <- NULL
 
 
-detects <- data.frame()
-incomplete_downloads <- NULL
-for (i in 1:length(files)) {
-  if (substr(read.csv(files[i], nrows = 1, header = F)[,1] , 1,4) == "Site") {
-    test <- read.csv(files[i], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
-  } else {
-    test <- read.csv(files[i], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
-  } 
-  colnames(test) <- colnames(test)[-1]
-  test[,ncol(test)] <- NULL
-  test$recv <- substr(files[i], nchar(files[i])-22, nchar(files[i])-18)
-  end1 <- head(grep("--", test$Internal),1)
-  end2 <- head(grep("File End", test$Internal),1)
-  end_final <- head(grep(".-- Done", test$Internal),1)
-  
-  if (length(end_final) == 0) {
-    incomplete_downloads <- rbind(incomplete_downloads, files[i])
-  } else {
-    test1 <- test[-c(end_final:nrow(test)),]
-    test2 <- test1[!test1$TagCode == "",]
-    test3 <- test2[!test2$TagCode == " TagCode",]
-    detects <- rbind(detects, test3)
-  }
+#### As a preliminary cut to detection filter, here we say a tag has to have been detected twice throughout array ####
+tags <- sort(table(detects$TagCode), decreasing = T)
+tags <- tags[tags>2]
+detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
+#### Now, subset for only tags known to be in the system, by studyID
+
+for (i in unique(tagcodes$StudyID)){
+  studycodes <- tagcodes[tagcodes$StudyID == i, "TagID_Hex"]
+  temp_detects<- detects_filtered[detects_filtered$TagCode %in% studycodes,]
+  write.csv(temp_detects, paste(paste("detects",i,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
-shortname <- regexpr(incomplete_downloads, pattern = "Data")[1]
-incomplete_shortname <- substr(incomplete_downloads, shortname+5, nchar(incomplete_downloads))
 
-
-locs <- detects[detects$TagCode == " GPS Fix  ",]
-N <- unlist(gregexpr(pattern ='N',locs$Internal))
-locs$lat <- as.numeric(substr(locs$Internal, start = 1, stop = N-1))
-locs$lon <- as.numeric(substr(locs$Internal, start = N+1, stop= nchar(locs$Internal)-2))
-locs$lat <- round(locs$lat, 0)/100
-locs$lon <- round(locs$lon, 0)/100*-1
-
-coords <- unique(locs[,c("recv", "lat", "lon")])
-
-detects <- detects[!detects$TagCode == " GPS Fix  ",]
-
-detects$DateTime1 <- as.POSIXct(detects$DateTime, format = "%m/%d/%Y %H:%M:%S.%OS")
-
-tags <- sort(table(detects$TagCode), decreasing = T)
-tags <- tags[tags>1]
-
-detects_good <- detects[detects$TagCode %in% rownames(tags),]
-
-detects_good <- merge(detects_good, coords, by = "recv", all.x = T)
-
-detects_good <- merge(detects_good, gen_locs, by = "recv", all.x = T)
-
-stats <- aggregate(list(Arrival = detects_good$DateTime1), 
-                   by = list(TagCode = detects_good$TagCode, 
-                             location = detects_good$location), 
+stats <- aggregate(list(Arrival = detects$DateTime1), 
+                   by = list(TagCode = detects$TagCode, 
+                             general_location = detects$general_location), 
                    FUN = min)
 
 stats <- merge(stats, 
-               aggregate(list(Departure = detects_good$DateTime1), 
-                         by = list(TagCode = detects_good$TagCode, 
-                                   location = detects_good$location), 
+               aggregate(list(Departure = detects$DateTime1), 
+                         by = list(TagCode = detects$TagCode, 
+                                   general_location = detects$general_location), 
                          FUN = max), 
-               by = c("TagCode", "location"))
+               by = c("TagCode", "general_location"))
 
 stats <- merge(stats, 
-               aggregate(list(Detection_count = detects_good$DateTime1), 
-                         by = list(TagCode = detects_good$TagCode, 
-                                   location = detects_good$location), 
+               aggregate(list(Detection_count = detects$DateTime1), 
+                         by = list(TagCode = detects$TagCode, 
+                                   general_location = detects$general_location), 
                          FUN = length), 
-               by = c("TagCode","location"))
+               by = c("TagCode","general_location"))
 
 stats <- merge(stats, 
                aggregate(list(Last_download = downloads$end), 
-                         by= list(location = downloads$location), 
+                         by= list(general_location = downloads$general_location), 
                          FUN = max), 
-               by = "location")
+               by = "general_location")
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
+
+## Now that all data manipulations are complete, export detcts with milliseconds shown (this turns the class into character)
+detects$DateTime1 <- format(detects$DateTime1, "%Y-%m-%d %H:%M:%OS6")
+
+
+#write.csv(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
+write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
+write.csv(downloads, "downloads.csv", row.names = F)
+write.csv(detects, "detects_final.csv", row.names = F)
+#write.csv(detects_filtered, "detects_filtered.csv", row.names = F)
+write.csv(gaps, "download_gaps.csv", row.names = F)
+write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
+
 
 
 ```
@@ -168,30 +318,33 @@ latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
 
 <br/>
 
-## Tag Detection statistics
-``` {r print tagstats, echo=FALSE, warning=FALSE}
+## Receiver sites
+``` {r print site stats, echo=FALSE, warning=FALSE}
 
-kable(stats)
+kable(gen_locs, align = "c")
 
 
 ````
 
 <br/>
 
-## Real-time Fish Detections
+## Most recent downloads
+``` {r print most recent downloads, echo=FALSE, warning=FALSE}
 
-```{r print plots of fish detections, echo = FALSE}
-for (i in unique(detects_good[!is.na(detects_good$location),"location"])){
-  temp <- detects_good[which(detects_good$location == i),]
-  
-  plot(temp$DateTime1, as.factor(temp$TagCode), ylab = "Tag code", yaxt = "n", xlab = "Date",
-            main = paste("Location:", i, ", coordinates", unique(temp$lat), unique(temp$lon)))
+downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location", "general_location")]
+kable(downloads_new_all, row.names = F)
 
-  axis(2, at = c(1:length(unique(temp$TagCode))), labels = unique(temp$TagCode))
-  
-}
 
+````
+
+<br/>
+
+## Download gaps
+
+```{r print gaps data, echo=FALSE, warning=FALSE}
+kable(gaps[,-which(names(gaps) == "hour")], row.names = F)
 ```
+
 
 <br/>
 
@@ -199,14 +352,9 @@ for (i in unique(detects_good[!is.na(detects_good$location),"location"])){
 
 ```{r print incomplete downloads}
 
-print(incomplete_shortname)
+colnames(corrupted_downloads) <- "Filename"
+
+kable(corrupted_downloads, row.names = F)
 ```
 
-<br/>
-
-## Download gaps
-
-```{r print gaps data, echo=FALSE, warning=FALSE}
-kable(gaps[,-2], row.names = F)
-```
 

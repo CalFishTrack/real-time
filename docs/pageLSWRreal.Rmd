@@ -25,10 +25,20 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 <br/>
 
 
-# *Hatchery-origin winter-run Chinook salmon*
+# *Real-time tracking Diagnostics*
 
-## Status
+## Real-time Fish Detections
 
-No fish have been tagged as of `r format(Sys.time(), '%B %d, %Y')`.
+```{r print plots of fish detections, echo = FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging", sep = ""))
 
-[Realtime Detections](pageLSWRreal.html)
+test <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = F)
+if (nrow(test) == 0){
+  "No detections yet"
+} else {
+  kable(test)
+}
+
+```
+
+<br/>

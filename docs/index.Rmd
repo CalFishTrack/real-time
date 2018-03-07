@@ -49,7 +49,7 @@ This work will have significant implications for understanding movement, distrib
 
 To enable adaptive management of water resources, the live-tracking of outmigrating salmonids is needed. Preliminary efforts in real-time tracking of fish can be found here:
 
-[Real-time tracking of outmigrating smolts](pageREAL.html)
+[Real-time tracking diagnostics](pageREAL.html)
 
 <br />
 
