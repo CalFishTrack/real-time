@@ -26,7 +26,7 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 <br/>
 
 
-# *Hatchery-origin winter-run Chinook salmon*
+# *Sacramento River Green Sturgeon*
 
 ## Project Status
 
@@ -40,7 +40,7 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "Winter_H_2018",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Juv_Green_Sturgeon_2017",]
 release_stats <- aggregate(list(Number_fish_released = study_tagcodes$TagID_Hex),
                            by= list(Release_time = study_tagcodes$RelDT),
                            FUN = function(x) {length(unique(x))}
@@ -65,7 +65,7 @@ kable(release_stats)
 ```{r print table of fish detections, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-test <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = F)
+test <- read.csv("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = F)
 if (nrow(test) == 0){
   "No detections yet"
 } else {

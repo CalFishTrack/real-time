@@ -1,16 +1,16 @@
 ---
 title: |
-  | Sacramento River Valley 
-  | Salmonid Tagging Project
+  | Central Valley Enhanced
+  | Acoustic Tagging Project
 output:
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
 ---
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
+library(tidyr)
 
 ```
 
@@ -29,13 +29,13 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 # *Real-time tracking Diagnostics*
 
 
-```{r bring in data, massage, create new data files, print diagnostics, echo=FALSE, warning=FALSE}
+```{r bring in data, massage, create new data files, print diagnostics, echo=FALSE, warning=FALSE, message=FALSE}
 
 library(knitr)
 library(dplyr)
 
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
-setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging", sep = ""))
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 #ATS_processed_files <- read.csv("ATS_processed_files.csv", stringsAsFactors = F)
 TECKNO_processed_files <- read.csv("TECKNO_processed_files.csv", stringsAsFactors = F)
@@ -337,9 +337,9 @@ kable(gen_locs, align = "c")
 ## Most recent downloads
 ``` {r print most recent downloads, echo=FALSE, warning=FALSE}
 
-if (nrow(downloads_new_all) < 0) {
+if (nrow(downloads_new_all) > 0) {
   downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location",
-                                            "general_location")]
+                                            "int_volts", "ext_volts")]
   kable(downloads_new_all, row.names = F)
 } else {
   "No new downloads"

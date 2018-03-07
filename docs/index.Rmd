@@ -1,7 +1,7 @@
 ---
 title: |
-  | Sacramento River Valley 
-  | Salmonid Tagging Project
+  | Central Valley Enhanced
+  | Acoustic Tagging Project
 output:
   html_document:
     code_folding: hide
@@ -10,7 +10,7 @@ output:
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
+library(tidyr)
 ```
 
 ```{r logos, echo=FALSE}
@@ -46,6 +46,8 @@ This work will have significant implications for understanding movement, distrib
 [Natural-origin spring-run Chinook salmon](pageSRSR.html)
 
 [Hatchery-origin fall-run Chinook salmon](pageNHFR.html)
+
+[Natural-origin green sturgeon](pageSRGS.html)
 
 <br />
 
