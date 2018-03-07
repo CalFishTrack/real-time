@@ -11,6 +11,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+
 ```
 
 ```{r logos, echo=FALSE}
@@ -169,7 +170,9 @@ if (nrow(TECKNO_files) > 0) {
       test1 <- tail(test[nchar(test$V5) > 4,],1)
       hour <- test1$V3
       recv <- test1$V1
-      downloads_new <- rbind(downloads_new, cbind(recv, hour))
+      int_volts <- test1$V7
+      ext_volts <- test1$V8
+      downloads_new <- rbind(downloads_new, cbind(recv, hour, int_volts, ext_volts))
     }
   }
 
@@ -228,7 +231,9 @@ if (nrow(TECKNO_files) > 0) {
   
 }
 
-downloads <- rbind(downloads, downloads_new_all)
+downloads <- rbind(downloads, downloads_new_all[,-which(names(downloads_new_all) %in%
+                                                          c("int_volts", "ext_volts",
+                                                            "Latitude", "Longitude"))])
 
 ## Check for hourly download gaps ##
 downloads$gapstart <- as.POSIXct(NA)
@@ -310,6 +315,7 @@ write.csv(detects, "detects_final.csv", row.names = F)
 #write.csv(detects_filtered, "detects_filtered.csv", row.names = F)
 write.csv(gaps, "download_gaps.csv", row.names = F)
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
+write.csv(latest, "latest_download.csv", row.names = F)
 
 
 
@@ -331,9 +337,13 @@ kable(gen_locs, align = "c")
 ## Most recent downloads
 ``` {r print most recent downloads, echo=FALSE, warning=FALSE}
 
-downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location", "general_location")]
-kable(downloads_new_all, row.names = F)
-
+if (nrow(downloads_new_all) < 0) {
+  downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location",
+                                            "general_location")]
+  kable(downloads_new_all, row.names = F)
+} else {
+  "No new downloads"
+}
 
 ````
 
