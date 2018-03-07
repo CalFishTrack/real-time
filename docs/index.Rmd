@@ -51,7 +51,19 @@ This work will have significant implications for understanding movement, distrib
 
 <br />
 
-## Study area
+## Detection Data
+
+For downloading detection data from the receiver array, visit out Shiny app:
+
+[CalFishTrack Shiny app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/)
+
+## Project Reports
+
+None currently available.
+
+<br />
+
+## Study Area
 
 <br />
 
