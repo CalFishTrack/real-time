@@ -53,7 +53,7 @@ detects <- read.csv("detects_final.csv", stringsAsFactors = F)
 detects$DateTime1 <- as.POSIXct(detects$DateTime1, format = "%Y-%m-%d %H:%M:%OS")
 
 ## Find all Teckno file names
-TECKNO_all_files <- as.data.frame(dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/Real-time data massaging/data", full.names = T))
+TECKNO_all_files <- as.data.frame(dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T))
 colnames(TECKNO_all_files) <- "x"
 TECKNO_all_files$x <- as.character(TECKNO_all_files$x)
 ## Select only newest TECKNO files for massaging
