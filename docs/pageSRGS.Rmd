@@ -28,7 +28,8 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 
 # *Sacramento River Green Sturgeon*
 
-## Project Status
+## Project Status 
+
 
 
 Project has begun, see tagging details below:
@@ -65,20 +66,31 @@ kable(release_stats)
 ```{r print table of fish detections, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-test <- read.csv("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = F)
+library(data.table)
+
+test <- fread("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = FALSE)
+
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
+
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Juv_Green_Sturgeon_2017",]
+study_count <- nrow(study_tagcodes)
+
 if (nrow(test) == 0){
   "No detections yet"
 } else {
-  tag_stats <- aggregate(list(First_arrival = test$Datetime), 
+  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+  tag_stats <- aggregate(list(First_arrival = test$DateTime_PST), 
                          by= list(general_location = test$general_location), FUN = min)
   tag_stats <- merge(tag_stats, 
                      aggregate(list(Fish_count = test$TagCode), 
-                         by= list(general_location = detects$general_location), 
+                         by= list(general_location = test$general_location), 
                          FUN = function(x) {length(unique(x))}), 
                      by = c("general_location"))
+  tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
   
   
-  kable(test)
+  kable(tag_stats)
 }
 
 ```
