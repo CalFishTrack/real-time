@@ -60,7 +60,54 @@ kable(release_stats)
 
 ## Real-time Fish Detections
 
-*Data current as of `r latest`*
+*Sacramento real-time receiver deployed 2018-02-01, data current as of `r latest`*
+
+<br/>
+
+#### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough ####
+
+```{r print figure of fish detections, echo = FALSE, message = FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+library(CDECRetrieve)
+
+detects_study <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = F)
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+
+tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
+tower_detects <- merge(tower_detects,aggregate(list(first_detect = tower_detects$DateTime_PST), by = list(TagCode= tower_detects$TagCode), FUN = min))
+
+starttime <- as.Date(min(tower_detects$first_detect)-60*60*24)
+endtime <- as.Date(min(c(Sys.time(), max(tower_detects$first_detect)+60*60*24)))
+wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
+wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+
+tower_detects$Day <- as.Date(tower_detects$first_detect)
+daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+
+
+tagcount <- aggregate(list(unique_tags = tower_detects$TagCode), by = list(Day = tower_detects$Day), FUN = function(x){length(unique(x))})
+
+daterange1 <- merge(daterange, tagcount, all.x=T)
+daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
+
+par(mar=c(6, 5, 4, 5) + 0.1)
+barp <- barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.5), las = 2, xlim=c(0,nrow(daterange2)+1.5), cex.lab = 1.5)
+
+par(new=T)
+
+plot(x = barp, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,nrow(daterange2)+1.5))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
+
+
+```
+
+<br/>
+
+#### Detections statistics at all realtime receivers ####
+
 
 ```{r print table of fish detections, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
