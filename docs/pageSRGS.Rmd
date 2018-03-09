@@ -69,6 +69,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(data.table)
 
 test <- fread("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = FALSE)
+gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
@@ -89,8 +90,11 @@ if (nrow(test) == 0){
                      by = c("general_location"))
   tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
   
+  tag_stats <- merge(tag_stats, unique(gen_locs[,c("general_location", "rkm")]))
   
-  kable(tag_stats)
+  tag_stats <- tag_stats[order(tag_stats$rkm, decreasing = T),]
+  
+  kable(tag_stats, row.names = F)
 }
 
 ```

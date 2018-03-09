@@ -279,7 +279,7 @@ latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
 ## Now that all data manipulations are complete, export detcts with milliseconds shown (this turns the class into character)
 detects$DateTime_PST <- format(detects$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
 
-
+write.csv(latest, "latest_download.csv", row.names = F)
 write.csv(downloads, "downloads.csv", row.names = F)
 fwrite(detects, "detects_final.csv", row.names = F)
 #write.csv(detects_filtered, "detects_filtered.csv", row.names = F)
