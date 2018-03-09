@@ -219,15 +219,15 @@ if (nrow(TECKNO_files) > 0) {
   colnames(detects_new) <- c("recv", "V2", "DateTime_Orig", "dec_seconds", "TagCode", "V6", "V7", "V8", "V9")
   detects_new <- detects_new[!detects_new$V2 == "N",]
   ## In this step, append datetime to milliseconds, but make sure the 6 decimal places are represented for all cases, even when there are trailering zeros
-  detects_new$DateTime_PST <- paste(detects_new$DateTime_Orig, substr(formatC(as.numeric(detects_new$dec_seconds),format='f', digits=6 ),2,8), sep = "")
+  detects_new$DateTime_Orig <- paste(detects_new$DateTime_Orig, substr(formatC(as.numeric(detects_new$dec_seconds),format='f', digits=6 ),2,8), sep = "")
   ## Make a POSIX class, note that TECKNO detections are in GMT, will need to convert to local time
-  detects_new$DateTime_PST <- as.POSIXct(detects_new$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
+  detects_new$DateTime_PST <- as.POSIXct(detects_new$DateTime_Orig, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
   attributes(detects_new$DateTime_PST)$tzone <- "Etc/GMT+8"
   
   #detects_new1 <- detects[0,]
   #detects_new1 <- bind_rows(detects_new1, detects_new[,c("recv", "TagCode", "DateTime_Orig", "DateTime_PST")])
   detects_new <- merge(detects_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")])
-  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "dec_seconds", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude")])
+  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm")])
 
 }
 
