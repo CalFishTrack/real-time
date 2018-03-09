@@ -28,6 +28,8 @@ htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"),
 
 # *Hatchery-origin winter-run Chinook salmon*
 
+<br/>
+
 ## Project Status
 
 
@@ -60,11 +62,12 @@ kable(release_stats)
 
 ## Real-time Fish Detections
 
-*Sacramento real-time receiver deployed 2018-02-01, data current as of `r latest`*
+*Sacramento real-time receivers deployed 2018-02-01, data current as of `r latest`*
 
 <br/>
-
-#### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough ####
+<center>
+#### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
+</center>
 
 ```{r print figure of fish detections, echo = FALSE, message = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
@@ -92,8 +95,10 @@ tagcount <- aggregate(list(unique_tags = tower_detects$TagCode), by = list(Day =
 daterange1 <- merge(daterange, tagcount, all.x=T)
 daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
 
-par(mar=c(6, 5, 4, 5) + 0.1)
-barp <- barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.5), las = 2, xlim=c(0,nrow(daterange2)+1.5), cex.lab = 1.5)
+par(mar=c(6, 5, 2, 5) + 0.1)
+barp <- barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.5), las = 2, xlim=c(0,nrow(daterange2)+1.5), cex.lab = 1.5, yaxt = "n")
+breaks <- if(max(daterange2$unique_tags, na.rm = T) < 4) {max(daterange2$unique_tags, na.rm = T)} else {5}
+axis(2, at = pretty(0:max(daterange2$unique_tags, na.rm = T), breaks))
 
 par(new=T)
 
@@ -105,9 +110,11 @@ mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
 ```
 
 <br/>
+<br/>
 
-#### Detections statistics at all realtime receivers ####
-
+<center>
+#### Detections statistics at all realtime receivers
+</center>
 
 ```{r print table of fish detections, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
