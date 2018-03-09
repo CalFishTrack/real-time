@@ -75,18 +75,18 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 
 detects_study <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = F)
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
 tower_detects <- merge(tower_detects,aggregate(list(first_detect = tower_detects$DateTime_PST), by = list(TagCode= tower_detects$TagCode), FUN = min))
 
-starttime <- as.Date(min(tower_detects$first_detect)-60*60*24)
-endtime <- as.Date(min(c(Sys.time(), max(tower_detects$first_detect)+60*60*24)))
+starttime <- as.Date(min(tower_detects$first_detect)-60*60*24, "Etc/GMT+8")
+endtime <- as.Date(c(Sys.time()))#, max(tower_detects$first_detect)+60*60*24)))
 wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
 wlk_flow$datetime <- as.Date(wlk_flow$datetime)
 wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
 
-tower_detects$Day <- as.Date(tower_detects$first_detect)
+tower_detects$Day <- as.Date(tower_detects$first_detect, "Etc/GMT+8")
 daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
 
 
@@ -96,9 +96,11 @@ daterange1 <- merge(daterange, tagcount, all.x=T)
 daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
 
 par(mar=c(6, 5, 2, 5) + 0.1)
-barp <- barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.5), las = 2, xlim=c(0,nrow(daterange2)+1.5), cex.lab = 1.5, yaxt = "n")
-breaks <- if(max(daterange2$unique_tags, na.rm = T) < 4) {max(daterange2$unique_tags, na.rm = T)} else {5}
-axis(2, at = pretty(0:max(daterange2$unique_tags, na.rm = T), breaks))
+barp <- barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.5), las = 2, xlim=c(0,nrow(daterange2)+1.5), cex.lab = 1.5, yaxt = "n", xaxt = "n")
+ybreaks <- if(max(daterange2$unique_tags, na.rm = T) < 4) {max(daterange2$unique_tags, na.rm = T)} else {5}
+xbreaks <- if(length(barp) > 10) {seq(1, length(barp), 2)} else {1:length(barp)}
+axis(1, at = barp[xbreaks], labels = daterange2[xbreaks,"Day"], las = 2)
+axis(2, at = pretty(0:max(daterange2$unique_tags, na.rm = T), ybreaks))
 
 par(new=T)
 

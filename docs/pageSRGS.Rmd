@@ -76,18 +76,18 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 
 detects_study <- read.csv("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = F)
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
 tower_detects <- merge(tower_detects,aggregate(list(first_detect = tower_detects$DateTime_PST), by = list(TagCode= tower_detects$TagCode), FUN = min))
 
-starttime <- as.Date(min(tower_detects$first_detect)-60*60*24)
+starttime <- as.Date(min(tower_detects$first_detect)-60*60*24, "Etc/GMT+8")
 endtime <- as.Date(c(Sys.time()))#, max(tower_detects$first_detect)+60*60*24)))
 wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
 wlk_flow$datetime <- as.Date(wlk_flow$datetime)
 wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
 
-tower_detects$Day <- as.Date(tower_detects$first_detect)
+tower_detects$Day <- as.Date(tower_detects$first_detect, "Etc/GMT+8")
 daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
 
 

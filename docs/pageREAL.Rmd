@@ -262,9 +262,9 @@ downloads$gapstart <- NULL
 downloads$gapend <- NULL
 
 
-#### As a preliminary cut to detection filter, here we say a tag has to have been detected twice throughout array ####
+#### As a preliminary cut to detection filter, here we say a tag has to have been detected three times throughout Sacramento array ####
 tags <- sort(table(detects$TagCode), decreasing = T)
-tags <- tags[tags>2]
+tags <- tags[tags>3]
 detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
 #### Now, subset for only tags known to be in the system, by studyID
 
