@@ -263,16 +263,33 @@ downloads$gapend <- NULL
 
 
 #### As a preliminary cut to detection filter, here we say a tag has to have been detected three times throughout Sacramento array ####
+
 tags <- sort(table(detects$TagCode), decreasing = T)
 tags <- tags[tags>3]
 detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
-#### Now, subset for only tags known to be in the system, by studyID
+detects_filtered <- detects_filtered[order(detects_filtered$general_location, detects_filtered$TagCode, detects_filtered$DateTime_PST),]
+
+#### Now, subset for only tags known to be in the system and with 2 or more detects per gen loc within 24 hours, by studyID
 
 for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
-  temp_detects<- detects_filtered[detects_filtered$TagCode %in% studycodes,]
-  write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  ## First, select only detections of correct tagcodes per study
+  temp_detects <- as.data.frame(detects_filtered[detects_filtered$TagCode %in% studycodes,])
+  if(nrow(temp_detects) > 0){
+    ## Now create two columns with time in hours between the previous and next detection, for each detection
+    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
+    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+    ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    ## Now pull out only tag detections that have another detection from the same tag at the same gen loc within 24 hours
+    temp_detects <- temp_detects[which(apply(temp_detects[,c("time_to_next", "time_from_previous")],1,FUN=min, na.rm = T) < 24),]
+    write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  }
 }
+
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
 
