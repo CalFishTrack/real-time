@@ -37,17 +37,17 @@ The San Francisco Bay-Delta is both the hub for the infrastructure for Californi
 
 This work will have significant implications for understanding movement, distribution, and survival of all four runs of Central Valley Chinook salmon. For more information on specific runs and our preliminary efforts in real-time tracking of these fish, click on a link below:
 
-[Hatchery-origin late-fall Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageCHLF.html)
+[Hatchery-origin late-fall Chinook salmon](https://calfishtrack.github.io/real-time/pageCHLF.html)
 
-[Natural-origin winter-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageSRWR.html)
+[Natural-origin winter-run Chinook salmon](https://calfishtrack.github.io/real-time/pageSRWR.html)
 
-[Hatchery-origin winter-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageLSWR.html)
+[Hatchery-origin winter-run Chinook salmon](https://calfishtrack.github.io/real-time/pageLSWR.html)
 
-[Natural-origin spring-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageSRSR.html)
+[Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageSRSR.html)
 
-[Hatchery-origin fall-run Chinook salmon](https://cyrilmichel.github.io/ds-repo/pageNHFR.html)
+[Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageNHFR.html)
 
-[Natural-origin green sturgeon](https://cyrilmichel.github.io/ds-repo/pageSRGS.html)
+[Natural-origin green sturgeon](https://calfishtrack.github.io/real-time/pageSRGS.html)
 
 <br />
 
@@ -83,4 +83,4 @@ None currently available.
 <br />
 
 For realtime tracking diagnostics, click here:
-[Real-time tracking diagnostics](pageREAL.html)
+[Real-time tracking diagnostics](https://calfishtrack.github.io/real-time/pageREAL.html)
