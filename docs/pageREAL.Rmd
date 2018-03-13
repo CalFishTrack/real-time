@@ -360,3 +360,56 @@ kable(corrupted_downloads, row.names = F)
 ```
 
 
+<br/>
+
+## Daily Detection Efficiency from Beacon Tags
+
+<br/>
+
+```{r print figures of detection efficiency, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
+
+library(ggplot2)
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
+
+detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS")
+
+
+detects$Day <- as.Date(detects$DateTime_PST, "Etc/GMT+8")
+detects <- as.data.frame(detects)
+detects$beacon <- NA
+detects[detects$recv == 157002, "beacon"] <- "FADA"
+detects[detects$recv == 157003, "beacon"] <- "F96A"
+detects[detects$recv == 157004, "beacon"] <- "FCAA"
+detects[detects$recv == 157005, "beacon"] <- "FA55"
+detects_beacon <- detects[detects$beacon==detects$TagCode,]
+
+daily_beacon <- aggregate(list(tag_count = detects_beacon$location), by = list(recv = detects_beacon$recv, day = detects_beacon$Day, tag = detects_beacon$TagCode), FUN = length)
+
+daily_beacon$expected_count <- 24*60
+daily_beacon$percent_detect <- daily_beacon$tag_count/daily_beacon$expected_count * 100
+
+Tower <- daily_beacon[daily_beacon$recv %in% c(157002,157004),]
+I80 <- daily_beacon[daily_beacon$recv %in% c(157003,157005),]
+
+ggplot(Tower, aes(day, percent_detect, fill = factor(recv))) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1") +
+  xlab("Date") +
+  ylab("% received beacon transmissions") +
+  labs(fill='Receiver') +
+  ggtitle("Tower Bridge Receiver Detection Efficiency")
+
+ggplot(I80, aes(day, percent_detect, fill = factor(recv))) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1") +
+  xlab("Date") +
+  ylab("% received beacon transmissions") +
+  labs(fill='Receiver') +
+  ggtitle("I80 Bridge Receiver Detection Efficiency")
+
+```
+
+
