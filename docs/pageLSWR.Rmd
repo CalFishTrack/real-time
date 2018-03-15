@@ -12,6 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
+library(kableExtra)
 ```
 
 ```{r logos, echo=FALSE}
@@ -53,7 +54,8 @@ release_stats <- merge(release_stats,
                            FUN = function(x) {head(x,1)}),
                        by = c("Release_time"))
 
-kable(release_stats)
+kable(release_stats, "html") %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
                        
 
 ```
@@ -148,7 +150,9 @@ mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
 #### Detections statistics at all realtime receivers
 </center>
 
-```{r print table of fish detections, echo = FALSE, message = FALSE}
+<br/>
+
+```{r print table of fish detections, echo = FALSE, message = FALSE, results= "asis"}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(data.table)
@@ -161,6 +165,8 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz
 
 study_tagcodes <- tagcodes[tagcodes$StudyID == "Winter_H_2018",]
 study_count <- nrow(study_tagcodes)
+
+test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
 
 if (nrow(test) == 0){
   "No detections yet"
@@ -179,7 +185,45 @@ if (nrow(test) == 0){
   
   tag_stats <- tag_stats[order(tag_stats$rkm, decreasing = T),]
   
-  kable(tag_stats, row.names = F)
+  print(kable(tag_stats, row.names = F, 
+              caption = "Detections for all release groups combined",
+              "html") %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+    
+  for (j in as.character(unique(study_tagcodes$RelDT))) {
+    
+    if(nrow(test[test$RelDT == j,]) > 0 ) {
+    
+      temp <- test[test$RelDT == j,]
+  
+      rel_count <- nrow(study_tagcodes[study_tagcodes$RelDT == j,])
+  
+      tag_stats1 <- aggregate(list(First_arrival = temp$DateTime_PST), 
+                             by= list(general_location = temp$general_location), 
+                             FUN = min)
+      tag_stats1 <- merge(tag_stats1, 
+                         aggregate(list(Fish_count = temp$TagCode), 
+                                   by= list(general_location = temp$general_location), 
+                                   FUN = function(x) {length(unique(x))}), 
+                         by = c("general_location"))
+      
+      tag_stats1$Percent_arrived <- round(tag_stats1$Fish_count/rel_count * 100,2)
+    
+      tag_stats1 <- merge(tag_stats1, unique(gen_locs[,c("general_location", "rkm")]))
+    
+      tag_stats1 <- tag_stats1[order(tag_stats1$rkm, decreasing = T),]
+    
+      print(kable(tag_stats1, row.names = F, 
+            caption = paste("Detections for",as.character(j),"release group", sep = " "),
+            "html") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+      
+    } else {
+      cat("\n\n\\pagebreak\n")
+      print(paste("No detections for release group",j,"yet", sep=" "), quote = F)
+    
+    }
+  }
 }
 
 ```
