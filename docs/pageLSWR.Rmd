@@ -213,10 +213,10 @@ if (nrow(test) == 0){
     
       tag_stats1 <- tag_stats1[order(tag_stats1$rkm, decreasing = T),]
     
-      print(kable(tag_stats1, row.names = F, 
+      final_stats <- kable(tag_stats1, row.names = F, 
             caption = paste("Detections for",as.character(j),"release group", sep = " "),
-            "html") %>%
-          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+            "html")
+      print(kable_styling(final_stats, bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
       
     } else {
       cat("\n\n\\pagebreak\n")

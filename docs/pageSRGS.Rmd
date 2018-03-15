@@ -12,6 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
+library(kableExtra)
 ```
 
 ```{r logos, echo=FALSE}
@@ -54,7 +55,8 @@ release_stats <- merge(release_stats,
                            FUN = function(x) {head(x,1)}),
                        by = c("Release_time"))
 
-kable(release_stats)
+kable(release_stats, "html") %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
                        
 
 ```
@@ -152,7 +154,8 @@ if (nrow(test) == 0){
   
   tag_stats <- tag_stats[order(tag_stats$rkm, decreasing = T),]
   
-  kable(tag_stats, row.names = F)
+  kable(tag_stats, row.names = F, "html") %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }
 
 ```
