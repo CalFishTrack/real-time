@@ -411,5 +411,31 @@ ggplot(I80, aes(day, percent_detect, fill = factor(recv))) +
   ggtitle("I80 Bridge Receiver Detection Efficiency")
 
 ```
+<br/>
+
+## Fish Arrivals per Surgeon
+
+<br/>
+
+
+```{r see winter run counts per tagger, echo=FALSE}
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+detects <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = FALSE)
+tagging <- read.csv("Tagged_Fish_Metadata.txt", stringsAsFactors = F)
+tagging <- tagging[tagging$StudyID == "Winter_H_2018",]
+
+detects_tagger <- merge(detects, tagging[,c("TagID_Hex","Surgeon")], by.x = "TagCode", by.y = "TagID_Hex")
+
+arrivals <- as.data.frame(table(detects_tagger[!duplicated(detects_tagger$TagCode),"Surgeon"]))
+
+colnames(arrivals) <- c("Surgeon", "Unique_Fish_Arrivals")
+arrivals$total_tagged <- 200
+arrivals$percent_arrivals <- round(arrivals$Unique_Fish_Arrivals/arrivals$total_tagged * 100,2)
+
+kable(arrivals)
+
+```
 
 
