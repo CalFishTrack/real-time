@@ -172,8 +172,9 @@ if (nrow(TECKNO_files) > 0) {
       test1 <- tail(test[nchar(test$V5) > 4,],1)
       hour <- test1$V3
       recv <- test1$V1
-      sun_volts <- test[1,"V17"]
-      bat_volts <- test[1,"V18"]
+      ## Get volts, sometimes in row 1 or 2
+      sun_volts <- max(test[1:2,"V17"])
+      bat_volts <- max(test[1:2,"V18"])
       downloads_new <- rbind(downloads_new, cbind(recv, hour, sun_volts, bat_volts))
     }
   }
@@ -422,11 +423,12 @@ ggplot(I80, aes(day, percent_detect, fill = factor(recv))) +
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
+
 detects <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = FALSE)
 tagging <- read.csv("Tagged_Fish_Metadata.txt", stringsAsFactors = F)
 tagging <- tagging[tagging$StudyID == "Winter_H_2018",]
 
-detects_tagger <- merge(detects, tagging[,c("TagID_Hex","Surgeon")], by.x = "TagCode", by.y = "TagID_Hex")
+detects_tagger <- merge(detects, tagging[,c("TagID_Hex","Surgeon", "Rel_group")], by.x = "TagCode", by.y = "TagID_Hex")
 
 arrivals <- as.data.frame(table(detects_tagger[!duplicated(detects_tagger$TagCode),"Surgeon"]))
 
@@ -435,6 +437,7 @@ arrivals$total_tagged <- 200
 arrivals$percent_arrivals <- round(arrivals$Unique_Fish_Arrivals/arrivals$total_tagged * 100,2)
 
 kable(arrivals)
+
 
 ```
 
