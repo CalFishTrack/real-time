@@ -232,6 +232,8 @@ if (nrow(test) == 0){
 
 }
 
+cleanup(ask = F)
+
 ```    
 
 <br/>
