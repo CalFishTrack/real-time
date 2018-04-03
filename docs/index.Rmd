@@ -53,9 +53,19 @@ This work will have significant implications for understanding movement, distrib
 
 ## Detection Data
 
-For downloading detection data from the receiver array, visit out Shiny app:
+For downloading detection data from the receiver array, visit our Shiny app:
 
 [CalFishTrack Shiny app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/)
+
+<br />
+
+## Receiver deployments
+
+For more information on where and when receivers are deployed, visit our receiver deployment page:
+
+[Receiver Deployments](https://calfishtrack.github.io/real-time/pageDEPLOY.html)
+
+<br />
 
 ## Project Reports
 
