@@ -7,12 +7,19 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
 library(kableExtra)
+#library(xtable)
+#library(prettydoc)
+
+
 ```
 
 ```{r logos, echo=FALSE}
@@ -54,7 +61,7 @@ release_stats <- merge(release_stats,
                            FUN = function(x) {head(x,1)}),
                        by = c("Release_time"))
 
-kable(release_stats, "html") %>%
+kable(release_stats, format = "html") %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
                        
 
