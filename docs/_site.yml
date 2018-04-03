@@ -10,6 +10,6 @@ navbar:
     - text: "Hatchery Late-fall-run"
       href: pageCHLF.html
     - text: "Wild green sturgeon"
-      href: pageCHLF.html
+      href: pageSRGS.html
     - text: "Receiver Deployments"
       href: pageDEPLOY.html
