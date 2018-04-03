@@ -1,0 +1,15 @@
+name:  Central Valley Enhanced Acoustic Tagging Project
+output_dir: "."
+navbar:
+  title: ""
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Hatchery Winter-run"
+      href: pageLSWR.html
+    - text: "Hatchery Late-fall-run"
+      href: pageCHLF.html
+    - text: "Wild green sturgeon"
+      href: pageCHLF.html
+    - text: "Receiver Deployments"
+      href: pageDEPLOY.html
