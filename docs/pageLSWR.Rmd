@@ -146,13 +146,96 @@ mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
 <br/>
 <br/>
 
+</center>
+#### Minimum survival to Tower Bridge (using CJS survival model)
+</center>
+
+<br/>
+
+```{r print table of survival, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+library(data.table)
+library(RMark)
+
+test <- fread("detects_Winter_H_2018.csv", stringsAsFactors = FALSE)
+gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
+
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Winter_H_2018",]
+study_count <- nrow(study_tagcodes)
+
+test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
+
+if (nrow(test) == 0){
+  "No detections yet"
+} else {
+  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+  
+  ## Create inp for survival estimation
+  
+  inp <- as.data.frame(dcast(test, TagCode ~ rkm, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  # Count number of genlocs
+  gen_loc_sites <- ncol(inp)-1
+  
+  inp <- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+  WR_tagcodes <- tagcodes[tagcodes$StudyID == "Winter_H_2018",]
+  inp <- merge(WR_tagcodes, inp, by.x = "TagID_Hex", by.y = "TagCode", all.x = T)
+  
+  inp2 <- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+  inp2[is.na(inp2)] <- 0
+  inp2[inp2 > 0] <- 1
+  
+  inp <- cbind(inp, inp2)
+  groups <- as.character(unique(inp$RelDT))
+
+  inp[,groups] <- 0
+  for (i in groups) {
+    inp[as.character(inp$RelDT) == i, i] <- 1
+  }
+  
+  inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
+  
+  
+  write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+  
+  WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
+  
+  WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+  
+  WR.ddl <- make.design.data(WR.process)
+  
+  WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+  
+  WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+  
+  WR.surv <- round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1)
+  WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
+  
+  WR.surv <- cbind(c("ALL", groups), WR.surv)
+  
+  colnames(WR.surv) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.")
+  
+  print(kable(WR.surv, row.names = F, "html") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+
+}
+
+```    
+
+<br/>
+
 <center>
 #### Detections statistics at all realtime receivers
 </center>
 
 <br/>
 
-```{r print table of fish detections, echo = FALSE, message = FALSE, results= "asis"}
+```{r print tables of fish detections, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(data.table)
@@ -173,14 +256,20 @@ if (nrow(test) == 0){
 } else {
   test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
   tag_stats <- aggregate(list(First_arrival = test$DateTime_PST), 
-                         by= list(general_location = test$general_location), FUN = min)
+                         by= list(general_location = test$general_location),
+                         FUN = min)
+  tag_stats <- merge(tag_stats, 
+                     aggregate(list(Mean_arrival = test$DateTime_PST), 
+                         by= list(general_location = test$general_location),
+                         FUN = mean), 
+                     by = c("general_location"))
   tag_stats <- merge(tag_stats, 
                      aggregate(list(Fish_count = test$TagCode), 
                          by= list(general_location = test$general_location), 
                          FUN = function(x) {length(unique(x))}), 
                      by = c("general_location"))
   tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
-  
+      
   tag_stats <- merge(tag_stats, unique(gen_locs[,c("general_location", "rkm")]))
   
   tag_stats <- tag_stats[order(tag_stats$rkm, decreasing = T),]
@@ -188,8 +277,8 @@ if (nrow(test) == 0){
   print(kable(tag_stats, row.names = F, 
               caption = "Detections for all release groups combined",
               "html") %>%
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
-    
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+  
   for (j in unique(study_tagcodes$RelDT)) {
     
     if(nrow(test[test$RelDT == j,]) > 0 ) {
@@ -201,6 +290,11 @@ if (nrow(test) == 0){
       tag_stats1 <- aggregate(list(First_arrival = temp$DateTime_PST), 
                              by= list(general_location = temp$general_location), 
                              FUN = min)
+      tag_stats1 <- merge(tag_stats1, 
+                         aggregate(list(Mean_arrival = temp$DateTime_PST), 
+                             by= list(general_location = temp$general_location), 
+                             FUN = mean), 
+                         by = c("general_location"))
       tag_stats1 <- merge(tag_stats1, 
                          aggregate(list(Fish_count = temp$TagCode), 
                                    by= list(general_location = temp$general_location), 
