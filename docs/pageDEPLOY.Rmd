@@ -1,0 +1,62 @@
+---
+title: |
+  | Central Valley Enhanced
+  | Acoustic Tagging Project
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+library(DT)
+#library(xtable)
+#library(prettydoc)
+
+
+```
+
+```{r logos, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/NOAA logo.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0px; right:0px; width:100px;')
+htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:110px; width:200px;')
+```
+
+<br/>
+
+
+# *Receiver Deployments*
+
+<br/>
+
+
+
+
+Completed and active JSATS receiver deployments since 9/1/2017:
+```{r print table with deployment data, echo = FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+deploy <- read.csv("Deployment_Table.csv")
+
+datatable(deploy)
+
+tot_deploy <- sum(deploy$Number.of.receivers)
+tot_active <- sum(deploy[deploy$End == "active", "Number.of.receivers"])
+
+```
+
+<br/>
+
+**Total deployed individual receivers: `r tot_deploy`**
+
+**Total active individual receivers: `r tot_active`**
