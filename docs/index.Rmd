@@ -79,13 +79,13 @@ None currently available.
 
 
 #### Map of receiver and release locations in the Central Valley
-![](..real-time/data/JSATS_Full.png)
+![](C:/Users/Trailer/Desktop/Real-time data massaging/real-time/data/JSATS_Full.png)
 
 <br />
 
 #### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
 
-![](..real-time/data/JSATS_Delta.png)
+![](C:/Users/Trailer/Desktop/Real-time data massaging/real-time/data/JSATS_Delta.png)
 
 <br />
 <br />
