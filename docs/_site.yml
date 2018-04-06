@@ -9,6 +9,8 @@ navbar:
     href: pageLSWR.html
   - text: Hatchery Late-fall-run
     href: pageCHLF.html
+  - text: Wild Spring-run
+    href: pageBCSR.html
   - text: Wild green sturgeon
     href: pageSRGS.html
   - text: Receiver Deployments

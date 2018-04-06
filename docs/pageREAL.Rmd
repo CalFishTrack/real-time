@@ -324,8 +324,8 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
     ## Now pull out only tag detections that have another detection from the same tag at the same gen loc within 24 hours
     temp_detects <- temp_detects[which(apply(temp_detects[,c("time_to_next", "time_from_previous")],1,FUN=min, na.rm = T) < 24),]
-    write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
   }
+    write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
 
@@ -424,9 +424,25 @@ detects[detects$recv == 157004, "beacon"] <- "FCAA"
 detects[detects$recv == 157005, "beacon"] <- "FA55"
 detects_beacon <- detects[detects$beacon==detects$TagCode,]
 
-daily_beacon <- aggregate(list(tag_count = detects_beacon$location), by = list(recv = detects_beacon$recv, day = detects_beacon$Day, tag = detects_beacon$TagCode), FUN = length)
+## Remove multipaths
+detects_beacon_no_mp <- NULL
 
-daily_beacon$expected_count <- 24*60
+for (i in c("FADA", "F96A", "FCAA", "FA55")){
+  temp <- detects_beacon[detects_beacon$TagCode == i,]
+  temp <- temp[order(temp$DateTime_PST),]
+  temp$diff <- shift(temp$DateTime_PST, n=1, fill=NA, type="lag")
+  temp$difftime <- difftime(temp$DateTime_PST, temp$diff, units = "secs")
+  temp_final <- temp[temp$difftime > 1,]
+  detects_beacon_no_mp <- rbind(detects_beacon_no_mp, temp_final)
+}
+
+daily_beacon <- aggregate(list(tag_count = detects_beacon_no_mp$location), by = list(recv = detects_beacon_no_mp$recv, day = detects_beacon_no_mp$Day, tag = detects_beacon_no_mp$TagCode), FUN = length)
+
+daily_beacon[daily_beacon$tag == "FADA","expected_count"] <- 24*60*(60/62.4)
+daily_beacon[daily_beacon$tag == "F96A","expected_count"] <- 24*60*(60/62.2)
+daily_beacon[daily_beacon$tag == "FCAA","expected_count"] <- 24*60*(60/62.5)
+daily_beacon[daily_beacon$tag == "FA55","expected_count"] <- 24*60*(60/64)
+
 daily_beacon$percent_detect <- daily_beacon$tag_count/daily_beacon$expected_count * 100
 
 Tower <- daily_beacon[daily_beacon$recv %in% c(157002,157004),]
@@ -437,6 +453,7 @@ ggplot(Tower, aes(day, percent_detect, fill = factor(recv))) +
   scale_fill_brewer(palette = "Set1") +
   xlab("Date") +
   ylab("% received beacon transmissions") +
+  scale_y_continuous(limits = c(0,100)) +
   labs(fill='Receiver') +
   ggtitle("Tower Bridge Receiver Detection Efficiency")
 
@@ -445,6 +462,7 @@ ggplot(I80, aes(day, percent_detect, fill = factor(recv))) +
   scale_fill_brewer(palette = "Set1") +
   xlab("Date") +
   ylab("% received beacon transmissions") +
+  scale_y_continuous(limits = c(0,100)) +
   labs(fill='Receiver') +
   ggtitle("I80 Bridge Receiver Detection Efficiency")
 
