@@ -39,13 +39,9 @@ This work will have significant implications for understanding movement, distrib
 
 [Hatchery-origin late-fall Chinook salmon](https://calfishtrack.github.io/real-time/pageCHLF.html)
 
-[Natural-origin winter-run Chinook salmon](https://calfishtrack.github.io/real-time/pageSRWR.html)
-
 [Hatchery-origin winter-run Chinook salmon](https://calfishtrack.github.io/real-time/pageLSWR.html)
 
-[Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageSRSR.html)
-
-[Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageNHFR.html)
+[Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageBCSR.html)
 
 [Natural-origin green sturgeon](https://calfishtrack.github.io/real-time/pageSRGS.html)
 
@@ -79,13 +75,22 @@ None currently available.
 
 
 #### Map of receiver and release locations in the Central Valley
-![](C:/Users/Trailer/Desktop/Real-time data massaging/real-time/data/JSATS_Full.png)
+
+```{r map 1, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/JSATS_Full.png"))#, 
+               #alt = 'logo', 
+               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+```
 
 <br />
 
 #### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
 
-![](C:/Users/Trailer/Desktop/Real-time data massaging/real-time/data/JSATS_Delta.png)
+```{r map 2, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/JSATS_Delta.png"))#, 
+               #alt = 'logo', 
+               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+```
 
 <br />
 <br />
