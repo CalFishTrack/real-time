@@ -322,8 +322,8 @@ if (nrow(test) == 0){
       
     } else {
       cat("\n\n\\pagebreak\n")
-      print(paste("No detections for release group",j,"yet", sep=" "), quote = F)
-    
+      print(paste("No detections for release group",as.POSIXct(j, origin = "1970-01-01", tz = "Etc/GMT+8"),"yet", sep=" "), quote = F)
+      cat("\n\n\\pagebreak\n")   
     }
   }
 }

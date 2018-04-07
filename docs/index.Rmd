@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 ```
 
-```{r logos, echo=FALSE, cache=TRUE}
+```{r logos, echo=FALSE}
 htmltools::img(src = knitr::image_uri("../data/logos.png"), 
                alt = 'logo', 
                style = 'position:absolute; top:20px; right:0px; width:300px;')
@@ -67,6 +67,7 @@ For downloading detection data from the receiver array, visit our ERDDAP page:
 ## SHINY app
 
 For viewing fish survival and movement simulations based on current conditions, visit out SHINY app:
+
 [CalFishTrack SHINY app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack)
 
 <br />
@@ -84,7 +85,7 @@ None currently available.
 
 #### Map of receiver and release locations in the Central Valley
 
-```{r map 1, echo=FALSE, cache=TRUE}
+```{r map 1, echo=FALSE}
 htmltools::img(src = knitr::image_uri("../data/JSATS_Full.png"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
@@ -94,7 +95,7 @@ htmltools::img(src = knitr::image_uri("../data/JSATS_Full.png"))#,
 
 #### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
 
-```{r map 2, echo=FALSE, cache=TRUE}
+```{r map 2, echo=FALSE}
 htmltools::img(src = knitr::image_uri("../data/JSATS_Delta.png"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
