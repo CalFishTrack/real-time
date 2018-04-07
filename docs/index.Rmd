@@ -13,13 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 ```
 
-```{r logos, echo=FALSE}
-htmltools::img(src = knitr::image_uri("../data/NOAA logo.jpg"), 
+```{r logos, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/logos.png"), 
                alt = 'logo', 
-               style = 'position:absolute; top:0px; right:0px; width:100px;')
-htmltools::img(src = knitr::image_uri("../data/BureauOfReclamation.png"), 
-               alt = 'logo', 
-               style = 'position:absolute; top:10px; right:110px; width:200px;')
+               style = 'position:absolute; top:20px; right:0px; width:300px;')
+
 ```
 
 <br/>
@@ -43,15 +41,9 @@ This work will have significant implications for understanding movement, distrib
 
 [Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageBCSR.html)
 
+[Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageNHFR.html)
+
 [Natural-origin green sturgeon](https://calfishtrack.github.io/real-time/pageSRGS.html)
-
-<br />
-
-## Detection Data
-
-For downloading detection data from the receiver array, visit our Shiny app:
-
-[CalFishTrack Shiny app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/)
 
 <br />
 
@@ -60,6 +52,22 @@ For downloading detection data from the receiver array, visit our Shiny app:
 For more information on where and when receivers are deployed, visit our receiver deployment page:
 
 [Receiver Deployments](https://calfishtrack.github.io/real-time/pageDEPLOY.html)
+
+<br />
+
+
+## Detection Data
+
+For downloading detection data from the receiver array, visit our ERDDAP page:
+
+[CalFishTrack ERDDAP page](http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset)
+
+<br />
+
+## SHINY app
+
+For viewing fish survival and movement simulations based on current conditions, visit out SHINY app:
+[CalFishTrack SHINY app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack)
 
 <br />
 
@@ -76,7 +84,7 @@ None currently available.
 
 #### Map of receiver and release locations in the Central Valley
 
-```{r map 1, echo=FALSE}
+```{r map 1, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/JSATS_Full.png"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
@@ -86,7 +94,7 @@ htmltools::img(src = knitr::image_uri("../data/JSATS_Full.png"))#,
 
 #### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
 
-```{r map 2, echo=FALSE}
+```{r map 2, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/JSATS_Delta.png"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')

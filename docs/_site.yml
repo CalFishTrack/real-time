@@ -5,16 +5,24 @@ navbar:
   left:
   - text: Home
     href: index.html
-  - text: Hatchery Winter-run
-    href: pageLSWR.html
-  - text: Hatchery Late-fall-run
-    href: pageCHLF.html
-  - text: Wild Spring-run
-    href: pageBCSR.html
-  - text: Wild green sturgeon
-    href: pageSRGS.html
+  - text: Study Populations
+    menu:
+    - text: Hatchery late-fall-run salmon
+      href: pageCHLF.html
+    - text: Hatchery winter-run salmon
+      href: pageLSWR.html
+    - text: Wild spring-run salmon
+      href: pageBCSR.html
+    - text: Hatchery fall-run salmon
+      href: pageNHFR.html
+    - text: Wild green sturgeon
+      href: pageSRGS.html
   - text: Receiver Deployments
     href: pageDEPLOY.html
+  - text: Download data
+    href: http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset
+  - text: SHINY app
+    href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
 output:
   html_document:
     lib_dir: site_libs
