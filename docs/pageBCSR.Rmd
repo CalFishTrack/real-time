@@ -202,7 +202,7 @@ if (nrow(test) == 0){
   inp2[inp2 > 0] <- 1
   
   inp <- cbind(inp, inp2)
-  groups <- as.character(unique(inp$RelDT))
+  groups <- as.character(sort(unique(inp$RelDT)))
 
   inp[,groups] <- 0
   for (i in groups) {
