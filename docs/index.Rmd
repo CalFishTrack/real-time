@@ -16,7 +16,7 @@ library(tidyr)
 ```{r logos, echo=FALSE}
 htmltools::img(src = knitr::image_uri("../data/logos.png"), 
                alt = 'logo', 
-               style = 'position:absolute; top:20px; right:0px; width:300px;')
+               style = 'position:absolute; top:20px; right:0px; width:250px;')
 
 ```
 
