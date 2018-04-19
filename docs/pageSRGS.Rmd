@@ -15,7 +15,7 @@ library(knitr)
 library(kableExtra)
 ```
 
-```{r logos, echo=FALSE}
+```{r logos, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/logos.png"), 
                alt = 'logo', 
                style = 'position:absolute; top:10px; right:0px; width:200px;')
@@ -26,7 +26,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.png"),
 <br/>
 <br/>
 
-```{r spring run pic, echo=FALSE}
+```{r spring run pic, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/Juvenile_Green_Sturgeon_crop.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
