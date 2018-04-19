@@ -1,0 +1,12 @@
+base
+rmarkdown
+git2r
+tidyr
+knitr
+dplyr
+data.table
+ggplot2
+kableExtra
+CDECRetrieve
+reshape2
+RMark
