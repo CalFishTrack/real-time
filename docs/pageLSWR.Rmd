@@ -29,6 +29,16 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 ```
 
 <br/>
+<br/>
+
+```{r winter run pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/shasta.jpeg"))#, 
+               #alt = 'logo', 
+               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+```
+<br/>
+<br/>
+
 
 
 # *Hatchery-origin winter-run Chinook salmon*

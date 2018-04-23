@@ -69,6 +69,8 @@ ATS_all_files$x <- as.character(ATS_all_files$x)
 ## Select only newest ATS files for massaging
 ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,])
 #ATS_files <- data.frame()
+colnames(ATS_files) <- "x"
+ATS_files$x <- as.character(ATS_files$x)
 ## Load CSt timezone file list
 CST_files <- read.csv("receiver_files_with_CST_timezones.csv", colClasses = "character")
 
