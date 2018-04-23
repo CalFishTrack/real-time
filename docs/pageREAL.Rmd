@@ -35,7 +35,7 @@ library(data.table)
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-#ATS_processed_files <- read.csv("ATS_processed_files.csv", stringsAsFactors = F)
+ATS_processed_files <- read.csv("ATS_processed_files.csv", stringsAsFactors = F)
 TECKNO_processed_files <- read.csv("TECKNO_processed_files.csv", stringsAsFactors = F)
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 gen_locs$recv <- as.character(gen_locs$recv)
@@ -50,8 +50,8 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
 detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
 
-detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ")
-detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS")
+detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS", tz = "Etc/GMT+8")
+detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS", tz = "Etc/GMT+8")
 
 ## Find all Teckno file names
 TECKNO_all_files <- as.data.frame(dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T))
@@ -63,12 +63,14 @@ colnames(TECKNO_files) <- "x"
 TECKNO_files$x <- as.character(TECKNO_files$x)
 
 ## Find all ATS file names
-#ATS_all_files <- as.data.frame(dir(pattern = "*.csv", path = dirs, full.names = T))
-#colnames(ATS_all_files) <- "x"
-#ATS_all_files$x <- as.character(ATS_all_files$x)
+ATS_all_files <- as.data.frame(dir(pattern = "*.csv", path = dirs, full.names = T))
+colnames(ATS_all_files) <- "x"
+ATS_all_files$x <- as.character(ATS_all_files$x)
 ## Select only newest ATS files for massaging
-#ATS_files <- ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,]
-ATS_files <- data.frame()
+ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,])
+#ATS_files <- data.frame()
+## Load CSt timezone file list
+CST_files <- read.csv("receiver_files_with_CST_timezones.csv", colClasses = "character")
 
 #### Data massage ATS files first ####
 
@@ -93,11 +95,14 @@ if (nrow(ATS_files) > 0) {
   downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
   downloads_new$end <- downloads_new$start +(60*60)
   downloads_new <-  merge(downloads_new, gen_locs,  by = "recv")
-
+  ## Add dummy columns to match the ones from Tecknos that actually carry data
+  downloads_new$sun_volts <- NA
+  downloads_new$bat_volts <- NA
+  
   downloads_new_all <- rbind(downloads_new_all, downloads_new)
   
   detects_temp <- data.frame()
-
+  
   corrupted_downloads_new <- NULL
   for (i in 1:nrow(ATS_files)) {
     if (substr(read.csv(ATS_files[i,], nrows = 1, header = F)[,1] , 1,4) == "Site") {
@@ -111,23 +116,43 @@ if (nrow(ATS_files) > 0) {
     end1 <- head(grep("--", test$Internal),1)
     end2 <- head(grep("File End", test$Internal),1)
     end_final <- head(grep(".-- Done", test$Internal),1)
-  
+    
     if (length(end_final) == 0) {
       corrupted_downloads_new <- rbind(corrupted_downloads_new, ATS_files[i,])
     }else{
       test1 <- test[-c(end_final:nrow(test)),]
       test2 <- test1[!test1$TagCode == "",]
       test3 <- test2[!test2$TagCode == " TagCode",]
-      detects_temp <- rbind(detects_temp, test3)
+      
+      test4 <- test3[!test3$TagCode == " GPS Fix  ",]
+      
+      names(test4)[names(test4) == 'DateTime'] <- 'DateTime_Orig'
+      
+      test4$DateTime_Orig <- as.POSIXct(test4$DateTime_Orig, format = "%m/%d/%Y %H:%M:%OS", tz = "Etc/GMT+8")
+      
+      test4$DateTime_PST <- test4$DateTime_Orig
+      
+      ## Now change DateTime_PST to PST, but this is tricky because for some, orig time is in CST
+      
+      if(ATS_files[i,] %in% CST_files$Filenames | unique(test4$recv) %in% c("17131","18007")) {
+        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+10"
+      }else{
+        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
+      }
+      
+      ## change Datetime_Orig with milliseconds shown (this turns the class into character)
+      test4$DateTime_Orig <- format(test4$DateTime_Orig, "%Y-%m-%d %H:%M:%OS6")
+      
+      detects_temp <- rbind(detects_temp, test4)
     }
   }
-
+  
   shortname <- regexpr(corrupted_downloads_new, pattern = "Data")[1]
   incomplete_shortname <- substr(corrupted_downloads_new, shortname+5, nchar(corrupted_downloads_new))
   corrupted <- strsplit(incomplete_shortname, "/")
   corrupted2 <- unlist(lapply(corrupted, tail, 1))
   corrupted_downloads <- rbind(corrupted_downloads,corrupted2)
-
+  
   #locs <- detects_new[detects_new$TagCode == " GPS Fix  ",]
   #N <- unlist(gregexpr(pattern ='N',locs$Internal))
   #locs$lat <- as.numeric(substr(locs$Internal, start = 1, stop = N-1))
@@ -137,28 +162,20 @@ if (nrow(ATS_files) > 0) {
   
   #coords <- unique(locs[,c("recv", "lat", "lon")])
   
-  detects_temp <- detects_temp[!detects_temp$TagCode == " GPS Fix  ",]
-  
-  names(detects_temp)[names(detects_temp) == 'DateTime'] <- 'DateTime_Orig'
-  
-  detects_temp$DateTime_Orig <- as.POSIXct(detects_temp$DateTime_Orig, format = "%m/%d/%Y %H:%M:%OS", tz = "Etc/GMT+8")
-  
-  #attributes(detects_temp$DateTime_PST)$tzone <- "Etc/GMT+8"
-  
-  detects_temp$DateTime_PST <- detects_temp$DateTime_Orig
-  
-  ## change Datetime_Orig with milliseconds shown (this turns the class into character)
-  detects_temp$DateTime_Orig <- format(detects_temp$Orig, "%Y-%m-%d %H:%M:%OS6")
-  
   ## Now remove prefix and suffix of TagCode
   detects_temp$TagCode <- substr(detects_temp$TagCode, start = 5, stop = 8)
- 
-   
+  
+  ## Remove "ffff" detections
+  detects_temp <- detects_temp[!detects_temp$TagCode == "ffff",]
+  
+  ## Merge in location data
+  detects_temp <- merge(detects_temp, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")])
+  
   ## Here, put only non-beacon detections in detection file
   detects_new <- detects_temp[!detects_temp$TagCode %in% c("FA54", "75D3", "FA96"),]
   ## And put beacon detections into seperate file
   detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c("FA54", "75D3", "FA96"),]
-
+  
   #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
   
   #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
@@ -193,20 +210,20 @@ if (nrow(TECKNO_files) > 0) {
       downloads_new <- rbind(downloads_new, cbind(recv, hour, sun_volts, bat_volts))
     }
   }
-
+  
   downloads_new$end <- as.POSIXct(downloads_new$hour, tz = "GMT")
   downloads_new$start <- downloads_new$end -(60*60)
   downloads_new <-  merge(downloads_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv")
-
+  
   
   ## Now change all times to PST to match ATS receivers
   attributes(downloads_new$start)$tzone <- "Etc/GMT+8"
   attributes(downloads_new$end)$tzone <- "Etc/GMT+8"
-
+  
   downloads_new_all <- rbind(downloads_new_all, downloads_new)
-
+  
   detects_temp <- data.frame()
-
+  
   ## Put in progress bar
   #pb <- txtProgressBar(min = 0, max = nrow(TECKNO_files), style = 3)
   
@@ -225,7 +242,7 @@ if (nrow(TECKNO_files) > 0) {
         test <- read.csv(TECKNO_files[i,], skip = start-1, header = F, stringsAsFactors = F )
         test1 <- test[nchar(test$V5)==4,]
         detects_temp <- rbind(detects_temp, test1[,1:9])
-      
+        
       }    
     }
     #setTxtProgressBar(pb, i)
@@ -254,7 +271,7 @@ if (nrow(TECKNO_files) > 0) {
   ## Now append these to existing datasets
   detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm", "Temp")])
   detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm", "Temp")])
-
+  
 }
 
 downloads <- rbind(downloads, downloads_new_all)
@@ -302,11 +319,11 @@ res <- aggregate(detects_beacon$TagCode,
 colnames(res) <- c("recv", "DateTimeHour_PST", "detect_count")
 
 hours <- as.data.frame(format(seq(
-          from= min(detects_beacon$DateTime_PST)+60*60*24,
-          to=as.POSIXct(Sys.time(), tz="Etc/GMT+8")-60*60*12,
-          by="hour"
-          ),
-         "%Y-%m-%d %H"))
+  from= min(detects_beacon$DateTime_PST)+60*60*24,
+  to=as.POSIXct(Sys.time(), tz="Etc/GMT+8")-60*60*12,
+  by="hour"
+),
+"%Y-%m-%d %H"))
 
 colnames(hours) <- "DateTimeHour_PST"
 
@@ -350,7 +367,7 @@ for (k in unique(tagcodes$StudyID)){
     ## Now pull out only tag detections that have another detection from the same tag at the same gen loc within 24 hours
     temp_detects <- temp_detects[which(apply(temp_detects[,c("time_to_next", "time_from_previous")],1,FUN=min, na.rm = T) < 24),]
   }
-    write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
 
@@ -368,8 +385,8 @@ fwrite(detects_beacon, "detects_beacon.csv", row.names = F)
 write.csv(gaps, "download_gaps.csv", row.names = F)
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
 
-#ATS_processed_files <- rbind(ATS_processed_files, ATS_files)
-#write.csv(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
+ATS_processed_files <- rbind(ATS_processed_files, ATS_files)
+write.csv(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
 TECKNO_processed_files <- rbind(TECKNO_processed_files, TECKNO_files)
 write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)  
 
@@ -407,10 +424,7 @@ if (nrow(downloads_new_all) > 0) {
 <br/>
 
 ## Download gaps
-
-```{r print gaps data, echo=FALSE, warning=FALSE}
-kable(gaps, row.names = F)
-```
+Not currently available
 
 
 <br/>
