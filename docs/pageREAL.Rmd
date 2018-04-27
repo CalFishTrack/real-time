@@ -136,8 +136,13 @@ if (nrow(ATS_files) > 0) {
       
       ## Now change DateTime_PST to PST, but this is tricky because for some, orig time is in CST
       
-      if(ATS_files[i,] %in% CST_files$Filenames | unique(test4$recv) %in% c("17131","18007")) {
+      if(ATS_files[i,] %in% CST_files$Filenames | 
+         unique(test4$recv) %in% c("17131","18007")) {
         attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+10"
+      }
+      if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
+        test4$DateTime_PST <- test4$DateTime_PST-24*60*60
+        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
       }else{
         attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
       }

@@ -22,9 +22,218 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 
-# *Hatchery-origin fall-run Chinook salmon*
+# *Mokelumne River hatchery-origin fall-run Chinook salmon*
 
-## Status
+<br/>
 
-No fish have been tagged as of `r format(Sys.time(), '%B %d, %Y')`.
+## Project Status
 
+
+Project has begun, see tagging details below:
+```{r print table with fish release details, echo = FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
+latest <- read.csv("latest_download.csv", stringsAsFactors = F)
+
+
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Mok_Fall_2018",]
+release_stats <- aggregate(list(Number_fish_released = study_tagcodes$TagID_Hex),
+                           by= list(Release_time = study_tagcodes$RelDT),
+                           FUN = function(x) {length(unique(x))}
+                           )
+release_stats <- merge(release_stats,
+                       aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
+                           by= list(Release_time = study_tagcodes$RelDT),
+                           FUN = function(x) {head(x,1)}),
+                       by = c("Release_time"))
+
+kable(release_stats, format = "html") %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
+                       
+
+```
+
+<br/>
+
+## Real-time Fish Detections
+
+*Georgiana_Slough and Sac_BlwGeorgiana receivers deployed 2018-04-16, Benicia receivers deployed 2018-04-25, data current as of `r latest`. All times in Pacific Standard Time.*
+
+<br/>
+<center>
+#### Detections at Benicia Bridge
+</center>
+
+```{r print figure of fish detections, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+#library(CDECRetrieve)
+library(reshape2)
+
+detects_study <- read.csv("detects_Mok_Fall_2018.csv", stringsAsFactors = F)
+
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
+
+detects_study <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
+detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
+
+detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
+
+detects_study <- merge(detects_study, tagcodes[,c("TagID_Hex", "RelDT", "StudyID")], by.x = "TagCode", by.y = "TagID_Hex")
+
+starttime <- as.Date(min(detects_study$RelDT), "Etc/GMT+8")
+endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
+#wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
+#wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+#wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+
+daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+
+rels <- unique(tagcodes[tagcodes$StudyID == unique(detects_study$StudyID), "RelDT"])
+rel_num <- length(rels)
+rels_no_detects <- as.character(rels[!(rels %in% unique(detects_study$RelDT))])
+
+tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day, RelDT = detects_study$RelDT ), FUN = function(x){length(unique(x))})
+tagcount1 <- dcast(tagcount, Day ~ RelDT)
+                  
+daterange1 <- merge(daterange, tagcount1, all.x=T)
+
+if(length(rels_no_detects)>0){
+  for(i in rels_no_detects){
+    daterange1 <- cbind(daterange1, x=NA)
+    names(daterange1)[names(daterange1) == 'x'] <- paste(i)
+  }
+}
+
+#daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
+daterange2 <- daterange1
+
+rownames(daterange2) <- daterange2$Day
+daterange2$Day <- NULL
+
+par(mar=c(6, 5, 2, 5) + 0.1)
+barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
+barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=rainbow(rel_num), 
+        xlab = "", ylab = "Number of fish arrivals per day", 
+        ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
+        las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
+        #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+        #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
+legend(x ='topleft', legend = colnames(daterange2[,1:ncol(daterange2)]), fill= rainbow(rel_num), horiz = T, title = "Release Group")
+ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
+xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+barpmeans <- colMeans(barp)
+axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
+box()
+
+#par(new=T)
+
+#plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+#axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+#mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
+
+
+```
+
+<br/>
+<br/>
+
+<center>
+#### Detections statistics at all realtime receivers
+</center>
+
+<br/>
+
+```{r print tables of fish detections, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+library(data.table)
+
+test <- fread("detects_Mok_Fall_2018.csv", stringsAsFactors = FALSE)
+gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
+
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Mok_Fall_2018",]
+study_count <- nrow(study_tagcodes)
+
+test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
+
+if (nrow(test) == 0){
+  "No detections yet"
+} else {
+  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+  tag_stats <- aggregate(list(First_arrival = test$DateTime_PST), 
+                         by= list(general_location = test$general_location),
+                         FUN = min)
+  tag_stats <- merge(tag_stats, 
+                     aggregate(list(Mean_arrival = test$DateTime_PST), 
+                         by= list(general_location = test$general_location),
+                         FUN = mean), 
+                     by = c("general_location"))
+  tag_stats <- merge(tag_stats, 
+                     aggregate(list(Fish_count = test$TagCode), 
+                         by= list(general_location = test$general_location), 
+                         FUN = function(x) {length(unique(x))}), 
+                     by = c("general_location"))
+  tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
+      
+  tag_stats <- merge(tag_stats, unique(gen_locs[,c("general_location", "rkm")]))
+  
+  tag_stats <- tag_stats[order(tag_stats$rkm, decreasing = T),]
+  
+  print(kable(tag_stats, row.names = F, 
+              caption = "Detections for all release groups combined",
+              "html") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+  
+  for (j in unique(study_tagcodes$RelDT)) {
+    
+    if(nrow(test[test$RelDT == j,]) > 0 ) {
+    
+      temp <- test[test$RelDT == j,]
+  
+      rel_count <- nrow(study_tagcodes[study_tagcodes$RelDT == j,])
+  
+      tag_stats1 <- aggregate(list(First_arrival = temp$DateTime_PST), 
+                             by= list(general_location = temp$general_location), 
+                             FUN = min)
+      tag_stats1 <- merge(tag_stats1, 
+                         aggregate(list(Mean_arrival = temp$DateTime_PST), 
+                             by= list(general_location = temp$general_location), 
+                             FUN = mean), 
+                         by = c("general_location"))
+      tag_stats1 <- merge(tag_stats1, 
+                         aggregate(list(Fish_count = temp$TagCode), 
+                                   by= list(general_location = temp$general_location), 
+                                   FUN = function(x) {length(unique(x))}), 
+                         by = c("general_location"))
+      
+      tag_stats1$Percent_arrived <- round(tag_stats1$Fish_count/rel_count * 100,2)
+    
+      tag_stats1 <- merge(tag_stats1, unique(gen_locs[,c("general_location", "rkm")]))
+    
+      tag_stats1 <- tag_stats1[order(tag_stats1$rkm, decreasing = T),]
+    
+      final_stats <- kable(tag_stats1, row.names = F, 
+            caption = paste("Detections for",as.POSIXct(j, origin = "1970-01-01", tz = "Etc/GMT+8"),"release group", sep = " "),
+            "html")
+      print(kable_styling(final_stats, bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+      
+    } else {
+      cat("\n\n\\pagebreak\n")
+      print(paste("No detections for release group",as.POSIXct(j, origin = "1970-01-01", tz = "Etc/GMT+8"),"yet", sep=" "), quote = F)
+      cat("\n\n\\pagebreak\n")   
+    }
+  }
+}
+
+```
