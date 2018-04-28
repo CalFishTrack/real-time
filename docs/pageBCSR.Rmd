@@ -116,6 +116,7 @@ tagcodes$Release_week <- NA
 tagcodes[tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-10"), "Release_week"] <- "Week 2"
 
+#wlk_flow <- read.csv("wlk.csv")
 
 if (nrow(detects_study) == 0){
   "No detections yet"
@@ -131,6 +132,7 @@ if (nrow(detects_study) == 0){
   starttime <- as.Date(min(detects_study$RelDT), "Etc/GMT+8")
   endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
   
+
   wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
 
   wlk_flow$datetime <- as.Date(wlk_flow$datetime)
@@ -143,7 +145,7 @@ if (nrow(detects_study) == 0){
 
   rels <- unique(tagcodes[tagcodes$StudyID == unique(detects_study$StudyID), "Release_week"])
   rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_study$RelDT))])
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_study$Release_week))])
 
   tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day, Release_week = detects_study$Release_week ), FUN = function(x){length(unique(x))})
   tagcount1 <- dcast(tagcount, Day ~ Release_week)
