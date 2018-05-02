@@ -79,10 +79,27 @@ release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
                        by = c("Release_week"))
 
 release_stats <- merge(release_stats,
+                       aggregate(list(Release_location = study_tagcodes$Rel_loc),
+                           by= list(Release_week = study_tagcodes$Release_week),
+                           FUN = function(x) {head(x,1)}),
+                       by = c("Release_week"))
+release_stats <- merge(release_stats,
                        aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
                            by= list(Release_week = study_tagcodes$Release_week),
                            FUN = function(x) {head(x,1)}),
                        by = c("Release_week"))
+release_stats <- merge(release_stats,
+                       aggregate(list(Mean_length = study_tagcodes$Length),
+                           by= list(Release_week = study_tagcodes$Release_week),
+                           FUN = mean),
+                       by = c("Release_week"))
+release_stats <- merge(release_stats,
+                       aggregate(list(Mean_weight = study_tagcodes$Weight),
+                           by= list(Release_week = study_tagcodes$Release_week),
+                           FUN = mean),
+                       by = c("Release_week"))
+
+release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
 
 kable(release_stats, format = "html") %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
