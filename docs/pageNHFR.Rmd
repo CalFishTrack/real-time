@@ -11,6 +11,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
+library(knitr)
+library(kableExtra)
 ```
 
 ```{r logos, echo=FALSE}
@@ -81,57 +83,59 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 detects_study <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
-detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
 
-detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
-
-detects_study <- merge(detects_study, tagcodes[,c("TagID_Hex", "RelDT", "StudyID")], by.x = "TagCode", by.y = "TagID_Hex")
-
-starttime <- as.Date(min(detects_study$RelDT), "Etc/GMT+8")
-endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
-#wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
-#wlk_flow$datetime <- as.Date(wlk_flow$datetime)
-#wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
-
-daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
-
-rels <- unique(tagcodes[tagcodes$StudyID == unique(detects_study$StudyID), "RelDT"])
-rel_num <- length(rels)
-rels_no_detects <- as.character(rels[!(rels %in% unique(detects_study$RelDT))])
-
-tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day, RelDT = detects_study$RelDT ), FUN = function(x){length(unique(x))})
-tagcount1 <- dcast(tagcount, Day ~ RelDT)
-                  
-daterange1 <- merge(daterange, tagcount1, all.x=T)
-
-if(length(rels_no_detects)>0){
-  for(i in rels_no_detects){
-    daterange1 <- cbind(daterange1, x=NA)
-    names(daterange1)[names(daterange1) == 'x'] <- paste(i)
+if (nrow(detects_study)>0) {
+  detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
+  
+  detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
+  
+  detects_study <- merge(detects_study, tagcodes[,c("TagID_Hex", "RelDT", "StudyID")], by.x = "TagCode", by.y = "TagID_Hex")
+  
+  starttime <- as.Date(min(detects_study$RelDT), "Etc/GMT+8")
+  endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
+  #wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
+  #wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+  #wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+  
+  daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+  
+  rels <- unique(tagcodes[tagcodes$StudyID == unique(detects_study$StudyID), "RelDT"])
+  rel_num <- length(rels)
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_study$RelDT))])
+  
+  tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day, RelDT = detects_study$RelDT ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ RelDT)
+                    
+  daterange1 <- merge(daterange, tagcount1, all.x=T)
+  
+  if(length(rels_no_detects)>0){
+    for(i in rels_no_detects){
+      daterange1 <- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == 'x'] <- paste(i)
+    }
   }
-}
-
-#daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
-daterange2 <- daterange1
-
-rownames(daterange2) <- daterange2$Day
-daterange2$Day <- NULL
-
-par(mar=c(6, 5, 2, 5) + 0.1)
-barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
-barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=rainbow(rel_num), 
-        xlab = "", ylab = "Number of fish arrivals per day", 
-        ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
-        las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
-        #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
-        #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-legend(x ='topleft', legend = colnames(daterange2[,1:ncol(daterange2)]), fill= rainbow(rel_num), horiz = T, title = "Release Group")
-ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
-xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
-barpmeans <- colMeans(barp)
-axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
-axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
-box()
+  
+  #daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
+  daterange2 <- daterange1
+  
+  rownames(daterange2) <- daterange2$Day
+  daterange2$Day <- NULL
+  
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=rainbow(rel_num), 
+          xlab = "", ylab = "Number of fish arrivals per day", 
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
+          #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+          #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2[,1:ncol(daterange2)]), fill= rainbow(rel_num), horiz = T, title = "Release Group")
+  ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
+  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans <- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
+  box()
 
 #par(new=T)
 
@@ -139,6 +143,9 @@ box()
 #axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
 #mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
 
+}else{
+  print("No detections at Benicia yet")
+}
 
 ```
 
@@ -165,11 +172,12 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz
 study_tagcodes <- tagcodes[tagcodes$StudyID == "Mok_Fall_2018",]
 study_count <- nrow(study_tagcodes)
 
-test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
-
 if (nrow(test) == 0){
   "No detections yet"
 } else {
+  
+  test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
+
   test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
   tag_stats <- aggregate(list(First_arrival = test$DateTime_PST), 
                          by= list(general_location = test$general_location),
