@@ -188,6 +188,9 @@ if (nrow(test) == 0){
 } else {
   test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
   
+  ## Only do survival to Sac for now
+  test <- test[test$rkm > 160,]
+  
   ## Create inp for survival estimation
   
   inp <- as.data.frame(dcast(test, TagCode ~ rkm, fun.aggregate = length))
