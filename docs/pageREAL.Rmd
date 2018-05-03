@@ -408,6 +408,10 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 ## Receiver sites
 ``` {r print site stats, echo=FALSE, warning=FALSE}
 
+last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max)
+
+genlocs <- merge(gen_locs, last_download, by = "location", all.x = T)
+
 kable(gen_locs, align = "c")
 
 
