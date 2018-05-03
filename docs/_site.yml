@@ -11,9 +11,13 @@ navbar:
       href: pageCHLF.html
     - text: Hatchery winter-run salmon
       href: pageLSWR.html
-    - text: Wild spring-run salmon
+    - text: Butte Creek wild spring-run salmon
       href: pageBCSR.html
-    - text: Hatchery fall-run salmon
+    - text: Mill/Deer Creek wild spring-run salmon
+      href: pageMDSR.html
+    - text: Mokelumne hatchery fall-run salmon
+      href: pageMHFR.html
+    - text: Nimbus hatchery fall-run salmon
       href: pageNHFR.html
     - text: Wild green sturgeon
       href: pageSRGS.html

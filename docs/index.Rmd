@@ -39,9 +39,13 @@ This work will have significant implications for understanding movement, distrib
 
 [Hatchery-origin winter-run Chinook salmon](https://calfishtrack.github.io/real-time/pageLSWR.html)
 
-[Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageBCSR.html)
+[Butte Creek Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageBCSR.html)
 
-[Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageNHFR.html)
+[Deer/Mill Creek Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageDMSR.html)
+
+[Mokelumne River Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageMHFR.html)
+
+[Nimbus Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageNHFR.html)
 
 [Natural-origin green sturgeon](https://calfishtrack.github.io/real-time/pageSRGS.html)
 
