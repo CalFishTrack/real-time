@@ -60,7 +60,8 @@ study_tagcodes$Release_week <- NA
 
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-10") & study_tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
-study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
 
 release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
                            by= list(Release_week = study_tagcodes$Release_week),
@@ -134,7 +135,8 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %H:%M:%S %p", tz
 tagcodes$Release_week <- NA
 tagcodes[tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-10") & tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
-tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-22"), "Release_week"] <- "Week 3"
+tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-22") & tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
+tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
 
 #wlk_flow <- read.csv("wlk.csv")
 
@@ -233,7 +235,8 @@ study_tagcodes <- tagcodes[tagcodes$StudyID == "SB-Spring-2018",]
 study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-10") & study_tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
-study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
 
 study_count <- nrow(study_tagcodes)
 
@@ -328,7 +331,9 @@ study_tagcodes <- tagcodes[tagcodes$StudyID == "SB-Spring-2018",]
 study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-10") & study_tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
-study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
+
 study_count <- nrow(study_tagcodes)
 
 if (nrow(test) == 0){

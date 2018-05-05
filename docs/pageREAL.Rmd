@@ -42,6 +42,8 @@ gen_locs$recv <- as.character(gen_locs$recv)
 downloads <- read.csv("downloads.csv", stringsAsFactors = FALSE)
 downloads$end <- as.POSIXct(downloads$end, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
 downloads$start <- as.POSIXct(downloads$start, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+## remove all gen loc details from downloads, that way these get re-assigned every hour in case gen_loc data changes. This gets reassigned at the end of this code before exporting
+downloads <- downloads[,-which(names(downloads) %in% c("location", "general_location", "latitude", "longitude", "rkm"))]
 
 corrupted_downloads <- read.csv("corrupted_downloads.csv", stringsAsFactors = F)
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
@@ -50,8 +52,12 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
 detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
 
-detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS", tz = "Etc/GMT+8")
-detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS", tz = "Etc/GMT+8")
+detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
+detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
+
+## Now remove all gen loc data from detections in case genloc details have changed. We will add genloc data back in at the end of this code
+detects <- subset(detects, select= -c(location, general_location, latitude, longitude, rkm))
+detects_beacon <- subset(detects_beacon, select= -c(location, general_location, latitude, longitude, rkm))
 
 ## Find all Teckno file names
 TECKNO_all_files <- as.data.frame(dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T))
@@ -91,17 +97,30 @@ if (nrow(ATS_files) > 0) {
     }
     hour <- substr(hour, start = 13, stop = 31)
     recv <- substr(recv, start = 16, stop = 21)
-    downloads_new <- rbind(downloads_new, cbind(recv, hour))
+    downloads_new <- rbind(downloads_new, cbind(filename = ATS_files[i,],recv, hour))
   }
   
   downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
+  
+  ## Now change downloads start and end to correct time since some are on CST and some are PST + 1 day
+  
+  for (i in 1:nrow(downloads_new)){ 
+    if(downloads_new[i, "filename"] %in% CST_files$Filenames | 
+       downloads_new[i, "recv"] %in% c("17131","18007")) {
+      downloads_new[i, "start"] <- downloads_new[i, "start"]-2*60*60
+    }
+    if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143")) {
+      downloads_new[i, "start"] <- downloads_new[i, "start"]-24*60*60
+    }
+  }
+  
   downloads_new$end <- downloads_new$start +(60*60)
-  downloads_new <-  merge(downloads_new, gen_locs,  by = "recv")
+  
   ## Add dummy columns to match the ones from Tecknos that actually carry data
   downloads_new$sun_volts <- NA
   downloads_new$bat_volts <- NA
   
-  downloads_new_all <- rbind(downloads_new_all, downloads_new)
+  downloads_new_all <- rbind(downloads_new_all, downloads_new[,c("filename", "recv", "hour", "sun_volts", "bat_volts", "end", "start")])
   
   detects_temp <- data.frame()
   
@@ -137,13 +156,12 @@ if (nrow(ATS_files) > 0) {
       ## Now change DateTime_PST to PST, but this is tricky because for some, orig time is in CST
       
       if(ATS_files[i,] %in% CST_files$Filenames | 
-         unique(test4$recv) %in% c("17131","18007")) {
-        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+10"
+        unique(test4$recv) %in% c("17131","18007")) {
+        test4$DateTime_PST <- test4$DateTime_PST-2*60*60
+        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
       }
       if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
         test4$DateTime_PST <- test4$DateTime_PST-24*60*60
-        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
-      }else{
         attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
       }
       
@@ -175,9 +193,6 @@ if (nrow(ATS_files) > 0) {
   ## Remove "ffff" detections
   detects_temp <- detects_temp[!detects_temp$TagCode == "ffff",]
   
-  ## Merge in location data
-  detects_temp <- merge(detects_temp, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")])
-  
   ## Here, put only non-beacon detections in detection file
   detects_new <- detects_temp[!detects_temp$TagCode %in% c("FA54", "75D3", "FA96"),]
   ## And put beacon detections into seperate file
@@ -187,8 +202,8 @@ if (nrow(ATS_files) > 0) {
   
   #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
   
-  detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm", "Temp")])
-  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm", "Temp")])
+  detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
   
 }
 
@@ -214,13 +229,13 @@ if (nrow(TECKNO_files) > 0) {
       ## Get volts, sometimes in row 1 or 2
       sun_volts <- max(test[1:2,"V17"])
       bat_volts <- max(test[1:2,"V18"])
-      downloads_new <- rbind(downloads_new, cbind(recv, hour, sun_volts, bat_volts))
+      downloads_new <- rbind(downloads_new, cbind(filename = TECKNO_files[i,], recv, hour, sun_volts, bat_volts))
     }
   }
   
   downloads_new$end <- as.POSIXct(downloads_new$hour, tz = "GMT")
   downloads_new$start <- downloads_new$end -(60*60)
-  downloads_new <-  merge(downloads_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv")
+
   
   
   ## Now change all times to PST to match ATS receivers
@@ -264,9 +279,6 @@ if (nrow(TECKNO_files) > 0) {
   detects_temp$DateTime_PST <- as.POSIXct(detects_temp$DateTime_Orig, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
   attributes(detects_temp$DateTime_PST)$tzone <- "Etc/GMT+8"
   
-  #detects_new1 <- detects[0,]
-  #detects_new1 <- bind_rows(detects_new1, detects_new[,c("recv", "TagCode", "DateTime_Orig", "DateTime_PST")])
-  detects_temp <- merge(detects_temp, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")])
   ## Add column for temperature
   detects_temp$Temp <- NA
   
@@ -276,12 +288,21 @@ if (nrow(TECKNO_files) > 0) {
   detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c("FADA", "F96A", "FCAA", "FA55", "006F", "006D"),]
   
   ## Now append these to existing datasets
-  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm", "Temp")])
-  detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "location", "general_location", "latitude", "longitude", "rkm", "Temp")])
+  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+  detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
   
 }
 
+## Now merge location data back with detections
+detects <- merge(detects, gen_locs,  by = "recv", all.x = TRUE)
+detects_beacon <- merge(detects_beacon, gen_locs,  by = "recv", all.x = TRUE)
+
+## Merge new downloads with exist dataset
 downloads <- rbind(downloads, downloads_new_all)
+
+## Merge in gen loc data now for all downloads
+downloads <-  merge(downloads, gen_locs,  by = "recv", all.x = TRUE)
+#downloads_new <-  merge(downloads_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv")
 
 ## Check for hourly download gaps ##
 downloads$gapstart <- as.POSIXct(NA)
@@ -425,6 +446,7 @@ kable(gen_locs, align = "c")
 ``` {r print most recent downloads, echo=FALSE, warning=FALSE}
 
 if (nrow(downloads_new_all) > 0) {
+  downloads_new_all <- merge(downloads_new_all, gen_locs, by = "recv")
   downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location",
                                             "sun_volts", "bat_volts")]
   kable(downloads_new_all, row.names = F)
