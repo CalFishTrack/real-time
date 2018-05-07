@@ -321,16 +321,18 @@ for (j in 2:nrow(downloads)){
   }
 }
 
-# gaps <- downloads[is.na(downloads$gapstart) == F,]
-# gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
-# gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
-# 
-# gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
-# gaps$start <- NULL
-# gaps$end <- NULL
-# 
+gaps <- downloads[is.na(downloads$gapstart) == F,]
+gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+ 
+gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
+gaps$start <- NULL
+gaps$end <- NULL
 
-
+gap_percent <- aggregate(list(gap_count = gaps$gap_length_hours), by = list(recv = gaps$recv), FUN = sum) 
+gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(recv = downloads$recv), FUN = min), by = "recv", all.y = T)
+gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
+gap_percent$percent_files_missing <- round((gap_percent$gap_count / as.numeric(gap_percent$num_of_hours) * 100), 1)
 
 downloads$gapstart <- NULL
 downloads$gapend <- NULL
@@ -340,34 +342,34 @@ downloads$gapend <- NULL
 ## Find data gaps by finding hours for which there are zero detectsion
 ## These should never happen since there are so many beacon detections
 
-res <- aggregate(detects_beacon$TagCode,
-                 by=list(detects_beacon$recv, format(detects_beacon$DateTime_PST, "%Y-%m-%d %H")),
-                 length)
-
-colnames(res) <- c("recv", "DateTimeHour_PST", "detect_count")
-
-hours <- as.data.frame(format(seq(
-  from= min(detects_beacon$DateTime_PST)+60*60*24,
-  to=as.POSIXct(Sys.time(), tz="Etc/GMT+8")-60*60*12,
-  by="hour"
-),
-"%Y-%m-%d %H"))
-
-colnames(hours) <- "DateTimeHour_PST"
-
-res2 <- dcast(data = res, DateTimeHour_PST ~ recv)
-
-res3 <- merge(hours, res2, by = "DateTimeHour_PST", all.x = T)
-
-gaps <- res3[rowSums(is.na(res3)) > 0,]
-
-gaps <- melt(gaps)
-
-gaps <- gaps[is.na(gaps$value)==T,]
-
-gaps$value <- NULL
-
-colnames(gaps) <- c("DateHour_PST", "recv")
+# res <- aggregate(detects_beacon$TagCode,
+#                  by=list(detects_beacon$recv, format(detects_beacon$DateTime_PST, "%Y-%m-%d %H")),
+#                  length)
+# 
+# colnames(res) <- c("recv", "DateTimeHour_PST", "detect_count")
+# 
+# hours <- as.data.frame(format(seq(
+#   from= min(detects_beacon$DateTime_PST)+60*60*24,
+#   to=as.POSIXct(Sys.time(), tz="Etc/GMT+8")-60*60*12,
+#   by="hour"
+# ),
+# "%Y-%m-%d %H"))
+# 
+# colnames(hours) <- "DateTimeHour_PST"
+# 
+# res2 <- dcast(data = res, DateTimeHour_PST ~ recv)
+# 
+# res3 <- merge(hours, res2, by = "DateTimeHour_PST", all.x = T)
+# 
+# gaps <- res3[rowSums(is.na(res3)) > 0,]
+# 
+# gaps <- melt(gaps)
+# 
+# gaps <- gaps[is.na(gaps$value)==T,]
+# 
+# gaps$value <- NULL
+# 
+# colnames(gaps) <- c("DateHour_PST", "recv")
 
 
 #### As a preliminary cut to detection filter, here subset for only tags known to be in the system 
@@ -441,6 +443,8 @@ gen_locs <- merge(gen_locs, last_download, by = "location", all.x = T)
 
 gen_locs <- gen_locs[order(gen_locs$last_download, decreasing = T),]
 
+gen_locs <- merge(gen_locs, gap_percent[c("recv", "percent_files_missing")], by = "recv", all.x = T)
+
 kable(gen_locs, align = "c")
 
 
@@ -461,12 +465,6 @@ if (nrow(downloads_new_all) > 0) {
 }
 
 ````
-
-<br/>
-
-## Download gaps
-Not currently available
-
 
 <br/>
 
