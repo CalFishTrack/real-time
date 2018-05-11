@@ -181,22 +181,24 @@ if (nrow(ATS_files) > 0) {
       test4$DateTime_PST <- test4$DateTime_Orig
       
       ## Now change DateTime_PST to PST, but this is tricky because for some, orig time is in CST
-      
-      if(ATS_files[i,] %in% CST_files$Filenames | 
-        unique(test4$recv) %in% c("17131","18007")) {
-        test4$DateTime_PST <- test4$DateTime_PST-2*60*60
-        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
+      ## Have this first if statement in case there are no detections in a file
+      if(nrow(test4)>0){
+        if(ATS_files[i,] %in% CST_files$Filenames | 
+          unique(test4$recv) %in% c("17131","18007")) {
+          test4$DateTime_PST <- test4$DateTime_PST-2*60*60
+          attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
+        }
+        if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
+          test4$DateTime_PST <- test4$DateTime_PST-24*60*60
+          attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
+        }
+        
+        ## change Datetime_Orig with milliseconds shown (this turns the class into character)
+        test4$DateTime_Orig <- format(test4$DateTime_Orig, "%Y-%m-%d %H:%M:%OS6")
+        
+        detects_temp <- rbind(detects_temp, test4)
+        
       }
-      if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
-        test4$DateTime_PST <- test4$DateTime_PST-24*60*60
-        attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
-      }
-      
-      ## change Datetime_Orig with milliseconds shown (this turns the class into character)
-      test4$DateTime_Orig <- format(test4$DateTime_Orig, "%Y-%m-%d %H:%M:%OS6")
-      
-      detects_temp <- rbind(detects_temp, test4)
-      
     }
   }
   
