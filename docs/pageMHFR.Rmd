@@ -220,7 +220,7 @@ if (nrow(test) == 0){
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
-  for (j in unique(study_tagcodes$RelDT)) {
+  for (j in sort(unique(study_tagcodes$RelDT))) {
     
     if(nrow(test[test$RelDT == j,]) > 0 ) {
     

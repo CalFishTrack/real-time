@@ -108,7 +108,7 @@ library(CDECRetrieve)
 detects_study <- read.csv("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
-#tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
+detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
 detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
 
 starttime <- as.Date(min(detects_study$first_detect)-60*60*24, "Etc/GMT+8")

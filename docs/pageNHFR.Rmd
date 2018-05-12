@@ -97,7 +97,7 @@ detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
-#tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
+detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
 detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
 
 detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
@@ -342,7 +342,7 @@ if (nrow(test) == 0){
     
   WR.surv <- cbind(c("ALL", groups), WR.surv)
   
-  colnames(WR.surv) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency")
+  colnames(WR.surv) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
   
   print(kable(WR.surv, row.names = F, "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
@@ -407,7 +407,7 @@ if (nrow(test) == 0){
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
-  for (j in unique(study_tagcodes$RelDT)) {
+  for (j in sort(unique(study_tagcodes$RelDT))) {
     
     if(nrow(test[test$RelDT == j,]) > 0 ) {
     

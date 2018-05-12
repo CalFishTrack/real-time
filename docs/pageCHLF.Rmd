@@ -105,7 +105,7 @@ if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   
-  #tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
+  detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
   detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
   
   starttime <- as.Date(min(detects_study$first_detect)-60*60*24, "Etc/GMT+8")
@@ -219,7 +219,7 @@ if (nrow(test) == 0){
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
-  for (j in unique(study_tagcodes$RelDT)) {
+  for (j in sort(unique(study_tagcodes$RelDT))) {
     
     if(nrow(test[test$RelDT == j,]) > 0 ) {
     

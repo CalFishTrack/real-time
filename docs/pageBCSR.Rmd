@@ -61,7 +61,8 @@ study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-10") & study_tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
-study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28") & study_tagcodes$RelDT < as.POSIXct("2018-05-05"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-05"), "Release_week"] <- "Week 5"
 
 release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
                            by= list(Release_week = study_tagcodes$Release_week),
@@ -136,7 +137,8 @@ tagcodes$Release_week <- NA
 tagcodes[tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-10") & tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
 tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-22") & tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
-tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
+tagcodes[tagcodes$RelDT > as.POSIXct("2018-04-28") & tagcodes$RelDT < as.POSIXct("2018-05-05"), "Release_week"] <- "Week 4"
+tagcodes[tagcodes$RelDT > as.POSIXct("2018-05-05"), "Release_week"] <- "Week 5"
 
 #wlk_flow <- read.csv("wlk.csv")
 
@@ -144,7 +146,7 @@ if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   
-  #tower_detects <- detects_study[detects_study$general_location == "Tower Br",]
+  detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
   detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
   
   detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
@@ -236,7 +238,8 @@ study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-10") & study_tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
-study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28") & study_tagcodes$RelDT < as.POSIXct("2018-05-05"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-05"), "Release_week"] <- "Week 5"
 
 study_count <- nrow(study_tagcodes)
 
@@ -297,7 +300,7 @@ if (nrow(test) == 0){
   
   WR.surv <- cbind(c("ALL", groups), WR.surv)
   
-  colnames(WR.surv) <- c("Release Week", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency")
+  colnames(WR.surv) <- c("Release Week", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
   
   print(kable(WR.surv, row.names = F, "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
@@ -332,7 +335,8 @@ study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-04-10"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-10") & study_tagcodes$RelDT < as.POSIXct("2018-04-22"), "Release_week"] <- "Week 2"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-22") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 3"
-study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-04-28") & study_tagcodes$RelDT < as.POSIXct("2018-05-05"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-05"), "Release_week"] <- "Week 5"
 
 study_count <- nrow(study_tagcodes)
 
@@ -367,7 +371,7 @@ if (nrow(test) == 0){
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
-  for (j in unique(study_tagcodes$Release_week)) {
+  for (j in sort(unique(study_tagcodes$Release_week))) {
     
     if(nrow(test[test$Release_week == j,]) > 0 ) {
     
