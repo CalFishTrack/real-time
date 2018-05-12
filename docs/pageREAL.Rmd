@@ -401,6 +401,8 @@ downloads$gapend <- NULL
 
 
 #### As a preliminary cut to detection filter, here subset for only tags known to be in the system 
+#### (for now, this rough first cut says that a tag needs to have been detected at least 3 times in the 
+#### whole array to have chances of being a true tag. This could likely be pushed upwards)
 
 tags <- sort(table(detects$TagCode), decreasing = T)
 tags <- tags[tags>3]
@@ -413,6 +415,9 @@ for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
   ## First, select only detections of correct tagcodes per study
   temp_detects <- as.data.frame(detects_filtered[detects_filtered$TagCode %in% studycodes,])
+  ## Now remove false detections that occured before release
+  temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
+  temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
   if(nrow(temp_detects) > 0){
     ## Now create two columns with time in hours between the previous and next detection, for each detection
     temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
@@ -433,6 +438,8 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
 
+    ## Now remove RelDT column
+    temp_detects <- temp_detects[, !names(temp_detects) == "RelDT"]
     ## Now pull out only tag detections that have another detection from the same tag at the same gen loc within 24 hours
     temp_detects <- temp_detects[which(apply(temp_detects[,c("time_to_next", "time_from_previous")],1,FUN=min, na.rm = T) < 24),]
   }
