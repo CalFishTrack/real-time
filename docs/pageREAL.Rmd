@@ -117,7 +117,7 @@ if (nrow(ATS_files) > 0) {
        downloads_new[i, "recv"] %in% c("17131","18007")) {
       downloads_new[i, "start"] <- downloads_new[i, "start"]-2*60*60
     }
-    if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143")) {
+    if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143", "17135")) {
       downloads_new[i, "start"] <- downloads_new[i, "start"]-24*60*60
     }
   }
@@ -188,7 +188,7 @@ if (nrow(ATS_files) > 0) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
-        if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
+        if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143", "17135")) {
           test4$DateTime_PST <- test4$DateTime_PST-24*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
