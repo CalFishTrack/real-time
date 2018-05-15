@@ -77,6 +77,11 @@ ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_fil
 #ATS_files <- data.frame()
 colnames(ATS_files) <- "x"
 ATS_files$x <- as.character(ATS_files$x)
+## Remove bad files that don't contain real data from list for processing
+bad_files <- read.csv("bad_files.csv", colClasses = "character", header = F)
+ATS_files <- as.data.frame(ATS_files[-grep(paste(bad_files$V1, collapse = "|"), ATS_files$x),])
+colnames(ATS_files) <- "x"
+ATS_files$x <- as.character(ATS_files$x)
 ## Load CSt timezone file list
 CST_files <- read.csv("receiver_files_with_CST_timezones.csv", colClasses = "character")
 
