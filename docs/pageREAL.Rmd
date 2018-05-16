@@ -35,6 +35,7 @@ library(data.table)
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
+
 ATS_processed_files <- read.csv("ATS_processed_files.csv", stringsAsFactors = F)
 TECKNO_processed_files <- read.csv("TECKNO_processed_files.csv", stringsAsFactors = F)
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
