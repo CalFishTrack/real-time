@@ -227,9 +227,9 @@ if (nrow(ATS_files) > 0) {
     detects_temp <- detects_temp[!detects_temp$TagCode == "ffff",]
     
     ## Here, put only non-beacon detections in detection file
-    detects_new <- detects_temp[!detects_temp$TagCode %in% c("FA54", "75D3", "FA96"),]
+    detects_new <- detects_temp[!detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
     ## And put beacon detections into seperate file
-    detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c("FA54", "75D3", "FA96"),]
+    detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
     
     #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
     
@@ -316,9 +316,9 @@ if (nrow(TECKNO_files) > 0) {
   detects_temp$Temp <- NA
   
   ## Here, put only non-beacon detections in detection file
-  detects_new <- detects_temp[!detects_temp$TagCode %in% c("FADA", "F96A", "FCAA", "FA55", "006F", "006D"),]
+  detects_new <- detects_temp[!detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
   ## And put beacon detections into seperate file
-  detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c("FADA", "F96A", "FCAA", "FA55", "006F", "006D"),]
+  detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
   
   ## Now append these to existing datasets
   detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
@@ -327,14 +327,14 @@ if (nrow(TECKNO_files) > 0) {
 }
 
 ## Now merge location data back with detections
-detects <- merge(detects, gen_locs,  by = "recv", all.x = TRUE)
-detects_beacon <- merge(detects_beacon, gen_locs,  by = "recv", all.x = TRUE)
+detects <- merge(detects, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv", all.x = TRUE)
+detects_beacon <- merge(detects_beacon, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv", all.x = TRUE)
 
 ## Merge new downloads with exist dataset
 downloads <- rbind(downloads, downloads_new_all)
 
 ## Merge in gen loc data now for all downloads
-downloads <-  merge(downloads, gen_locs,  by = "recv", all.x = TRUE)
+downloads <-  merge(downloads, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv", all.x = TRUE)
 #downloads_new <-  merge(downloads_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv")
 
 ## Check for hourly download gaps ##
@@ -492,7 +492,7 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 
 last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max)
 
-gen_locs <- merge(gen_locs, last_download, by = "location", all.x = T)
+gen_locs <- merge(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")], last_download, by = "location", all.x = T)
 
 gen_locs <- gen_locs[order(gen_locs$last_download, decreasing = T),]
 
