@@ -365,6 +365,12 @@ gaps$end <- NULL
 
 gap_percent <- aggregate(list(gap_count = gaps$gap_length_hours), by = list(recv = gaps$recv), FUN = sum) 
 gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(recv = downloads$recv), FUN = min), by = "recv", all.y = T)
+## Some receivers turned hourly recording off soon after deployment, meaning there is an initial gap in the data, so I'm setting the true start time to when it started uninterrupted recording (i.e. after the gap)
+gap_percent[gap_percent$recv == "17135", "recv_start"] <- as.POSIXct("2018-05-14 10:00:00")
+gap_percent[gap_percent$recv == "18007", "recv_start"] <- as.POSIXct("2018-04-18 15:00:00")
+gap_percent[gap_percent$recv == "17140", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
+gap_percent[gap_percent$recv == "17142", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
+
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
 gap_percent$percent_files_missing <- round((gap_percent$gap_count / as.numeric(gap_percent$num_of_hours) * 100), 1)
 
@@ -406,12 +412,11 @@ downloads$gapend <- NULL
 # colnames(gaps) <- c("DateHour_PST", "recv")
 
 
-#### As a preliminary cut to detection filter, here subset for only tags known to be in the system 
-#### (for now, this rough first cut says that a tag needs to have been detected at least 3 times in the 
-#### whole array to have chances of being a true tag. This could likely be pushed upwards)
+#### As a preliminary cut to detection filter, a tag needs to have been detected at least 3 times in the entire array
+
 
 tags <- sort(table(detects$TagCode), decreasing = T)
-tags <- tags[tags>3]
+tags <- tags[tags>2]
 detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
 detects_filtered <- detects_filtered[order(detects_filtered$general_location, detects_filtered$TagCode, detects_filtered$DateTime_PST),]
 
@@ -424,8 +429,18 @@ for (k in unique(tagcodes$StudyID)){
   ## Now remove false detections that occured before release
   temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
   temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
+  ## Now if a tag was detected less than 3 times at any gen loc, remove those detections at that gen loc
+  detect_count <- table(temp_detects$general_location, temp_detects$TagCode)
+  detect_count_melt <- melt(detect_count)
+  detect_count_melt <- detect_count_melt[detect_count_melt$value >2,]
+  detect_count_melt$genloctag <- paste(detect_count_melt$Var1, detect_count_melt$Var2, sep = "-")
+  temp_detects$genloctag <- paste(temp_detects$general_location, temp_detects$TagCode, sep = "-")
+  temp_detects <- temp_detects[temp_detects$genloctag %in% detect_count_melt$genloctag,]
+  
   if(nrow(temp_detects) > 0){
     ## Now create two columns with time in hours between the previous and next detection, for each detection
+        ## Now reorder the data since the above steps may have jumbled things
+    temp_detects <- temp_detects[order(temp_detects$general_location, temp_detects$TagCode, temp_detects$DateTime_PST),]
     temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
     temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
     ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
@@ -433,6 +448,8 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    ## Now remove single detections per GenLoc, by removing records with NA in the lead and lag columns
+    temp_detects <- temp_detects[!with(temp_detects, is.na(temp_detects$time_to_next)& is.na(temp_detects$time_from_previous)),]
     ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
     temp_detects <- temp_detects[temp_detects$time_from_previous > 0.00028 | is.na(temp_detects$time_from_previous) == TRUE ,]
     ## Now re-estimate the time in hours between the previous and next detection, for each detection. just repeating those earlier lines of code
@@ -444,8 +461,8 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
 
-    ## Now remove RelDT column
-    temp_detects <- temp_detects[, !names(temp_detects) == "RelDT"]
+    ## Now remove RelDT and genloctag columns
+    temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag")]
     ## Now pull out only tag detections that have another detection from the same tag at the same gen loc within 24 hours
     temp_detects <- temp_detects[which(apply(temp_detects[,c("time_to_next", "time_from_previous")],1,FUN=min, na.rm = T) < 24),]
   }
