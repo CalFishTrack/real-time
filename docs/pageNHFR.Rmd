@@ -222,7 +222,7 @@ if (nrow(detects_study)>0) {
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2[,1:ncol(daterange2)]), fill= rainbow(rel_num), horiz = T, title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= rainbow(rel_num), horiz = T, title = "Release Group")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)

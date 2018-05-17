@@ -73,6 +73,10 @@ TECKNO_files$x <- as.character(TECKNO_files$x)
 ATS_all_files <- as.data.frame(dir(pattern = "*.csv", path = dirs, full.names = T))
 colnames(ATS_all_files) <- "x"
 ATS_all_files$x <- as.character(ATS_all_files$x)
+## FOR NOW, REMOVE ALL FILES FROM RECEIVER 17135 SINCE IT PRODUCES SO MANY FALSE DETECTIONS
+ATS_all_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %like% "SR17135",])
+colnames(ATS_all_files) <- "x"
+ATS_all_files$x <- as.character(ATS_all_files$x)
 ## Select only newest ATS files for massaging
 ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,])
 #ATS_files <- data.frame()
@@ -371,6 +375,7 @@ gap_percent[gap_percent$recv == "18007", "recv_start"] <- as.POSIXct("2018-04-18
 gap_percent[gap_percent$recv == "17140", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
 gap_percent[gap_percent$recv == "17142", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
 gap_percent[gap_percent$recv == "17125", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
+gap_percent[gap_percent$recv == "18008", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
 
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
 gap_percent$percent_files_missing <- 100-round(gap_percent$total_files/as.numeric(gap_percent$num_of_hours)*100,1)
