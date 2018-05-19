@@ -15,6 +15,8 @@ navbar:
       href: pageBCSR.html
     - text: Mill/Deer Creek wild spring-run salmon
       href: pageMDSR.html
+    - text: Sacramento River wild Chinook salmon
+      href: pageSRSR.html
     - text: Mokelumne hatchery fall-run salmon
       href: pageMHFR.html
     - text: Nimbus hatchery fall-run salmon

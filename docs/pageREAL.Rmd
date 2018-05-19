@@ -375,7 +375,7 @@ gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), b
 gap_percent[gap_percent$recv == "17135", "recv_start"] <- as.POSIXct("2018-05-14 10:00:00")
 gap_percent[gap_percent$recv == "18007", "recv_start"] <- as.POSIXct("2018-04-18 15:00:00")
 gap_percent[gap_percent$recv == "17140", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
-gap_percent[gap_percent$recv == "17142", "recv_start"] <- as.POSIXct("2018-04-17 8:00:00")
+gap_percent[gap_percent$recv == "17142", "recv_start"] <- as.POSIXct("2018-04-17 4:00:00")
 gap_percent[gap_percent$recv == "17125", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
 gap_percent[gap_percent$recv == "18008", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
 
@@ -522,7 +522,7 @@ gen_locs <- merge(gen_locs[,c("recv", "location", "general_location", "latitude"
 
 gen_locs <- gen_locs[order(gen_locs$last_download, decreasing = T),]
 
-gen_locs <- merge(gen_locs, gap_percent[c("recv", "percent_files_missing")], by = "recv", all.x = T)
+gen_locs <- merge(gen_locs, gap_percent[c("recv", "recv_start", "percent_files_missing")], by = "recv", all.x = T)
 
 kable(gen_locs, align = "c")
 
@@ -565,65 +565,67 @@ kable(corrupted_downloads[,c("Filename", "Download_attempts")], row.names = F)
 
 ```{r print figures of detection efficiency, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
 
-library(ggplot2)
+print("Not currently available")
 
-setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
-
-detects <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
-
-detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS")
-
-
-detects$Day <- as.Date(detects$DateTime_PST, "Etc/GMT+8")
-detects <- as.data.frame(detects)
-detects$beacon <- NA
-detects[detects$recv == 157002, "beacon"] <- "FADA"
-detects[detects$recv == 157003, "beacon"] <- "F96A"
-detects[detects$recv == 157004, "beacon"] <- "FCAA"
-detects[detects$recv == 157005, "beacon"] <- "FA55"
-detects_beacon <- detects[detects$beacon==detects$TagCode,]
-
-## Remove multipaths
-detects_beacon_no_mp <- NULL
-
-for (i in c("FADA", "F96A", "FCAA", "FA55")){
-  temp <- detects_beacon[detects_beacon$TagCode == i,]
-  temp <- temp[order(temp$DateTime_PST),]
-  temp$diff <- shift(temp$DateTime_PST, n=1, fill=NA, type="lag")
-  temp$difftime <- difftime(temp$DateTime_PST, temp$diff, units = "secs")
-  temp_final <- temp[temp$difftime > 1,]
-  detects_beacon_no_mp <- rbind(detects_beacon_no_mp, temp_final)
-}
-
-daily_beacon <- aggregate(list(tag_count = detects_beacon_no_mp$location), by = list(recv = detects_beacon_no_mp$recv, day = detects_beacon_no_mp$Day, tag = detects_beacon_no_mp$TagCode), FUN = length)
-
-daily_beacon[daily_beacon$tag == "FADA","expected_count"] <- 24*60*(60/62.4)
-daily_beacon[daily_beacon$tag == "F96A","expected_count"] <- 24*60*(60/62.2)
-daily_beacon[daily_beacon$tag == "FCAA","expected_count"] <- 24*60*(60/62.5)
-daily_beacon[daily_beacon$tag == "FA55","expected_count"] <- 24*60*(60/64)
-
-daily_beacon$percent_detect <- daily_beacon$tag_count/daily_beacon$expected_count * 100
-
-Tower <- daily_beacon[daily_beacon$recv %in% c(157002,157004),]
-I80 <- daily_beacon[daily_beacon$recv %in% c(157003,157005),]
-
-ggplot(Tower, aes(day, percent_detect, fill = factor(recv))) + 
-  geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set1") +
-  xlab("Date") +
-  ylab("% received beacon transmissions") +
-  scale_y_continuous(limits = c(0,100)) +
-  labs(fill='Receiver') +
-  ggtitle("Tower Bridge Receiver Detection Efficiency")
-
-ggplot(I80, aes(day, percent_detect, fill = factor(recv))) + 
-  geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set1") +
-  xlab("Date") +
-  ylab("% received beacon transmissions") +
-  scale_y_continuous(limits = c(0,100)) +
-  labs(fill='Receiver') +
-  ggtitle("I80 Bridge Receiver Detection Efficiency")
+# library(ggplot2)
+# 
+# setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+# 
+# detects <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
+# 
+# detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS")
+# 
+# 
+# detects$Day <- as.Date(detects$DateTime_PST, "Etc/GMT+8")
+# detects <- as.data.frame(detects)
+# detects$beacon <- NA
+# detects[detects$recv == 157002, "beacon"] <- "FADA"
+# detects[detects$recv == 157003, "beacon"] <- "F96A"
+# detects[detects$recv == 157004, "beacon"] <- "FCAA"
+# detects[detects$recv == 157005, "beacon"] <- "FA55"
+# detects_beacon <- detects[detects$beacon==detects$TagCode,]
+# 
+# ## Remove multipaths
+# detects_beacon_no_mp <- NULL
+# 
+# for (i in c("FADA", "F96A", "FCAA", "FA55")){
+#   temp <- detects_beacon[detects_beacon$TagCode == i,]
+#   temp <- temp[order(temp$DateTime_PST),]
+#   temp$diff <- shift(temp$DateTime_PST, n=1, fill=NA, type="lag")
+#   temp$difftime <- difftime(temp$DateTime_PST, temp$diff, units = "secs")
+#   temp_final <- temp[temp$difftime > 1,]
+#   detects_beacon_no_mp <- rbind(detects_beacon_no_mp, temp_final)
+# }
+# 
+# daily_beacon <- aggregate(list(tag_count = detects_beacon_no_mp$location), by = list(recv = detects_beacon_no_mp$recv, day = detects_beacon_no_mp$Day, tag = detects_beacon_no_mp$TagCode), FUN = length)
+# 
+# daily_beacon[daily_beacon$tag == "FADA","expected_count"] <- 24*60*(60/62.4)
+# daily_beacon[daily_beacon$tag == "F96A","expected_count"] <- 24*60*(60/62.2)
+# daily_beacon[daily_beacon$tag == "FCAA","expected_count"] <- 24*60*(60/62.5)
+# daily_beacon[daily_beacon$tag == "FA55","expected_count"] <- 24*60*(60/64)
+# 
+# daily_beacon$percent_detect <- daily_beacon$tag_count/daily_beacon$expected_count * 100
+# 
+# Tower <- daily_beacon[daily_beacon$recv %in% c(157002,157004),]
+# I80 <- daily_beacon[daily_beacon$recv %in% c(157003,157005),]
+# 
+# ggplot(Tower, aes(day, percent_detect, fill = factor(recv))) + 
+#   geom_bar(stat="identity", position = "dodge") + 
+#   scale_fill_brewer(palette = "Set1") +
+#   xlab("Date") +
+#   ylab("% received beacon transmissions") +
+#   scale_y_continuous(limits = c(0,100)) +
+#   labs(fill='Receiver') +
+#   ggtitle("Tower Bridge Receiver Detection Efficiency")
+# 
+# ggplot(I80, aes(day, percent_detect, fill = factor(recv))) + 
+#   geom_bar(stat="identity", position = "dodge") + 
+#   scale_fill_brewer(palette = "Set1") +
+#   xlab("Date") +
+#   ylab("% received beacon transmissions") +
+#   scale_y_continuous(limits = c(0,100)) +
+#   labs(fill='Receiver') +
+#   ggtitle("I80 Bridge Receiver Detection Efficiency")
 
 ```
 <br/>
@@ -635,22 +637,23 @@ ggplot(I80, aes(day, percent_detect, fill = factor(recv))) +
 
 ```{r see winter run counts per tagger, echo=FALSE}
 
-setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
-
-
-detects <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = FALSE)
-tagging <- read.csv("Tagged_Fish_Metadata.txt", stringsAsFactors = F)
-tagging <- tagging[tagging$StudyID == "Winter_H_2018",]
-
-detects_tagger <- merge(detects, tagging[,c("TagID_Hex","Surgeon", "Rel_group")], by.x = "TagCode", by.y = "TagID_Hex")
-
-arrivals <- as.data.frame(table(detects_tagger[!duplicated(detects_tagger$TagCode),"Surgeon"]))
-
-colnames(arrivals) <- c("Surgeon", "Unique_Fish_Arrivals")
-arrivals$total_tagged <- 200
-arrivals$percent_arrivals <- round(arrivals$Unique_Fish_Arrivals/arrivals$total_tagged * 100,2)
-
-kable(arrivals)
+print("not currently avaialable")
+# setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+# 
+# 
+# detects <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = FALSE)
+# tagging <- read.csv("Tagged_Fish_Metadata.txt", stringsAsFactors = F)
+# tagging <- tagging[tagging$StudyID == "Winter_H_2018",]
+# 
+# detects_tagger <- merge(detects, tagging[,c("TagID_Hex","Surgeon", "Rel_group")], by.x = "TagCode", by.y = "TagID_Hex")
+# 
+# arrivals <- as.data.frame(table(detects_tagger[!duplicated(detects_tagger$TagCode),"Surgeon"]))
+# 
+# colnames(arrivals) <- c("Surgeon", "Unique_Fish_Arrivals")
+# arrivals$total_tagged <- 200
+# arrivals$percent_arrivals <- round(arrivals$Unique_Fish_Arrivals/arrivals$total_tagged * 100,2)
+# 
+# kable(arrivals)
 
 
 ```
