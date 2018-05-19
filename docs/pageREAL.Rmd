@@ -378,6 +378,7 @@ gap_percent[gap_percent$recv == "17140", "recv_start"] <- as.POSIXct("2018-04-17
 gap_percent[gap_percent$recv == "17142", "recv_start"] <- as.POSIXct("2018-04-17 4:00:00")
 gap_percent[gap_percent$recv == "17125", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
 gap_percent[gap_percent$recv == "18008", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
+gap_percent[gap_percent$recv == "17130", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
 
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
 gap_percent$percent_files_missing <- 100-round(gap_percent$total_files/as.numeric(gap_percent$num_of_hours)*100,1)
@@ -524,7 +525,7 @@ gen_locs <- gen_locs[order(gen_locs$last_download, decreasing = T),]
 
 gen_locs <- merge(gen_locs, gap_percent[c("recv", "recv_start", "percent_files_missing")], by = "recv", all.x = T)
 
-kable(gen_locs, align = "c")
+kable(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm",  "recv_start", "last_download", "percent_files_missing")], align = "c")
 
 
 ````
@@ -563,9 +564,8 @@ kable(corrupted_downloads[,c("Filename", "Download_attempts")], row.names = F)
 
 <br/>
 
+Not currently available
 ```{r print figures of detection efficiency, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
-
-print("Not currently available")
 
 # library(ggplot2)
 # 
@@ -637,7 +637,7 @@ print("Not currently available")
 
 ```{r see winter run counts per tagger, echo=FALSE}
 
-print("not currently avaialable")
+print("not currently available")
 # setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 # 
 # 
