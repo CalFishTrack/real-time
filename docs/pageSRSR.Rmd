@@ -187,7 +187,7 @@ if (nrow(detects_study) == 0){
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2[,1:ncol(daterange2)-1]), fill= rainbow(rel_num), horiz = T, title = "Release Week")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release Week")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -250,49 +250,53 @@ if (nrow(test) == 0){
   # Count number of genlocs
   gen_loc_sites <- ncol(inp)-1
   
-  inp <- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
-
-  inp <- merge(study_tagcodes, inp, by.x = "TagID_Hex", by.y = "TagCode", all.x = T)
+  if(gen_loc_sites <2){
+    "Detections at only one location so far, survival cannot yet be estimated"
+  }else{
   
-  inp2 <- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
-  inp2[is.na(inp2)] <- 0
-  inp2[inp2 > 0] <- 1
+    inp <- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
   
-  inp <- cbind(inp, inp2)
-  groups <- as.character(sort(unique(inp$Release_week)))
-
-  inp[,groups] <- 0
-  for (i in groups) {
-    inp[as.character(inp$Release_week) == i, i] <- 1
+    inp <- merge(study_tagcodes, inp, by.x = "TagID_Hex", by.y = "TagCode", all.x = T)
+    
+    inp2 <- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+    inp2[is.na(inp2)] <- 0
+    inp2[inp2 > 0] <- 1
+    
+    inp <- cbind(inp, inp2)
+    groups <- as.character(sort(unique(inp$Release_week)))
+  
+    inp[,groups] <- 0
+    for (i in groups) {
+      inp[as.character(inp$Release_week) == i, i] <- 1
+    }
+    
+    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
+    
+    
+    write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+    
+    WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
+    
+    WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+    
+    WR.ddl <- make.design.data(WR.process)
+    
+    WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.surv <- round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1)
+    WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
+    WR.surv$Detection_efficiency <- NA
+    WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
+    
+    WR.surv <- cbind(c("ALL", groups), WR.surv)
+    
+    colnames(WR.surv) <- c("Release Week", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+    
+    print(kable(WR.surv, row.names = F, "html") %>%
+            kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   }
-  
-  inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
-  
-  
-  write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
-  
-  WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
-  
-  WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
-  
-  WR.ddl <- make.design.data(WR.process)
-  
-  WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
-  
-  WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
-  
-  WR.surv <- round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1)
-  WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
-  WR.surv$Detection_efficiency <- NA
-  WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
-  
-  WR.surv <- cbind(c("ALL", groups), WR.surv)
-  
-  colnames(WR.surv) <- c("Release Week", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
-  
-  print(kable(WR.surv, row.names = F, "html") %>%
-          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
-
 }
 
 cleanup(ask = F)
