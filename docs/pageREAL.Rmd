@@ -100,23 +100,27 @@ if (nrow(ATS_files) > 0) {
   shortname <- regexpr(ATS_files$x, pattern = "Data")[1]
   incomplete_shortname <- substr(ATS_files$x, shortname+5, nchar(ATS_files$x))
   shortname <- strsplit(incomplete_shortname, "/")
-  ATS_files_shortname <- unlist(lapply(shortname, tail, 1))
+  ATS_files$shortname <- unlist(lapply(shortname, tail, 1))
+  
 
   downloads_new <- data.frame()
   
-  for (i in 1:nrow(ATS_files)) {
-    
-    if (substr(read.csv(ATS_files[i,], nrows = 1, header = F)[,1] , 1,4) == "Site") {
-      hour <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
-      recv <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
-    }else{
-      recv <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
-      hour <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 19, nrows = 1, header = F)
-    }
-    hour <- substr(hour, start = 13, stop = 31)
-    recv <- substr(recv, start = 16, stop = 21)
-    downloads_new <- rbind(downloads_new, cbind(filename = ATS_files_shortname[i],recv, hour))
-  }
+  try({
+      for (i in 1:nrow(ATS_files)) {
+      
+      if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
+        hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
+        recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
+      }else{
+        recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
+        hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 19, nrows = 1, header = F)
+      }
+      hour <- substr(hour, start = 13, stop = 31)
+      recv <- substr(recv, start = 16, stop = 21)
+      downloads_new <- rbind(downloads_new, 
+                             cbind(filename = ATS_files[i, "shortname"],recv, hour))
+      }
+  })
   
   downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
   
@@ -138,22 +142,40 @@ if (nrow(ATS_files) > 0) {
   downloads_new$sun_volts <- NA
   downloads_new$bat_volts <- NA
   
+  ## Here, remove files that didn't have their download data read correctly and add them to the corrupted files list. These files should not be read for detections
+  short_files <- ATS_files[ATS_files$shortname %in% downloads_new[downloads_new$recv == "","filename"],]
+  if(nrow(short_files)){  
+    downloads_new <- downloads_new[!downloads_new$recv == "",]
+    ATS_files <- ATS_files[!ATS_files$shortname %in% short_files$shortname,]
+    for (i in 1:nrow(short_files)){
+      if(short_files[i, "shortname"] %in% corrupted_downloads$V1){
+      corrupted_downloads[corrupted_downloads$V1 == short_files[i, "shortname"], "download_attempts"] <- 
+        as.numeric(corrupted_downloads[corrupted_downloads$V1 == short_files[i, "shortname"], "download_attempts"])+1
+      }else{
+        corrupted_downloads <- rbind(corrupted_downloads, cbind(V1 = short_files[i, "shortname"], download_attempts = 1, filename = short_files[i,"x"]))
+      }
+    }
+  }
+      
+  ## Now gather detections
   detects_temp <- data.frame()
   
+
   for (i in 1:nrow(ATS_files)) {
-    if (substr(read.csv(ATS_files[i,], nrows = 1, header = F)[,1] , 1,4) == "Site") {
-      test <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
+    if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
+      test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
     }else{
-      test <- read.csv(ATS_files[i,], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
+      test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
     } 
     if(colnames(test)[1] != "Internal"){
       colnames(test) <- colnames(test)[-1]
       test[,ncol(test)] <- NULL
     }
-    test$recv <- substr(ATS_files[i,], nchar(ATS_files[i,])-22, nchar(ATS_files[i,])-18)
+    test$recv <- substr(ATS_files[i,"x"], nchar(ATS_files[i,"x"])-22, nchar(ATS_files[i,"x"])-18)
     end1 <- head(grep("--", test[,1]),1)
     end2 <- head(grep("File End", test[,1]),1)
     end_final <- head(grep(".-- Done", test[,1]),1)
+
     
     if (length(end_final) == 0) {
       ## This means the detection file is incomplete aka corrupted
@@ -163,19 +185,19 @@ if (nrow(ATS_files) > 0) {
       ## And physically remove the file from the computer if the tally counter is <3
       ## If >= 3, leave the file as this will avoid having to download it again to no avail
       ## We do this at the end so we don't delete files when prototyping this ATS code segment
-      downloads_new <- downloads_new[!downloads_new$filename == ATS_files_shortname[i],]
-      if(ATS_files_shortname[i] %in% corrupted_downloads$V1){
-        corrupted_downloads[corrupted_downloads$V1 == ATS_files_shortname[i], "download_attempts"] <- 
-          as.numeric(corrupted_downloads[corrupted_downloads$V1 == ATS_files_shortname[i], "download_attempts"])+1
+      downloads_new <- downloads_new[!downloads_new$filename == ATS_files[i,"shortname"],]
+      if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
+        corrupted_downloads[corrupted_downloads$V1 == ATS_files[i, "shortname"], "download_attempts"] <- 
+          as.numeric(corrupted_downloads[corrupted_downloads$V1 == ATS_files[i, "shortname"], "download_attempts"])+1
       }else{
-        corrupted_downloads <- rbind(corrupted_downloads, cbind(V1 = ATS_files_shortname[i], download_attempts = 1, filename = ATS_files[i,]))
+        corrupted_downloads <- rbind(corrupted_downloads, cbind(V1 = ATS_files[i, "shortname"], download_attempts = 1, filename = ATS_files[i,"x"]))
       }
       
     }else{
       
       ## if a previously corrupted file did finally get read correctly, remove it from the corrupted file
-      if(ATS_files_shortname[i] %in% corrupted_downloads$V1){
-        corrupted_downloads <- corrupted_downloads[!corrupted_downloads$V1 == ATS_files_shortname[i],] 
+      if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
+        corrupted_downloads <- corrupted_downloads[!corrupted_downloads$V1 == ATS_files[i, "shortname"],] 
       }
       ## Now data massage  
       test1 <- test[-c(end_final:nrow(test)),]
@@ -193,7 +215,7 @@ if (nrow(ATS_files) > 0) {
       ## Now change DateTime_PST to PST, but this is tricky because for some, orig time is in CST
       ## Have this first if statement in case there are no detections in a file
       if(nrow(test4)>0){
-        if(ATS_files[i,] %in% CST_files$Filenames | 
+        if(ATS_files[i,"x"] %in% CST_files$Filenames | 
           unique(test4$recv) %in% c("17131","18007")) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
@@ -498,7 +520,7 @@ file.remove(remove_these)
 
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
 
-ATS_processed_files <- rbind(ATS_processed_files, ATS_files)
+ATS_processed_files <- rbind(ATS_processed_files, ATS_files$x)
 
 ATS_processed_files <- as.data.frame(ATS_processed_files[!ATS_processed_files$x %in% remove_these,])
 colnames(ATS_processed_files) <- "x"

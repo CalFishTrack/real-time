@@ -111,7 +111,7 @@ kable(release_stats, format = "html") %>%
 
 <br/>
 <center>
-#### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Colusa Bridge
+#### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </center>
 
 ```{r print figure of fish detections, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
@@ -148,7 +148,7 @@ if (nrow(detects_study) == 0){
   endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
   
 
-  wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
+  wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
 
   wlk_flow$datetime <- as.Date(wlk_flow$datetime)
   wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value),
@@ -198,7 +198,7 @@ if (nrow(detects_study) == 0){
 
   plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-  mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
+  mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
 }
 
 ```
