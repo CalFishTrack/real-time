@@ -245,7 +245,7 @@ if (nrow(ATS_files) > 0) {
   
   #coords <- unique(locs[,c("recv", "lat", "lon")])
   
-  ## In case all new files were corrupted, have this if statement
+  ## In case all new files were corrupted i.e. length(detects_temp) = 0, have this if statement
   if (length(detects_temp) > 0){
    ## Now remove prefix and suffix of TagCode
     detects_temp$TagCode <- substr(detects_temp$TagCode, start = 5, stop = 8)
@@ -253,6 +253,15 @@ if (nrow(ATS_files) > 0) {
     ## Remove "ffff" detections
     detects_temp <- detects_temp[!detects_temp$TagCode == "ffff",]
     
+    ## Make temp numeric
+    detects_temp$Temp <- as.numeric(detects_temp$Temp)
+    
+    ## Sometimes weird negative or 99.99 degree temp recordings are logged, remove these
+    detects_temp[detects_temp$Temp > 99 | detects_temp$Temp < 0, "Temp"] <- NA
+    
+    ## A few receivers seem to have had temp sensors, so make NA
+    detects_temp[detects_temp$recv %in% c(17127, 17139, 17135, 17143, 17147, 18008, 18003, 17144), "Temp"] <- NA
+ 
     ## Here, put only non-beacon detections in detection file
     detects_new <- detects_temp[!detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
     ## And put beacon detections into seperate file
@@ -457,9 +466,15 @@ for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
   ## First, select only detections of correct tagcodes per study
   temp_detects <- as.data.frame(detects_filtered[detects_filtered$TagCode %in% studycodes,])
-  ## Now remove false detections that occured before release
-  temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
+  ## Now remove false detections that occured before release,
+  temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT", "PRI_nominal")], by.x = "TagCode", by.y = "TagID_Hex")
   temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
+  ## Now remove false detections that occured after the tags expected end of life
+  temp_detects$tag_life <- NA
+  temp_detects[temp_detects$PRI_nominal %in% c(3,5), "tag_life"] <- 30
+  temp_detects[temp_detects$PRI_nominal == 10, "tag_life"] <- 60
+  temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)
+  temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]
   ## Now if a tag was detected less than 3 times at any gen loc, remove those detections at that gen loc
   detect_count <- table(temp_detects$general_location, temp_detects$TagCode)
   detect_count_melt <- melt(detect_count)
@@ -494,19 +509,20 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
     
-    ## Now remove RelDT and genloctag columns
-    temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag")]
+    ## Now remove RelDT, PRI, tag_life and genloctag columns
+    temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
     ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 2 hours (within 2 hours before and 2 hours after)
     temp_detects$before_and_after_valid <- NA
     temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 1 & temp_detects$time_from_previous < 1,"before_and_after_valid"] <- 1
     ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 2 hours apart
     temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
-                                       shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
-                                       temp_detects$before_and_after_valid == 1),]
+                                         shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
+                                         temp_detects$before_and_after_valid == 1),]
     #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
   }
   write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
+
 
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
@@ -528,7 +544,7 @@ file.remove(remove_these)
 
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
 
-ATS_processed_files <- rbind(ATS_processed_files, ATS_files$x)
+ATS_processed_files <- rbind(ATS_processed_files, ATS_files[names(ATS_processed_files)])
 
 ATS_processed_files <- as.data.frame(ATS_processed_files[!ATS_processed_files$x %in% remove_these,])
 colnames(ATS_processed_files) <- "x"
