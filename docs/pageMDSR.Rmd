@@ -128,6 +128,7 @@ library(reshape2)
 
 detects_study <- read.csv("detects_DeerCk-Wild-2018.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %H:%M:%S %p", tz = "Etc/GMT+8")
@@ -141,9 +142,9 @@ tagcodes[tagcodes$RelDT > as.POSIXct("2018-05-15") & tagcodes$RelDT < as.POSIXct
 
 if (nrow(detects_study) == 0){
   "No detections yet"
+  
 } else {
   
-  detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
   detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
   
   detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
@@ -238,7 +239,7 @@ study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-15") & study_tagcodes$
 
 study_count <- nrow(study_tagcodes)
 
-if (nrow(test) == 0){
+if (nrow(test[test$general_location == "TowerBridge",]) == 0){
   "No detections yet"
 } else {
   

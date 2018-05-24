@@ -519,6 +519,8 @@ for (k in unique(tagcodes$StudyID)){
                                          shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
                                          temp_detects$before_and_after_valid == 1),]
     #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    ## Remove before and after valid column
+      temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
   }
   write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
