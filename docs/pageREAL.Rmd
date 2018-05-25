@@ -128,7 +128,7 @@ if (nrow(ATS_files) > 0) {
   
   for (i in 1:nrow(downloads_new)){ 
     if(downloads_new[i, "filename"] %in% CST_files$Filenames | 
-       downloads_new[i, "recv"] %in% c("17131","18007")) {
+       downloads_new[i, "recv"] %in% c("17131","18007", "17134")) {
       downloads_new[i, "start"] <- downloads_new[i, "start"]-2*60*60
     }
     if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143", "17135")) {
@@ -255,6 +255,9 @@ if (nrow(ATS_files) > 0) {
     
     ## Make temp numeric
     detects_temp$Temp <- as.numeric(detects_temp$Temp)
+    
+    ## Make sure no rows are all NA, this has been happening on rare occasions
+    detects_temp <- detects_temp[!is.na(detects_temp$recv),]
     
     ## Sometimes weird negative or 99.99 degree temp recordings are logged, remove these
     detects_temp[detects_temp$Temp > 99 | detects_temp$Temp < 0, "Temp"] <- NA
@@ -410,6 +413,7 @@ gap_percent[gap_percent$recv == "17142", "recv_start"] <- as.POSIXct("2018-04-17
 gap_percent[gap_percent$recv == "17125", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
 gap_percent[gap_percent$recv == "18008", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
 gap_percent[gap_percent$recv == "17130", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
+gap_percent[gap_percent$recv == "17134", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
 
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
 gap_percent$percent_files_missing <- 100-round(gap_percent$total_files/as.numeric(gap_percent$num_of_hours)*100,1)
@@ -511,10 +515,10 @@ for (k in unique(tagcodes$StudyID)){
     
     ## Now remove RelDT, PRI, tag_life and genloctag columns
     temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
-    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 2 hours (within 2 hours before and 2 hours after)
+    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 14 minute span (this seems like a good cutoff) (within 7 minutes before and 7 minutes after)
     temp_detects$before_and_after_valid <- NA
-    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 1 & temp_detects$time_from_previous < 1,"before_and_after_valid"] <- 1
-    ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 2 hours apart
+    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 0.1167 & temp_detects$time_from_previous < 0.1167,"before_and_after_valid"] <- 1
+    ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
     temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
                                          shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
                                          temp_detects$before_and_after_valid == 1),]
