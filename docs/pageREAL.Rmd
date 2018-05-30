@@ -515,9 +515,9 @@ for (k in unique(tagcodes$StudyID)){
     
     ## Now remove RelDT, PRI, tag_life and genloctag columns
     temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
-    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 14 minute span (this seems like a good cutoff) (within 7 minutes before and 7 minutes after)
+    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after)
     temp_detects$before_and_after_valid <- NA
-    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 0.1167 & temp_detects$time_from_previous < 0.1167,"before_and_after_valid"] <- 1
+    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 0.083 & temp_detects$time_from_previous < 0.083,"before_and_after_valid"] <- 1
     ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
     temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
                                          shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |

@@ -56,6 +56,7 @@ study_tagcodes$Release_week <- NA
 
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
 
 
 release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
@@ -130,6 +131,7 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %H:%M:%S %p", tz
 tagcodes$Release_week <- NA
 tagcodes[tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
 tagcodes[tagcodes$RelDT > as.POSIXct("2018-05-12") & tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
+tagcodes[tagcodes$RelDT > as.POSIXct("2018-05-20") & tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
 
 #wlk_flow <- read.csv("wlk.csv")
 
@@ -228,6 +230,7 @@ study_tagcodes <- tagcodes[tagcodes$StudyID == "RBDD-2018",]
 study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
 
 study_count <- nrow(study_tagcodes)
 
@@ -326,6 +329,7 @@ study_tagcodes <- tagcodes[tagcodes$StudyID == "RBDD-2018",]
 study_tagcodes$Release_week <- NA
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
 study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
 
 study_count <- nrow(study_tagcodes)
 
