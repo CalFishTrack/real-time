@@ -171,7 +171,7 @@ if (nrow(ATS_files) > 0) {
       colnames(test) <- colnames(test)[-1]
       test[,ncol(test)] <- NULL
     }
-    test$recv <- substr(ATS_files[i,"x"], nchar(ATS_files[i,"x"])-22, nchar(ATS_files[i,"x"])-18)
+    ## Find file end, if it exists (if it doesn't, file is corrupted, see below)
     end1 <- head(grep("--", test[,1]),1)
     end2 <- head(grep("File End", test[,1]),1)
     end_final <- head(grep(".-- Done", test[,1]),1)
@@ -199,7 +199,8 @@ if (nrow(ATS_files) > 0) {
       if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
         corrupted_downloads <- corrupted_downloads[!corrupted_downloads$V1 == ATS_files[i, "shortname"],] 
       }
-      ## Now data massage  
+      ## Now data massage
+      test$recv <- substr(ATS_files[i,"x"], nchar(ATS_files[i,"x"])-22, nchar(ATS_files[i,"x"])-18)
       test1 <- test[-c(end_final:nrow(test)),]
       test2 <- test1[!test1$TagCode == "",]
       test3 <- test2[!test2$TagCode == " TagCode",]
