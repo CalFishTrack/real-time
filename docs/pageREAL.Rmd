@@ -637,6 +637,7 @@ test <- test[!test$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
 test$recv <- factor(test$recv)
 
 ## now make plots for all time
+dev.new(width=8, height=8)
 par(mar=c(5.1,2.1,2.1,4.1))
 plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
 axis(4, labels = unique(test$recv), at = 1:length(unique(test$recv)), las = 2)
@@ -656,6 +657,7 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 ## And for last week
 last_week <- test[which(as.POSIXct(test$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*7),]
 
+dev.new(width=8, height=8)
 par(mar=c(5.1,2.1,2.1,4.1))
 plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
 axis(4, labels = unique(last_week$recv), at = 1:length(unique(last_week$recv)), las = 2)
