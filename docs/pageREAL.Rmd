@@ -102,11 +102,11 @@ if (nrow(ATS_files) > 0) {
   shortname <- strsplit(incomplete_shortname, "/")
   ATS_files$shortname <- unlist(lapply(shortname, tail, 1))
   
-
+  
   downloads_new <- data.frame()
   
   try({
-      for (i in 1:nrow(ATS_files)) {
+    for (i in 1:nrow(ATS_files)) {
       
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
@@ -119,7 +119,7 @@ if (nrow(ATS_files) > 0) {
       recv <- substr(recv, start = 16, stop = 21)
       downloads_new <- rbind(downloads_new, 
                              cbind(filename = ATS_files[i, "shortname"],recv, hour))
-      }
+    }
   })
   
   downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
@@ -149,18 +149,18 @@ if (nrow(ATS_files) > 0) {
     ATS_files <- ATS_files[!ATS_files$shortname %in% short_files$shortname,]
     for (i in 1:nrow(short_files)){
       if(short_files[i, "shortname"] %in% corrupted_downloads$V1){
-      corrupted_downloads[corrupted_downloads$V1 == short_files[i, "shortname"], "download_attempts"] <- 
-        as.numeric(corrupted_downloads[corrupted_downloads$V1 == short_files[i, "shortname"], "download_attempts"])+1
+        corrupted_downloads[corrupted_downloads$V1 == short_files[i, "shortname"], "download_attempts"] <- 
+          as.numeric(corrupted_downloads[corrupted_downloads$V1 == short_files[i, "shortname"], "download_attempts"])+1
       }else{
         corrupted_downloads <- rbind(corrupted_downloads, cbind(V1 = short_files[i, "shortname"], download_attempts = 1, filename = short_files[i,"x"]))
       }
     }
   }
-      
+  
   ## Now gather detections
   detects_temp <- data.frame()
   
-
+  
   for (i in 1:nrow(ATS_files)) {
     if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
       test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
@@ -175,7 +175,7 @@ if (nrow(ATS_files) > 0) {
     end1 <- head(grep("--", test[,1]),1)
     end2 <- head(grep("File End", test[,1]),1)
     end_final <- head(grep(".-- Done", test[,1]),1)
-
+    
     
     if (length(end_final) == 0) {
       ## This means the detection file is incomplete aka corrupted
@@ -217,7 +217,7 @@ if (nrow(ATS_files) > 0) {
       ## Have this first if statement in case there are no detections in a file
       if(nrow(test4)>0){
         if(ATS_files[i,"x"] %in% CST_files$Filenames | 
-          unique(test4$recv) %in% c("17131","18007")) {
+           unique(test4$recv) %in% c("17131","18007")) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
@@ -248,7 +248,7 @@ if (nrow(ATS_files) > 0) {
   
   ## In case all new files were corrupted i.e. length(detects_temp) = 0, have this if statement
   if (length(detects_temp) > 0){
-   ## Now remove prefix and suffix of TagCode
+    ## Now remove prefix and suffix of TagCode
     detects_temp$TagCode <- substr(detects_temp$TagCode, start = 5, stop = 8)
     
     ## Remove "ffff" detections
@@ -257,15 +257,15 @@ if (nrow(ATS_files) > 0) {
     ## Make temp numeric
     detects_temp$Temp <- as.numeric(detects_temp$Temp)
     
-    ## Make sure no rows are all NA, this has been happening on rare occasions
-    detects_temp <- detects_temp[!is.na(detects_temp$recv),]
+    ## Make sure critical rows are NA, this has been happening on rare occasions
+    detects_temp <- detects_temp[!(is.na(detects_temp$recv) | is.na(detects_temp$DateTime_PST) | is.na(detects_temp$TagCode)),]
     
     ## Sometimes weird negative or 99.99 degree temp recordings are logged, remove these
     detects_temp[detects_temp$Temp > 99 | detects_temp$Temp < 0, "Temp"] <- NA
     
     ## A few receivers seem to have had temp sensors, so make NA
     detects_temp[detects_temp$recv %in% c(17127, 17139, 17135, 17143, 17147, 18008, 18003, 17144), "Temp"] <- NA
- 
+    
     ## Here, put only non-beacon detections in detection file
     detects_new <- detects_temp[!detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
     ## And put beacon detections into seperate file
@@ -310,7 +310,7 @@ if (nrow(TECKNO_files) > 0) {
   
   downloads_new$end <- as.POSIXct(downloads_new$hour, tz = "GMT")
   downloads_new$start <- downloads_new$end -(60*60)
-
+  
   
   
   ## Now change all times to PST to match ATS receivers
@@ -368,6 +368,10 @@ if (nrow(TECKNO_files) > 0) {
   
 }
 
+## Now remove duplicate detections that may have occured when an hourly file was inadvertantly uploaded twice
+detects <- detects[!duplicated(detects[,c("recv", "DateTime_Orig", "TagCode")])]
+detects_beacon <- detects_beacon[!duplicated(detects_beacon[,c("recv", "DateTime_Orig", "TagCode")])]
+
 ## Now merge location data back with detections
 detects <- merge(detects, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv", all.x = TRUE)
 detects_beacon <- merge(detects_beacon, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv", all.x = TRUE)
@@ -399,7 +403,7 @@ for (j in 2:nrow(downloads)){
 gaps <- downloads[is.na(downloads$gapstart) == F,]
 gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
 gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
- 
+
 gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
 gaps$start <- NULL
 gaps$end <- NULL
@@ -416,8 +420,17 @@ gap_percent[gap_percent$recv == "18008", "recv_start"] <- as.POSIXct("2018-04-25
 gap_percent[gap_percent$recv == "17130", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
 gap_percent[gap_percent$recv == "17134", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
 
+## Calculate the individual hours that have beacon detections
+test <- aggregate(detects_beacon$DateTime_PST, by = list(recv = detects_beacon$recv, hour = format(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
+test <- merge(test, gap_percent[, c("recv", "recv_start")])
+test <- test[test$hour > test$recv_start,]
+gap_percent <- merge(gap_percent, aggregate(list(hour_count = test$hour), by = list(recv = test$recv), FUN = length), by = "recv")
+
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
-gap_percent$percent_files_missing <- 100-round(gap_percent$total_files/as.numeric(gap_percent$num_of_hours)*100,1)
+## Now estimate the number of hours with no beacon detections
+gap_percent$percent_files_missing <- 100-round(gap_percent$hour_count/as.numeric(gap_percent$num_of_hours)*100,1)
+## Now for receivers with no beacon, or a broken beacon, just use the old method of number of hourly files compared to number expected
+gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "percent_files_missing"] <- 100-round(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "total_files"]/as.numeric(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "num_of_hours"])*100,1)
 
 downloads$gapstart <- NULL
 downloads$gapend <- NULL
@@ -525,11 +538,10 @@ for (k in unique(tagcodes$StudyID)){
                                          temp_detects$before_and_after_valid == 1),]
     #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
     ## Remove before and after valid column
-      temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
+    temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
   }
   write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
-
 
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
@@ -610,6 +622,46 @@ colnames(corrupted_downloads) <- c("Filename", "Download_attempts", "filename_lo
 kable(corrupted_downloads[,c("Filename", "Download_attempts")], row.names = F)
 ```
 
+<br/>
+
+## Operational time for each receiver over entire study period
+
+<br/>
+
+Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed because they do not currently have beacon tags.
+
+```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
+
+## Now make plots of receiver beacon detections through time. First remove the receivers without beacons
+test <- test[!test$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
+test$recv <- factor(test$recv)
+
+## now make plots for all time
+par(mar=c(5.1,2.1,2.1,4.1))
+plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
+axis(4, labels = unique(test$recv), at = 1:length(unique(test$recv)), las = 2)
+points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(test$recv)), col = "red", pch = 15)
+
+```
+
+<br/>
+
+## Operational time for each receiver over last 7 days
+
+<br/>
+
+Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed because they do not currently have beacon tags.
+
+```{r plot just last weeks receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
+## And for last week
+last_week <- test[which(as.POSIXct(test$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*7),]
+
+par(mar=c(5.1,2.1,2.1,4.1))
+plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
+axis(4, labels = unique(last_week$recv), at = 1:length(unique(last_week$recv)), las = 2)
+points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(last_week$recv)), col = "red", pch = 15)
+
+```
 
 <br/>
 
@@ -683,14 +735,10 @@ Not currently available
 ```
 <br/>
 
-## Fish Arrivals per Surgeon
-
-<br/>
 
 
 ```{r see winter run counts per tagger, echo=FALSE}
 
-print("not currently available")
 # setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 # 
 # 
