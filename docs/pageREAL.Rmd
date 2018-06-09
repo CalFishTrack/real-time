@@ -630,14 +630,14 @@ kable(corrupted_downloads[,c("Filename", "Download_attempts")], row.names = F)
 
 Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed because they do not currently have beacon tags.
 
-```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
+```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
 ## Now make plots of receiver beacon detections through time. First remove the receivers without beacons
 test <- test[!test$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
 test$recv <- factor(test$recv)
 
 ## now make plots for all time
-dev.new(width=8, height=8)
+
 par(mar=c(5.1,2.1,2.1,4.1))
 plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
 axis(4, labels = unique(test$recv), at = 1:length(unique(test$recv)), las = 2)
@@ -653,11 +653,10 @@ points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", 
 
 Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed because they do not currently have beacon tags.
 
-```{r plot just last weeks receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
+```{r plot just last weeks receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 ## And for last week
 last_week <- test[which(as.POSIXct(test$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*7),]
 
-dev.new(width=8, height=8)
 par(mar=c(5.1,2.1,2.1,4.1))
 plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
 axis(4, labels = unique(last_week$recv), at = 1:length(unique(last_week$recv)), las = 2)
