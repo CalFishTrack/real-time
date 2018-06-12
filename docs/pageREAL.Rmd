@@ -449,7 +449,6 @@ gap_percent[gap_percent$recv == "17134", "recv_start"] <- as.POSIXct("2018-05-22
 
 ## Calculate the individual hours that have beacon detections
 ## First, make sure only a receivers specific beacon tag is allowed to count
-gen_locs$recv <- as.numeric(gen_locs$recv)
 detects_beacon1 <- merge(detects_beacon, gen_locs[,c("recv", "beacon")], by = "recv", all.x = T)
 detects_beacon1 <- detects_beacon1[detects_beacon1$TagCode == detects_beacon1$beacon,]
 test <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
