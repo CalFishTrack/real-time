@@ -28,6 +28,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 ```{r bring in data, massage, create new data files, print diagnostics, echo=FALSE, warning=FALSE, message=FALSE, results = "hide"}
 
+
 library(knitr)
 library(dplyr)
 library(data.table)
@@ -271,6 +272,19 @@ if (nrow(ATS_files) > 0) {
     ## And put beacon detections into seperate file
     detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
     
+    ## Now remove multipath detections from detects_beacon_new
+    ## First reorder the data since the above steps may have jumbled things
+    detects_beacon_new <- detects_beacon_new[order(detects_beacon_new$recv, detects_beacon_new$TagCode, detects_beacon_new$DateTime_PST),]
+    detects_beacon_new$time_to_next <- as.numeric(difftime(shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lead"), detects_beacon_new$DateTime_PST, units = "hours"))
+    detects_beacon_new$time_from_previous <- as.numeric(difftime(detects_beacon_new$DateTime_PST, shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+    ## Now make NA the time diff values when it's between 2 different recvs or tagcodes
+    detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
+    detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
+    detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+
     #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
     
     #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
@@ -362,6 +376,19 @@ if (nrow(TECKNO_files) > 0) {
   ## And put beacon detections into seperate file
   detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(gen_locs$beacon, "006F", "006D"),]
   
+  ## Now remove multipath detections from detects_beacon_new
+  ## First reorder the data since the above steps may have jumbled things
+  detects_beacon_new <- detects_beacon_new[order(detects_beacon_new$recv, detects_beacon_new$TagCode, detects_beacon_new$DateTime_PST),]
+  detects_beacon_new$time_to_next <- as.numeric(difftime(shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lead"), detects_beacon_new$DateTime_PST, units = "hours"))
+  detects_beacon_new$time_from_previous <- as.numeric(difftime(detects_beacon_new$DateTime_PST, shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+  ## Now make NA the time diff values when it's between 2 different recvs or tagcodes
+  detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
+  detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+  ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
+  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+  
   ## Now append these to existing datasets
   detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
   detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
@@ -421,7 +448,11 @@ gap_percent[gap_percent$recv == "17130", "recv_start"] <- as.POSIXct("2018-05-16
 gap_percent[gap_percent$recv == "17134", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
 
 ## Calculate the individual hours that have beacon detections
-test <- aggregate(detects_beacon$DateTime_PST, by = list(recv = detects_beacon$recv, hour = format(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
+## First, make sure only a receivers specific beacon tag is allowed to count
+gen_locs$recv <- as.numeric(gen_locs$recv)
+detects_beacon1 <- merge(detects_beacon, gen_locs[,c("recv", "beacon")], by = "recv", all.x = T)
+detects_beacon1 <- detects_beacon1[detects_beacon1$TagCode == detects_beacon1$beacon,]
+test <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
 test <- merge(test, gap_percent[, c("recv", "recv_start")])
 test <- test[test$hour > test$recv_start,]
 gap_percent <- merge(gap_percent, aggregate(list(hour_count = test$hour), by = list(recv = test$recv), FUN = length), by = "recv")
@@ -432,10 +463,38 @@ gap_percent$percent_files_missing <- 100-round(gap_percent$hour_count/as.numeric
 ## Now for receivers with no beacon, or a broken beacon, just use the old method of number of hourly files compared to number expected
 gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "percent_files_missing"] <- 100-round(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "total_files"]/as.numeric(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "num_of_hours"])*100,1)
 
+## Now make plots of receiver beacon detections through time. First remove the receivers without beacons
+test <- test[!test$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
+test$recv <- factor(test$recv)
+
+## Estimate hourly detection efficiency
+test <- merge(test,gen_locs[,c("recv", "beacon_PRI")], by = "recv", all.x = T)
+test$expected <- 60*60/test$beacon_PRI
+test$hourly_efficiency <- round(test$x/test$expected,3)*100
+
+## now make plots for all time
+par(mar=c(5.1,2.1,2.1,4.1))
+plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
+axis(4, labels = unique(test$recv), at = 1:length(unique(test$recv)), las = 2)
+points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(test$recv)), col = "red", pch = 15)
+
+## And for last week
+last_week <- test[which(as.POSIXct(test$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*2),]
+dev.new(width=8, height=8)
+par(mar=c(5.1,2.1,2.1,4.1))
+plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
+axis(4, labels = unique(last_week$recv), at = 1:length(unique(last_week$recv)), las = 2)
+axis(1, at = unique(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H")), labels = format(unique(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H")), "%d %H"), las = 2)
+points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(last_week$recv)), col = "red", pch = 15)
+
+## Finally, make a table with all-time and last week's mean hourly detection efficiency
+efficiency <- aggregate(list(all_time_efficiency = test$hourly_efficiency), by = list(recv = test$recv), FUN = mean)
+efficiency <- merge(efficiency, aggregate(list(last_week_efficiency = last_week$hourly_efficiency), by = list(recv = last_week$recv), FUN = mean))
+efficiency$all_time_efficiency <- round(efficiency$all_time_efficiency,1)
+efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency, 1)
+
 downloads$gapstart <- NULL
 downloads$gapend <- NULL
-
-
 
 ## Find data gaps by finding hours for which there are zero detectsion
 ## These should never happen since there are so many beacon detections
@@ -573,7 +632,6 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 
 
 
-
 ```
 *Data current as of `r latest`*
 
@@ -666,74 +724,16 @@ points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", 
 
 <br/>
 
-## Daily Detection Efficiency from Beacon Tags
+## All-time and last week's Detection Efficiency from Beacon Tags
 
 <br/>
 
-Not currently available
-```{r print figures of detection efficiency, echo=FALSE, warning=FALSE, message=FALSE,  results = "hide"}
+```{r print table of detection efficiency}
 
-# library(ggplot2)
-# 
-# setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
-# 
-# detects <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
-# 
-# detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS")
-# 
-# 
-# detects$Day <- as.Date(detects$DateTime_PST, "Etc/GMT+8")
-# detects <- as.data.frame(detects)
-# detects$beacon <- NA
-# detects[detects$recv == 157002, "beacon"] <- "FADA"
-# detects[detects$recv == 157003, "beacon"] <- "F96A"
-# detects[detects$recv == 157004, "beacon"] <- "FCAA"
-# detects[detects$recv == 157005, "beacon"] <- "FA55"
-# detects_beacon <- detects[detects$beacon==detects$TagCode,]
-# 
-# ## Remove multipaths
-# detects_beacon_no_mp <- NULL
-# 
-# for (i in c("FADA", "F96A", "FCAA", "FA55")){
-#   temp <- detects_beacon[detects_beacon$TagCode == i,]
-#   temp <- temp[order(temp$DateTime_PST),]
-#   temp$diff <- shift(temp$DateTime_PST, n=1, fill=NA, type="lag")
-#   temp$difftime <- difftime(temp$DateTime_PST, temp$diff, units = "secs")
-#   temp_final <- temp[temp$difftime > 1,]
-#   detects_beacon_no_mp <- rbind(detects_beacon_no_mp, temp_final)
-# }
-# 
-# daily_beacon <- aggregate(list(tag_count = detects_beacon_no_mp$location), by = list(recv = detects_beacon_no_mp$recv, day = detects_beacon_no_mp$Day, tag = detects_beacon_no_mp$TagCode), FUN = length)
-# 
-# daily_beacon[daily_beacon$tag == "FADA","expected_count"] <- 24*60*(60/62.4)
-# daily_beacon[daily_beacon$tag == "F96A","expected_count"] <- 24*60*(60/62.2)
-# daily_beacon[daily_beacon$tag == "FCAA","expected_count"] <- 24*60*(60/62.5)
-# daily_beacon[daily_beacon$tag == "FA55","expected_count"] <- 24*60*(60/64)
-# 
-# daily_beacon$percent_detect <- daily_beacon$tag_count/daily_beacon$expected_count * 100
-# 
-# Tower <- daily_beacon[daily_beacon$recv %in% c(157002,157004),]
-# I80 <- daily_beacon[daily_beacon$recv %in% c(157003,157005),]
-# 
-# ggplot(Tower, aes(day, percent_detect, fill = factor(recv))) + 
-#   geom_bar(stat="identity", position = "dodge") + 
-#   scale_fill_brewer(palette = "Set1") +
-#   xlab("Date") +
-#   ylab("% received beacon transmissions") +
-#   scale_y_continuous(limits = c(0,100)) +
-#   labs(fill='Receiver') +
-#   ggtitle("Tower Bridge Receiver Detection Efficiency")
-# 
-# ggplot(I80, aes(day, percent_detect, fill = factor(recv))) + 
-#   geom_bar(stat="identity", position = "dodge") + 
-#   scale_fill_brewer(palette = "Set1") +
-#   xlab("Date") +
-#   ylab("% received beacon transmissions") +
-#   scale_y_continuous(limits = c(0,100)) +
-#   labs(fill='Receiver') +
-#   ggtitle("I80 Bridge Receiver Detection Efficiency")
+kable(efficiency,  row.names = F)
 
 ```
+
 <br/>
 
 
