@@ -32,6 +32,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 library(knitr)
 library(dplyr)
 library(data.table)
+library(lubridate)
 
 dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
@@ -54,8 +55,11 @@ tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
 detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
 
-detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
-detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
+#detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
+#detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
+detects$DateTime_PST <- ymd_hms(detects$DateTime_PST, tz = "Etc/GMT+8")
+detects_beacon$DateTime_PST <- ymd_hms(detects_beacon$DateTime_PST, tz = "Etc/GMT+8")
+
 
 ## Now remove all gen loc data from detections in case genloc details have changed. We will add genloc data back in at the end of this code
 detects <- subset(detects, select= -c(location, general_location, latitude, longitude, rkm))
@@ -218,7 +222,7 @@ if (nrow(ATS_files) > 0) {
       ## Have this first if statement in case there are no detections in a file
       if(nrow(test4)>0){
         if(ATS_files[i,"x"] %in% CST_files$Filenames | 
-           unique(test4$recv) %in% c("17131","18007")) {
+           unique(test4$recv) %in% c("17131","17134","18007")) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
@@ -284,7 +288,7 @@ if (nrow(ATS_files) > 0) {
     detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
     ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
     detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
-
+    
     #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
     
     #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
@@ -411,29 +415,29 @@ downloads <-  merge(downloads, gen_locs[,c("recv", "location", "general_location
 #downloads_new <-  merge(downloads_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv")
 
 ## Check for hourly download gaps ##
-downloads$gapstart <- as.POSIXct(NA)
-downloads$gapend <- as.POSIXct(NA)
+#downloads$gapstart <- as.POSIXct(NA)
+#downloads$gapend <- as.POSIXct(NA)
 
-downloads <- downloads[order(downloads$recv, downloads$start),]
+#downloads <- downloads[order(downloads$recv, downloads$start),]
 
-for (j in 2:nrow(downloads)){
-  if(downloads[j-1, "recv"] == downloads[j, "recv"] & difftime(downloads[j, "start"], downloads[j-1, "start"], units = "hours") > 1.25 )
-  {downloads[j-1,"gapstart"] <- downloads[j-1, "end"]
-  downloads[j-1,"gapend"] <- downloads[j, "start"]
-  }
-  if (downloads[j-1, "recv"] != downloads[j, "recv"] & difftime(Sys.time(), downloads[j-1, "start"], units = "hours") > 2.2) {
-    downloads[j-1,"gapstart"] <- downloads[j-1, "end"]
-    downloads[j-1,"gapend"] <- Sys.time()
-  }
-}
+#for (j in 2:nrow(downloads)){
+#  if(downloads[j-1, "recv"] == downloads[j, "recv"] & difftime(downloads[j, "start"], downloads[j-1, "start"], units = "hours") > 1.25 )
+#  {downloads[j-1,"gapstart"] <- downloads[j-1, "end"]
+#  downloads[j-1,"gapend"] <- downloads[j, "start"]
+#  }
+#  if (downloads[j-1, "recv"] != downloads[j, "recv"] & difftime(Sys.time(), downloads[j-1, "start"], units = "hours") > 2.2) {
+#    downloads[j-1,"gapstart"] <- downloads[j-1, "end"]
+#    downloads[j-1,"gapend"] <- Sys.time()
+#  }
+#}
 
-gaps <- downloads[is.na(downloads$gapstart) == F,]
-gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
-gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+#gaps <- downloads[is.na(downloads$gapstart) == F,]
+#gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+#gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
 
-gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
-gaps$start <- NULL
-gaps$end <- NULL
+#gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
+#gaps$start <- NULL
+#gaps$end <- NULL
 
 gap_percent <- aggregate(list(total_files = downloads$start), by = list(recv = downloads$recv), FUN = length) 
 gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(recv = downloads$recv), FUN = min), by = "recv", all.y = T)
@@ -454,7 +458,7 @@ detects_beacon1 <- detects_beacon1[detects_beacon1$TagCode == detects_beacon1$be
 test <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
 test <- merge(test, gap_percent[, c("recv", "recv_start")])
 test <- test[test$hour > test$recv_start,]
-gap_percent <- merge(gap_percent, aggregate(list(hour_count = test$hour), by = list(recv = test$recv), FUN = length), by = "recv")
+gap_percent <- merge(gap_percent, aggregate(list(hour_count = test$hour), by = list(recv = test$recv), FUN = length), by = "recv", all.x = T)
 
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
 ## Now estimate the number of hours with no beacon detections
@@ -480,8 +484,8 @@ efficiency <- merge(efficiency, aggregate(list(last_week_efficiency = last_week$
 efficiency$all_time_efficiency <- round(efficiency$all_time_efficiency,1)
 efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency, 1)
 
-downloads$gapstart <- NULL
-downloads$gapend <- NULL
+#downloads$gapstart <- NULL
+#downloads$gapend <- NULL
 
 ## Find data gaps by finding hours for which there are zero detectsion
 ## These should never happen since there are so many beacon detections
@@ -601,7 +605,7 @@ write.csv(downloads, "downloads.csv", row.names = F)
 fwrite(detects, "detects_final.csv", row.names = F)
 fwrite(detects_beacon, "detects_beacon.csv", row.names = F)
 #write.csv(detects_filtered, "detects_filtered.csv", row.names = F)
-write.csv(gaps, "download_gaps.csv", row.names = F)
+#write.csv(gaps, "download_gaps.csv", row.names = F)
 
 ## Now delete the corrupted files that have been redownloaded <3 times, with hopes that they will be better when redownloaded, and remove them from ATS_processed_files so script knows to reprocess them
 remove_these <- corrupted_downloads[corrupted_downloads$download_attempts <3,"filename"]
@@ -627,15 +631,7 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 ## Receiver sites
 ``` {r print site stats, echo=FALSE, warning=FALSE}
 
-last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max)
-
-gen_locs <- merge(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")], last_download, by = "location", all.x = T)
-
-gen_locs <- gen_locs[order(gen_locs$last_download, decreasing = T),]
-
-gen_locs <- merge(gen_locs, gap_percent[c("recv", "recv_start", "percent_files_missing")], by = "recv", all.x = T)
-
-kable(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm",  "recv_start", "last_download", "percent_files_missing")], align = "c")
+kable(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")], align = "c")
 
 
 ````
@@ -678,10 +674,11 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 ```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
 ## Now make plots of receiver beacon detections through time. 
+test <- merge(test, gen_locs[,c("recv", "location")], by = "recv")
 
-par(mar=c(5.1,2.1,2.1,4.1))
+par(mar=c(5.1,2.1,2.1,6.1))
 plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
-axis(4, labels = unique(test$recv), at = 1:length(unique(test$recv)), las = 2)
+axis(4, labels = paste(unique(test$recv),unique(test$location), sep = " "), at = 1:length(unique(test$recv)), las = 2)
 points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(test$recv)), col = "red", pch = 15)
 
 ```
@@ -698,10 +695,11 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 
 ## And for last week
 last_week$recv <- factor(last_week$recv)
+last_week <- merge(last_week, gen_locs[,c("recv", "location")], by = "recv")
 
-par(mar=c(5.1,2.1,2.1,4.1))
+par(mar=c(5.1,2.1,2.1,6.1))
 plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
-axis(4, labels = unique(last_week$recv), at = 1:length(unique(last_week$recv)), las = 2)
+axis(4, labels = paste(unique(last_week$recv),unique(last_week$location), sep = " "), at = 1:length(unique(last_week$recv)), las = 2)
 points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(last_week$recv)), col = "red", pch = 15)
 
 ```
@@ -714,7 +712,18 @@ points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", 
 
 ```{r print table of detection efficiency}
 
-kable(efficiency,  row.names = F)
+last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max)
+
+gen_loc_stats <- merge(gen_locs[,c("recv", "location")], last_download, by = "location", all.x = T)
+
+gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$last_download, decreasing = T),]
+
+gen_loc_stats <- merge(gen_loc_stats, gap_percent[c("recv", "recv_start", "percent_files_missing")], by = "recv", all.x = T)
+
+gen_loc_stats <- merge(gen_loc_stats, efficiency, by = "recv", all.x= T)
+
+kable(gen_loc_stats[,c("recv", "location",  "recv_start", "percent_files_missing", "all_time_efficiency", "last_week_efficiency", "last_download")], align = "c", row.names = F)
+
 
 ```
 
