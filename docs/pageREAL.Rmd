@@ -631,6 +631,8 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 ## Receiver sites
 ``` {r print site stats, echo=FALSE, warning=FALSE}
 
+gen_locs <- gen_locs[order(gen_locs$rkm, decreasing = T),]
+
 kable(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")], align = "c")
 
 
@@ -674,7 +676,8 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 ```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
 ## Now make plots of receiver beacon detections through time. 
-test <- merge(test, gen_locs[,c("recv", "location")], by = "recv")
+test <- merge(test, gen_locs[,c("recv", "location", "rkm")], by = "recv")
+test <- test[order(test$rkm, decreasing = T),]
 
 par(mar=c(5.1,2.1,2.1,7.1))
 plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
@@ -695,7 +698,8 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 
 ## And for last week
 last_week$recv <- factor(last_week$recv)
-last_week <- merge(last_week, gen_locs[,c("recv", "location")], by = "recv")
+last_week <- merge(last_week, gen_locs[,c("recv", "location", "rkm")], by = "recv")
+last_week <- last_week[order(last_week$rkm, decreasing = T),]
 
 par(mar=c(5.1,2.1,2.1,7.1))
 plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
@@ -714,9 +718,9 @@ points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", 
 
 last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max)
 
-gen_loc_stats <- merge(gen_locs[,c("recv", "location")], last_download, by = "location", all.x = T)
+gen_loc_stats <- merge(gen_locs[,c("recv", "location", "rkm")], last_download, by = "location", all.x = T)
 
-gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$last_download, decreasing = T),]
+gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 
 gen_loc_stats <- merge(gen_loc_stats, gap_percent[c("recv", "recv_start", "percent_files_missing")], by = "recv", all.x = T)
 
