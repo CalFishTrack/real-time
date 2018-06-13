@@ -676,7 +676,7 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 ## Now make plots of receiver beacon detections through time. 
 test <- merge(test, gen_locs[,c("recv", "location")], by = "recv")
 
-par(mar=c(5.1,2.1,2.1,6.1))
+par(mar=c(5.1,2.1,2.1,7.1))
 plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
 axis(4, labels = paste(unique(test$recv),unique(test$location), sep = " "), at = 1:length(unique(test$recv)), las = 2)
 points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(test$recv)), col = "red", pch = 15)
@@ -697,7 +697,7 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 last_week$recv <- factor(last_week$recv)
 last_week <- merge(last_week, gen_locs[,c("recv", "location")], by = "recv")
 
-par(mar=c(5.1,2.1,2.1,6.1))
+par(mar=c(5.1,2.1,2.1,7.1))
 plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
 axis(4, labels = paste(unique(last_week$recv),unique(last_week$location), sep = " "), at = 1:length(unique(last_week$recv)), las = 2)
 points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(last_week$recv)), col = "red", pch = 15)
