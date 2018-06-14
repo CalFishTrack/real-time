@@ -455,10 +455,15 @@ gap_percent[gap_percent$recv == "17134", "recv_start"] <- as.POSIXct("2018-05-22
 ## First, make sure only a receivers specific beacon tag is allowed to count
 detects_beacon1 <- merge(detects_beacon, gen_locs[,c("recv", "beacon")], by = "recv", all.x = T)
 detects_beacon1 <- detects_beacon1[detects_beacon1$TagCode == detects_beacon1$beacon,]
-test <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
-test <- merge(test, gap_percent[, c("recv", "recv_start")])
-test <- test[test$hour > test$recv_start,]
-gap_percent <- merge(gap_percent, aggregate(list(hour_count = test$hour), by = list(recv = test$recv), FUN = length), by = "recv", all.x = T)
+beacon_by_hour <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
+beacon_by_hour <- merge(beacon_by_hour, gap_percent[, c("recv", "recv_start")])
+beacon_by_hour <- beacon_by_hour[beacon_by_hour$hour > beacon_by_hour$recv_start,]
+gap_percent <- merge(gap_percent, aggregate(list(hour_count = beacon_by_hour$hour), by = list(recv = beacon_by_hour$recv), FUN = length), by = "recv", all.x = T)
+
+## Also do per day
+beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
+beacon_by_day <- merge(beacon_by_day, gap_percent[, c("recv", "recv_start")])
+beacon_by_day <- beacon_by_day[beacon_by_day$day > beacon_by_day$recv_start,]
 
 gap_percent$num_of_hours <- round(difftime(Sys.time(), gap_percent$recv_start, units = "h"), 0)
 ## Now estimate the number of hours with no beacon detections
@@ -467,19 +472,28 @@ gap_percent$percent_files_missing <- 100-round(gap_percent$hour_count/as.numeric
 gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "percent_files_missing"] <- 100-round(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "total_files"]/as.numeric(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "num_of_hours"])*100,1)
 
 ## remove the receivers without beacons
-test <- test[!test$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
-test$recv <- factor(test$recv)
+beacon_by_hour <- beacon_by_hour[!beacon_by_hour$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
+beacon_by_hour$recv <- factor(beacon_by_hour$recv)
 
 ## Estimate hourly detection efficiency
-test <- merge(test,gen_locs[,c("recv", "beacon_PRI")], by = "recv", all.x = T)
-test$expected <- 60*60/test$beacon_PRI
-test$hourly_efficiency <- round(test$x/test$expected,3)*100
+beacon_by_hour <- merge(beacon_by_hour,gen_locs[,c("recv", "beacon_PRI")], by = "recv", all.x = T)
+beacon_by_hour$expected <- 60*60/beacon_by_hour$beacon_PRI
+beacon_by_hour$hourly_efficiency <- round(beacon_by_hour$x/beacon_by_hour$expected,3)*100
+
+## Estimate daily detection efficiency
+beacon_by_day <- merge(beacon_by_day,gen_locs[,c("recv", "beacon_PRI")], by = "recv", all.x = T)
+beacon_by_day$expected <- 24*60*60/beacon_by_day$beacon_PRI
+## now adjust detections for today to be representative of efficiency to this point in the day
+beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"expected"] <- period_to_seconds(hms(format(Sys.time(),tz="Etc/GMT+8", format = "%H:%M:%S")))/beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"beacon_PRI"]
+## Now estimate efficiency
+beacon_by_day$day_efficiency <- round(beacon_by_day$x/beacon_by_day$expected,3)*100
+
 
 ## And for last week
-last_week <- test[which(as.POSIXct(test$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*2),]
+last_week <- beacon_by_hour[which(as.POSIXct(beacon_by_hour$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*2),]
 
 ## Finally, make a table with all-time and last week's mean hourly detection efficiency
-efficiency <- aggregate(list(all_time_efficiency = test$hourly_efficiency), by = list(recv = test$recv), FUN = mean)
+efficiency <- aggregate(list(all_time_efficiency = beacon_by_hour$hourly_efficiency), by = list(recv = beacon_by_hour$recv), FUN = mean)
 efficiency <- merge(efficiency, aggregate(list(last_week_efficiency = last_week$hourly_efficiency), by = list(recv = last_week$recv), FUN = mean))
 efficiency$all_time_efficiency <- round(efficiency$all_time_efficiency,1)
 efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency, 1)
@@ -528,7 +542,8 @@ tags <- tags[tags>2]
 detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
 detects_filtered <- detects_filtered[order(detects_filtered$general_location, detects_filtered$TagCode, detects_filtered$DateTime_PST),]
 
-#### Now, subset for only tags with 2 or more detects per gen loc within 24 hours that aren't multipath, by studyID
+#### Now run detection filter per study ID, and save as seperate csvs, but also as one combined one for ERDDAP
+study_detections <- NULL
 
 for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
@@ -589,9 +604,16 @@ for (k in unique(tagcodes$StudyID)){
     #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
     ## Remove before and after valid column
     temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
+    ## Add this data to study_detections file
+    study_detections <- rbind(study_detections, cbind(k,temp_detects))
   }
   write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
+
+#### Now export study_detections
+## But first change column name for studyid
+colnames(study_detections)[1] <- "Study_ID"
+write.csv(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")], "study_detections.csv", row.names = F)
 
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
@@ -676,13 +698,14 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 ```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
 ## Now make plots of receiver beacon detections through time. 
-test <- merge(test, gen_locs[,c("recv", "location", "rkm")], by = "recv")
-test <- test[order(test$rkm, decreasing = T),]
+beacon_by_hour <- merge(beacon_by_hour, gen_locs[,c("recv", "location", "rkm")], by = "recv")
+beacon_by_hour <- beacon_by_hour[order(beacon_by_hour$rkm, decreasing = F),]
+beacon_by_hour$recv <- factor(beacon_by_hour$recv, unique(beacon_by_hour$recv))
 
 par(mar=c(5.1,2.1,2.1,7.1))
-plot(as.POSIXct(test$hour, format = "%Y-%m-%d %H"), test$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
-axis(4, labels = paste(unique(test$recv),unique(test$location), sep = " "), at = 1:length(unique(test$recv)), las = 2)
-points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(test$recv)), col = "red", pch = 15)
+plot(as.POSIXct(beacon_by_hour$hour, format = "%Y-%m-%d %H"), beacon_by_hour$recv, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study")
+axis(4, labels = paste(unique(beacon_by_hour$recv),unique(beacon_by_hour$location), sep = " "), at = 1:length(unique(beacon_by_hour$recv)), las = 2, cex.axis = 0.7)
+points(unique(beacon_by_hour$recv_start), unique(beacon_by_hour$recv), col = "red", pch = 15)
 
 ```
 
@@ -697,14 +720,14 @@ Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed b
 ```{r plot just last weeks receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
 ## And for last week
-last_week$recv <- factor(last_week$recv)
 last_week <- merge(last_week, gen_locs[,c("recv", "location", "rkm")], by = "recv")
-last_week <- last_week[order(last_week$rkm, decreasing = T),]
+last_week <- last_week[order(last_week$rkm, decreasing = F),]
+last_week$recv <- factor(last_week$recv, unique(last_week$recv))
 
 par(mar=c(5.1,2.1,2.1,7.1))
 plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
-axis(4, labels = paste(unique(last_week$recv),unique(last_week$location), sep = " "), at = 1:length(unique(last_week$recv)), las = 2)
-points(gap_percent[!gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "recv_start"],1:length(unique(last_week$recv)), col = "red", pch = 15)
+axis(4, labels = paste(unique(last_week$recv),unique(last_week$location), sep = " "), at = 1:length(unique(last_week$recv)), las = 2, cex.axis = 0.7)
+points(unique(last_week$recv_start),unique(last_week$recv), col = "red", pch = 15)
 
 ```
 
@@ -734,6 +757,36 @@ kable(gen_loc_stats[,c("recv", "location",  "recv_start", "percent_files_missing
 <br/>
 
 
+## Detection Efficiency from Beacon Tags over last 30 days
+
+<br/>
+
+```{r print heatmap of detection efficiency}
+
+
+library(ggplot2)
+
+## plot just last months worth of daily efficiency
+last_month <- beacon_by_day[which(as.POSIXct(beacon_by_day$day, format = "%Y-%m-%d") > Sys.time()-60*60*24*30),]
+last_month <- merge(last_month, gen_locs[,c("recv", "location", "rkm")], by = "recv")
+last_month$recv_lab <- paste(last_month$recv, last_month$location, sep = " ")
+## Change order of data to plot decreasing rkm
+last_month <- last_month[order(last_month$rkm, decreasing = F),]
+last_month$recv_lab <- factor(last_month$recv_lab, unique(last_month$recv_lab))
+## Now plot a heatmap of percent fish distribution per region, per timestep
+
+
+ggplot(last_month, aes(x=day, y=recv_lab, fill=day_efficiency)) +
+  geom_tile(colour = "white") + 
+  scale_fill_gradient(low = "white", high = "red", name = "Daily Beacon Detection Efficiency") +
+  scale_y_discrete(position = "right") +
+  scale_x_discrete(labels = 29:0) +
+  labs(x="# of Days Ago", y = NULL) +
+  theme(legend.position="bottom")
+
+```
+
+<br/>
 
 ```{r see winter run counts per tagger, echo=FALSE}
 
