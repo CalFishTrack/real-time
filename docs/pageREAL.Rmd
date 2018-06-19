@@ -655,7 +655,7 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 
 gen_locs <- gen_locs[order(gen_locs$rkm, decreasing = T),]
 
-kable(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")], align = "c")
+kable(gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")], align = "c", row.names = F)
 
 
 ````
@@ -748,6 +748,8 @@ gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 gen_loc_stats <- merge(gen_loc_stats, gap_percent[c("recv", "recv_start", "percent_files_missing")], by = "recv", all.x = T)
 
 gen_loc_stats <- merge(gen_loc_stats, efficiency, by = "recv", all.x= T)
+
+gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 
 kable(gen_loc_stats[,c("recv", "location",  "recv_start", "percent_files_missing", "all_time_efficiency", "last_week_efficiency", "last_download")], align = "c", row.names = F)
 
