@@ -471,8 +471,8 @@ gap_percent$percent_files_missing <- 100-round(gap_percent$hour_count/as.numeric
 ## Now for receivers with no beacon, or a broken beacon, just use the old method of number of hourly files compared to number expected
 gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "percent_files_missing"] <- 100-round(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "total_files"]/as.numeric(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "num_of_hours"])*100,1)
 
-## remove the receivers without beacons
-beacon_by_hour <- beacon_by_hour[!beacon_by_hour$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
+## remove the receivers without beacons THESE NOW HAVE BEACON TAGS aS OF 6/19/18, THIS SHOULD NO LONGER BE NECESSARY
+#beacon_by_hour <- beacon_by_hour[!beacon_by_hour$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
 beacon_by_hour$recv <- factor(beacon_by_hour$recv)
 
 ## Estimate hourly detection efficiency
@@ -490,7 +490,7 @@ beacon_by_day$day_efficiency <- round(beacon_by_day$x/beacon_by_day$expected,3)*
 
 
 ## And for last week
-last_week <- beacon_by_hour[which(as.POSIXct(beacon_by_hour$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*2),]
+last_week <- beacon_by_hour[which(as.POSIXct(beacon_by_hour$hour, format = "%Y-%m-%d %H") > Sys.time()-60*60*24*7),]
 
 ## Finally, make a table with all-time and last week's mean hourly detection efficiency
 efficiency <- aggregate(list(all_time_efficiency = beacon_by_hour$hourly_efficiency), by = list(recv = beacon_by_hour$recv), FUN = mean)
@@ -693,7 +693,7 @@ kable(corrupted_downloads[,c("Filename", "Download_attempts")], row.names = F)
 
 <br/>
 
-Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed because they do not currently have beacon tags.
+Please note, receivers 17136, 17139, 17140, and 17142 did not have operational beacon tags until 6/19/2018
 
 ```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
@@ -715,7 +715,7 @@ points(unique(beacon_by_hour$recv_start), unique(beacon_by_hour$recv), col = "re
 
 <br/>
 
-Please note, receivers 17131, 17136, 17139, 17140, and 17142 are not displayed because they do not currently have beacon tags.
+Please note, receivers 17136, 17139, 17140, and 17142 did not have operational beacon tags until 6/19/2018
 
 ```{r plot just last weeks receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
