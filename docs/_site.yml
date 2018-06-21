@@ -23,9 +23,11 @@ navbar:
       href: pageNHFR.html
     - text: Wild green sturgeon
       href: pageSRGS.html
-  - text: Receiver Deployments
+  - text: Real-time Receivers
+    href: pageREAL.html
+  - text: Autonomous Receivers
     href: pageDEPLOY.html
-  - text: Download data
+  - text: Download real-time data
     href: http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset
   - text: SHINY app
     href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
