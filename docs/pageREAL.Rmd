@@ -483,9 +483,9 @@ beacon_by_day <- beacon_by_day[!(beacon_by_day$recv == 17140 & beacon_by_day$day
 beacon_by_day <- beacon_by_day[!(beacon_by_day$recv == 17142 & beacon_by_day$day < as.Date("2018-06-19")),]
 ## now put in NAs for days when no beacons were deployed at receivers
 beacon_by_day_add <- as.data.frame(rbind(cbind(17139, seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")),
-      cbind(17136, seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")),
-      cbind(17140, seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")),
-      cbind(17142, seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))))
+                                         cbind(17136, seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")),
+                                         cbind(17140, seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")),
+                                         cbind(17142, seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))))
 ## Massage these records for binding with beacon_by_day
 colnames(beacon_by_day_add) <- c("recv", "day")      
 beacon_by_day_add$recv <- as.character(beacon_by_day_add$recv)
@@ -586,6 +586,13 @@ for (k in unique(tagcodes$StudyID)){
   temp_detects$tag_life <- NA
   temp_detects[temp_detects$PRI_nominal %in% c(3,5), "tag_life"] <- 30
   temp_detects[temp_detects$PRI_nominal == 10, "tag_life"] <- 60
+  ## Set tag life for sturgeon tags to 150. Also, while at it, set filter_lag for the allowable amount of time between detections, in this case, its 5 minutes for all chinook runs, and 10 minutes for green sturgeon
+  if (k == "Juv_Green_Sturgeon_2017"){
+    filter_lag <- 0.1666667
+    temp_detects$tag_life <- 150
+  } else {
+    filter_lag <- 0.08333333
+  }
   temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)
   temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]
   ## Now if a tag was detected less than 3 times at any gen loc, remove those detections at that gen loc
@@ -624,9 +631,9 @@ for (k in unique(tagcodes$StudyID)){
     
     ## Now remove RelDT, PRI, tag_life and genloctag columns
     temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
-    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after)
+    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
     temp_detects$before_and_after_valid <- NA
-    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 0.083 & temp_detects$time_from_previous < 0.083,"before_and_after_valid"] <- 1
+    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < filter_lag & temp_detects$time_from_previous < filter_lag,"before_and_after_valid"] <- 1
     ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
     temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
                                          shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
@@ -634,8 +641,10 @@ for (k in unique(tagcodes$StudyID)){
     #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
     ## Remove before and after valid column
     temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
-    ## Add this data to study_detections file
-    study_detections <- rbind(study_detections, cbind(k,temp_detects))
+    ## Add this data to study_detections file, only if there is something to add
+    if(nrow(temp_detects) > 0){
+      study_detections <- rbind(study_detections, cbind(k,temp_detects))
+    }
   }
   write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
@@ -660,7 +669,7 @@ fwrite(detects_beacon, "detects_beacon.csv", row.names = F)
 #write.csv(gaps, "download_gaps.csv", row.names = F)
 
 ## Now delete the corrupted files that have been redownloaded <3 times, with hopes that they will be better when redownloaded, and remove them from ATS_processed_files so script knows to reprocess them
-remove_these <- corrupted_downloads[corrupted_downloads$download_attempts <3,"filename"]
+remove_these <- corrupted_downloads[corrupted_downloads$download_attempts <5,"filename"]
 file.remove(remove_these)
 
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
@@ -784,8 +793,8 @@ kable(gen_loc_stats[,c("recv", "location",  "recv_start", "percent_downtime", "a
 library(ggplot2)
 
 ## plot just last months worth of daily efficiency
-last_month <- beacon_by_day[which(as.POSIXct(beacon_by_day$day, format = "%Y-%m-%d") > Sys.time()-60*60*24*30),]
-last_month <- beacon_by_day[which(beacon_by_day$day >= as.Date(Sys.time()-60*60*24*30)),]
+#last_month <- beacon_by_day[which(as.POSIXct(beacon_by_day$day, format = "%Y-%m-%d") > Sys.time()-60*60*24*30),]
+last_month <- beacon_by_day[which(beacon_by_day$day > as.Date(Sys.time()-60*60*24*30)),]
 
 last_month$recv_lab <- paste(last_month$recv, last_month$location, sep = " ")
 ## Change order of data to plot decreasing rkm
