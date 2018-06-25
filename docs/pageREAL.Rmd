@@ -689,6 +689,36 @@ write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)
 
 <br/>
 
+## Map of Real-time Receiver Sites
+
+```{r make map of realtime sites, echo=FALSE, warning=FALSE}
+
+library(leaflet)
+library(maps)
+library(htmlwidgets)
+
+map <- leaflet(data = gen_locs) %>%
+    # setView(-72.14600, 43.82977, zoom = 8) %>% 
+    addProviderTiles("CartoDB.Positron", group = "Map") %>%
+    addProviderTiles("Esri.WorldImagery", group = "Satellite") %>% 
+    addProviderTiles("Esri.WorldShadedRelief", group = "Relief") %>%
+    # Marker data are from the sites data frame. We need the ~ symbols
+    # to indicate the columns of the data frame.
+    addMarkers(~longitude, ~latitude, label = ~general_location, group = "Sites") %>% 
+    # addAwesomeMarkers(~lon_dd, ~lat_dd, label = ~locality, group = "Sites", icon=icons) %>%
+    addScaleBar(position = "bottomleft") %>%
+    addLayersControl(
+        baseGroups = c("Map", "Satellite", "Relief"),
+        overlayGroups = c("Sites"),
+        options = layersControlOptions(collapsed = FALSE)
+    )
+invisible(print(map))
+
+```
+
+
+<br/>
+
 ## Receiver sites
 ``` {r print site stats, echo=FALSE, warning=FALSE}
 
