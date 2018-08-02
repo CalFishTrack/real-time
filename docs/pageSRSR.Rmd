@@ -41,6 +41,7 @@ Chinook salmon stock assignments not currently available, but likely a combinati
 
 ## Project Status
 
+PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
 Project has begun, see tagging details below:
 ```{r print table with fish release details, echo = FALSE}
