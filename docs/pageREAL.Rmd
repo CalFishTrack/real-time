@@ -569,13 +569,17 @@ gap_percent$percent_downtime <- 100-round(gap_percent$day_count/as.numeric(gap_p
 beacon_by_day <- merge(beacon_by_day,unique(beacon_deployments[,c("beacon", "beacon_PRI")]), by = "beacon", all.x = T)
 beacon_by_day$expected <- 24*60*60/beacon_by_day$beacon_PRI
 ## now adjust detections for today to be representative of efficiency to this point in the day
-beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"expected"] <- period_to_seconds(hms(format(floor_date(Sys.time(), unit = "hour"),tz="Etc/GMT+8", format = "%H:%M:%S")))/beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"beacon_PRI"]
+beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"expected"] <- period_to_seconds(hms(format(floor_date(Sys.time()-60*60, unit = "hour"),tz="Etc/GMT+8", format = "%H:%M:%S")))/beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"beacon_PRI"]
 ## Now estimate efficiency
 beacon_by_day$day_efficiency <- round(beacon_by_day$count/beacon_by_day$expected,3)*100
 
 ## Finally, make a table with all-time and last week's mean daiy detection efficiency
 efficiency <- aggregate(list(all_time_efficiency = beacon_by_day$day_efficiency), by = list(location = beacon_by_day$location), FUN = mean, na.rm = T)
+last_week <- beacon_by_day[beacon_by_day$day < as.Date(Sys.time()) & beacon_by_day$day > as.Date(Sys.time())-8,] 
+efficiency <- merge(efficiency, aggregate(list(last_week_efficiency = last_week$day_efficiency), by = list(location = last_week$location), FUN = mean, na.rm = T), all.x = T)
 efficiency$all_time_efficiency <- round(efficiency$all_time_efficiency,1)
+efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency,1)
+
 
 
 
@@ -854,7 +858,7 @@ gen_loc_stats <- merge(gen_loc_stats, efficiency, by = "location", all.x= T)
 
 gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 
-kable(gen_loc_stats[,c("location",  "recv_start", "percent_downtime", "all_time_efficiency", "last_download")], align = "c", row.names = F)
+kable(gen_loc_stats[,c("location",  "recv_start", "percent_downtime", "last_week_efficiency", "all_time_efficiency", "last_download")], align = "c", row.names = F)
 
 
 ```
