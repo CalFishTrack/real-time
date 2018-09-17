@@ -572,8 +572,9 @@ beacon_by_day <- merge(beacon_by_day,unique(beacon_deployments[,c("beacon", "bea
 beacon_by_day$expected <- 24*60*60/beacon_by_day$beacon_PRI
 ## now adjust detections for today to be representative of efficiency to this point in the day
 beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"expected"] <- period_to_seconds(hms(format(floor_date(Sys.time()-60*60, unit = "hour"),tz="Etc/GMT+8", format = "%H:%M:%S")))/beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"beacon_PRI"]
-## Now estimate efficiency
+## Now estimate efficiency, also make values over 100 impossible
 beacon_by_day$day_efficiency <- round(beacon_by_day$count/beacon_by_day$expected,3)*100
+beacon_by_day[beacon_by_day$day_efficiency >100, "day_efficiency"] <- 100
 
 ## Finally, make a table with all-time and last week's mean daiy detection efficiency
 efficiency <- aggregate(list(all_time_efficiency = beacon_by_day$day_efficiency), by = list(location = beacon_by_day$location), FUN = mean, na.rm = T)
