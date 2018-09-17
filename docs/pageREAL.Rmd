@@ -302,9 +302,9 @@ if (nrow(ATS_files) > 0) {
     detects_temp[detects_temp$recv %in% c(17127, 17139, 17135, 17143, 17147, 18008, 18003, 17144, 18002, 18006, 18007, 18092), "Temp"] <- NA
     
     ## Here, put only non-beacon detections in detection file
-    detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "FCAA", "006F", "006D"),]
+    detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D"),]
     ## And put beacon detections into seperate file
-    detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D", "FCAA"),]
+    detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D"),]
     
     ## Now remove multipath detections from detects_beacon_new
     ## First reorder the data since the above steps may have jumbled things
@@ -404,9 +404,9 @@ if (nrow(TECKNO_files) > 0) {
   detects_temp$Temp <- NA
   
   ## Here, put only non-beacon detections in detection file
-  detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "FCAA", "006F", "006D"),]
+  detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D"),]
   ## And put beacon detections into seperate file
-  detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D", "FCAA"),]
+  detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D"),]
   
   ## Now remove multipath detections from detects_beacon_new
   ## First reorder the data since the above steps may have jumbled things
@@ -498,36 +498,15 @@ gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct
 #beacon_by_hour <- beacon_by_hour[beacon_by_hour$hour > beacon_by_hour$recv_start,]
 #gap_percent <- merge(gap_percent, aggregate(list(hour_count = beacon_by_hour$hour), by = list(recv = beacon_by_hour$recv), FUN = length), by = "recv", all.x = T)
 
+
 ## Also do per day
 #beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
 detects_beacon$day <- format(detects_beacon$DateTime_PST, format = "%Y-%m-%d")
 beacon_by_day_new <- detects_beacon[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
-## remove "day" from detects_beacon now that aggregate operation is over
+## remove "day" from detects_beacon bow that aggregate operation is over
 detects_beacon$day <- NULL
 
 beacon_by_day_new$day <- as.Date(beacon_by_day_new$day)
-beacon_by_day_new$beacon <- as.character(NA)
-## In this lengthy step, associate the correct beacon to the correct recv at that given time, this allows for inseason changes
-for (i in 1:nrow(beacon_deployments)){
-  beacon_by_day_new[which(beacon_deployments$recv[i] == beacon_by_day_new$recv & beacon_deployments$start[i] <= beacon_by_day_new$day & (beacon_deployments$stop[i] > beacon_by_day_new$day | is.na(beacon_deployments$stop[i]))),"beacon"] <- beacon_deployments$beacon[i]
-}
-## Now remove days when there wasn't a full day of beacon detections yet
-beacon_by_day_new <- beacon_by_day_new[is.na(beacon_by_day_new$beacon)==F,]
-## Now subset to only look at data for the correct beacon for that day
-beacon_by_day_new <- beacon_by_day_new[beacon_by_day_new$TagCode == beacon_by_day_new$beacon,]
-## Remove detections at receivers that didn't have beacons yet but detected other's beacons
-#beacon_by_day_new <- beacon_by_day_new[!(beacon_by_day_new$recv == 17140 & beacon_by_day_new$day < as.Date("2018-06-19")),]
-#beacon_by_day_new <- beacon_by_day_new[!(beacon_by_day_new$recv == 17142 & beacon_by_day_new$day < as.Date("2018-06-19")),]
-## now put in NAs for days when no beacons were deployed at receivers
-#beacon_by_day_add <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
-## Massage these records for binding with beacon_by_day
-#colnames(beacon_by_day_add) <- c("location", "day")
-#beacon_by_day_add$day <- as.Date(as.numeric(beacon_by_day_add$day), origin = "1970-01-01")
-#beacon_by_day_new <- bind_rows(beacon_by_day_new, beacon_by_day_add)
-## Now bring in recv_start for next step
-beacon_by_day_new <- merge(beacon_by_day_new, gap_percent[, c("location", "recv_start")])
-## now remove detections that occured  before the official start time (see above note about receivers shutting off soon after deployment)
-beacon_by_day_new <- beacon_by_day_new[beacon_by_day_new$day > beacon_by_day_new$recv_start,]
 
 ## now merge with all the beacon_by_day records, making sure to overwrite the ones from the last ~30 days
 
@@ -537,15 +516,38 @@ remove <- match(do.call("paste", beacon_by_day_new[, c("location", "recv", "TagC
 ## Now remove these records from beacon_by_day
 beacon_by_day <- beacon_by_day[!remove[is.na(remove)==F],]
 
-## Make sure beacon_by_day$day and recv_start stays as a date/Posixct format, this can get stripped when beacon_by_day is reduced to zero rows
+## Make sure beacon_by_day$day stays as a date format, this can get stripped when beacon_by_day is reduced to zero rows
 beacon_by_day$day <- as.Date(beacon_by_day$day)
-beacon_by_day$recv_start <- as.POSIXct(beacon_by_day$recv_start)
 
 ## Now merge the two datasets together
 beacon_by_day <- rbind(beacon_by_day, beacon_by_day_new)
 
 ## now write this new beacon_by_day file
 write.csv(beacon_by_day, "beacon_by_day.csv", row.names = F)
+
+## In this step, associate the correct beacon to the correct recv at that given time, this allows for inseason changes
+beacon_by_day$beacon <- as.character(NA)
+
+for (i in 1:nrow(beacon_deployments)){
+  beacon_by_day[which(beacon_deployments$recv[i] == beacon_by_day$recv & beacon_deployments$start[i] <= beacon_by_day$day & (beacon_deployments$stop[i] > beacon_by_day$day | is.na(beacon_deployments$stop[i]))),"beacon"] <- beacon_deployments$beacon[i]
+}
+## Now remove days when there wasn't a full day of beacon detections yet
+beacon_by_day <- beacon_by_day[is.na(beacon_by_day$beacon)==F,]
+## Now subset to only look at data for the correct beacon for that day
+beacon_by_day <- beacon_by_day[beacon_by_day$TagCode == beacon_by_day$beacon,]
+## Remove detections at receivers that didn't have beacons yet but detected other's beacons
+beacon_by_day <- beacon_by_day[!(beacon_by_day$recv == 17140 & beacon_by_day$day < as.Date("2018-06-19")),]
+beacon_by_day <- beacon_by_day[!(beacon_by_day$recv == 17142 & beacon_by_day$day < as.Date("2018-06-19")),]
+## now put in NAs for days when no beacons were deployed at receivers
+#beacon_by_day <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
+## Massage these records for binding with beacon_by_day
+#colnames(beacon_by_day_add) <- c("location", "day")
+#beacon_by_day_add$day <- as.Date(as.numeric(beacon_by_day_add$day), origin = "1970-01-01")
+#beacon_by_day_new <- bind_rows(beacon_by_day_new, beacon_by_day_add)
+## Now bring in recv_start for next step
+beacon_by_day <- merge(beacon_by_day, gap_percent[, c("location", "recv_start")])
+## now remove detections that occured  before the official start time (see above note about receivers shutting off soon after deployment)
+beacon_by_day <- beacon_by_day[beacon_by_day$day > beacon_by_day$recv_start,]
 
 ## now associate these beacon_by_day records with gap_percent
 gap_percent <- merge(gap_percent, aggregate(list(day_count = beacon_by_day$day), by = list(location = beacon_by_day$location), FUN = length), by = "location", all.x = T)
