@@ -28,7 +28,6 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 ```{r bring in data, massage, create new data files, print diagnostics, echo=FALSE, warning=FALSE, message=FALSE, results = "hide"}
 
-
 library(knitr)
 library(dplyr)
 library(data.table)
@@ -48,6 +47,9 @@ beacon_deployments <- read.csv("beacon_deployments.csv", stringsAsFactors = F)
 beacon_deployments$start <- as.POSIXct(beacon_deployments$start, tz = "Etc/GMT+8")
 beacon_deployments$stop <- as.POSIXct(beacon_deployments$stop, tz = "Etc/GMT+8")
 beacon_deployments$recv <- as.character(beacon_deployments$recv)
+
+beacon_by_day <- read.csv("beacon_by_day.csv", stringsAsFactors = F)
+
 downloads <- read.csv("downloads.csv", stringsAsFactors = FALSE)
 downloads$end <- as.POSIXct(downloads$end, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
 downloads$start <- as.POSIXct(downloads$start, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
@@ -59,12 +61,30 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
-detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
+detects_beacon <- fread("C:/Users/Trailer/Desktop/Real-time data massaging/products/detects_beacon.csv", stringsAsFactors = FALSE)
 
 #detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
 #detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
 detects$DateTime_PST <- ymd_hms(detects$DateTime_PST, tz = "Etc/GMT+8")
 detects_beacon$DateTime_PST <- ymd_hms(detects_beacon$DateTime_PST, tz = "Etc/GMT+8")
+
+## At this point, let's remove any detects_beacon data that is older than 5 weeks and stick it in a weekly detects_beacon file. This will keep the amount of detections that gets uploaded into this script low so as to keep it running efficiently
+## first, upload the time of last weekly data dump, and run this operation if it hasn't happened in a week
+weekly_dump <- read.csv("weekly_data_dump.csv")
+weekly_dump <- as.POSIXct(weekly_dump$x, format = "%Y-%m-%d %H:%M:%S")
+if(difftime(Sys.time(),weekly_dump, units = "days") > 7){
+  ## Find time exactly 5 weeks ago
+  dump.end <- (Sys.time() - (35*24*60*60))
+  ## Extract and export detections up to that date, making sure to save datetime as character to save milliseconds
+  data_dump <- detects_beacon[detects_beacon$DateTime_PST < dump.end,]
+  data_dump$DateTime_PST <- format(data_dump$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
+  fwrite(data_dump, paste("C:/Users/Trailer/Desktop/Real-time data massaging/products/Detects_beacon_old/weekly_detects_beacon_ending_", as.Date(dump.end), ".csv", sep = ""), row.names = F)
+  ## Remove those records from the detects_beacon dataframe
+  detects_beacon <- detects_beacon[!detects_beacon$DateTime_PST < dump.end,]
+  ## Now save current datetime if a dump occured
+  write.csv(Sys.time(), "weekly_data_dump.csv", row.names = F)
+}
+
 
 
 ## Now remove all gen loc data from detections in case genloc details have changed. We will add genloc data back in at the end of this code
@@ -94,12 +114,12 @@ ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_fil
 colnames(ATS_files) <- "x"
 ATS_files$x <- as.character(ATS_files$x)
 ## Remove bad files that don't contain real data from list for processing
-bad_files <- read.csv("bad_files.csv", colClasses = "character", header = F)
+bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character", header = F)
 ATS_files <- as.data.frame(ATS_files[-grep(paste(bad_files$V1, collapse = "|"), ATS_files$x),])
 colnames(ATS_files) <- "x"
 ATS_files$x <- as.character(ATS_files$x)
 ## Load CSt timezone file list
-CST_files <- read.csv("receiver_files_with_CST_timezones.csv", colClasses = "character")
+CST_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/receiver_files_with_CST_timezones.csv", colClasses = "character")
 
 #### Data massage ATS files first ####
 
@@ -116,9 +136,9 @@ if (nrow(ATS_files) > 0) {
   
   downloads_new <- data.frame()
   
-  try({
-    for (i in 1:nrow(ATS_files)) {
-      
+  
+  for (i in 1:nrow(ATS_files)) {
+    if (file.info(ATS_files[i,"x"])$size >0){    
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
         recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
@@ -131,7 +151,7 @@ if (nrow(ATS_files) > 0) {
       downloads_new <- rbind(downloads_new, 
                              cbind(filename = ATS_files[i, "shortname"],recv, hour))
     }
-  })
+  }
   
   downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
   
@@ -171,25 +191,29 @@ if (nrow(ATS_files) > 0) {
   ## Now gather detections
   detects_temp <- data.frame()
   
-  
   for (i in 1:nrow(ATS_files)) {
-    if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
-      test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
-    }else{
-      test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
-    } 
-    if(colnames(test)[1] != "Internal"){
-      colnames(test) <- colnames(test)[-1]
-      test[,ncol(test)] <- NULL
+    ## First, put in error catch for files that are completely empty
+    
+    if (file.info(ATS_files[i,"x"])$size >0){
+      if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
+              test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
+      }else{
+              test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
+      }
+     
+      if(colnames(test)[1] != "Internal"){
+        colnames(test) <- colnames(test)[-1]
+        test[,ncol(test)] <- NULL
+      }
+      ## Find file end, if it exists (if it doesn't, file is corrupted, see below)
+      end1 <- head(grep("--", test[,1]),1)
+      end2 <- head(grep("File End", test[,1]),1)
+      end_final <- head(grep(".-- Done", test[,1]),1)
     }
-    ## Find file end, if it exists (if it doesn't, file is corrupted, see below)
-    end1 <- head(grep("--", test[,1]),1)
-    end2 <- head(grep("File End", test[,1]),1)
-    end_final <- head(grep(".-- Done", test[,1]),1)
     
-    
-    if (length(end_final) == 0) {
+    if (length(end_final) == 0 | file.info(ATS_files[i,"x"])$size == 0) {
       ## This means the detection file is incomplete aka corrupted
+      ## Or, the second term above tests if the file is completely empty, aka also corrupted
       ## If the file is corrupted and new, add to corrupted list
       ## if the file is corrupted and a repeat, tally 1 to the counter
       ## At the end of this code, Remove the file from the downloads table
@@ -303,8 +327,6 @@ if (nrow(ATS_files) > 0) {
     detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
   }  
 }
-
-
 
 
 
@@ -468,7 +490,7 @@ gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct
 ## Calculate the individual hours that have beacon detections
 ## First, make sure only a receivers specific beacon tag is allowed to count
 #detects_beacon1 <- merge(detects_beacon, gen_locs[,c("recv", "beacon")], by = "recv", all.x = T)
-detects_beacon1 <- detects_beacon
+#detects_beacon1 <- detects_beacon
 
 #detects_beacon1 <- detects_beacon1[detects_beacon1$TagCode == detects_beacon1$beacon,]
 #beacon_by_hour <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,TagCode = detects_beacon1$TagCode, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
@@ -477,33 +499,53 @@ detects_beacon1 <- detects_beacon
 #gap_percent <- merge(gap_percent, aggregate(list(hour_count = beacon_by_hour$hour), by = list(recv = beacon_by_hour$recv), FUN = length), by = "recv", all.x = T)
 
 ## Also do per day
-beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
-beacon_by_day$day <- as.Date(beacon_by_day$day)
-beacon_by_day$beacon <- as.character(NA)
+#beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
+detects_beacon$day <- format(detects_beacon$DateTime_PST, format = "%Y-%m-%d")
+beacon_by_day_new <- detects_beacon[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
+## remove "day" from detects_beacon now that aggregate operation is over
+detects_beacon$day <- NULL
+
+beacon_by_day_new$day <- as.Date(beacon_by_day_new$day)
+beacon_by_day_new$beacon <- as.character(NA)
 ## In this lengthy step, associate the correct beacon to the correct recv at that given time, this allows for inseason changes
 for (i in 1:nrow(beacon_deployments)){
-  beacon_by_day[which(beacon_deployments$recv[i] == beacon_by_day$recv & beacon_deployments$start[i] <= beacon_by_day$day & (beacon_deployments$stop[i] > beacon_by_day$day | is.na(beacon_deployments$stop[i]))),"beacon"] <- beacon_deployments$beacon[i]
+  beacon_by_day_new[which(beacon_deployments$recv[i] == beacon_by_day_new$recv & beacon_deployments$start[i] <= beacon_by_day_new$day & (beacon_deployments$stop[i] > beacon_by_day_new$day | is.na(beacon_deployments$stop[i]))),"beacon"] <- beacon_deployments$beacon[i]
 }
 ## Now remove days when there wasn't a full day of beacon detections yet
-beacon_by_day <- beacon_by_day[is.na(beacon_by_day$beacon)==F,]
+beacon_by_day_new <- beacon_by_day_new[is.na(beacon_by_day_new$beacon)==F,]
 ## Now subset to only look at data for the correct beacon for that day
-beacon_by_day <- beacon_by_day[beacon_by_day$TagCode == beacon_by_day$beacon,]
+beacon_by_day_new <- beacon_by_day_new[beacon_by_day_new$TagCode == beacon_by_day_new$beacon,]
 ## Remove detections at receivers that didn't have beacons yet but detected other's beacons
-beacon_by_day <- beacon_by_day[!(beacon_by_day$recv == 17140 & beacon_by_day$day < as.Date("2018-06-19")),]
-beacon_by_day <- beacon_by_day[!(beacon_by_day$recv == 17142 & beacon_by_day$day < as.Date("2018-06-19")),]
+#beacon_by_day_new <- beacon_by_day_new[!(beacon_by_day_new$recv == 17140 & beacon_by_day_new$day < as.Date("2018-06-19")),]
+#beacon_by_day_new <- beacon_by_day_new[!(beacon_by_day_new$recv == 17142 & beacon_by_day_new$day < as.Date("2018-06-19")),]
 ## now put in NAs for days when no beacons were deployed at receivers
-beacon_by_day_add <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")),
-                                         cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")),
-                                         cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")),
-                                         cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
+#beacon_by_day_add <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
 ## Massage these records for binding with beacon_by_day
-colnames(beacon_by_day_add) <- c("location", "day")
-beacon_by_day_add$day <- as.Date(as.numeric(beacon_by_day_add$day), origin = "1970-01-01")
-beacon_by_day <- bind_rows(beacon_by_day, beacon_by_day_add)
+#colnames(beacon_by_day_add) <- c("location", "day")
+#beacon_by_day_add$day <- as.Date(as.numeric(beacon_by_day_add$day), origin = "1970-01-01")
+#beacon_by_day_new <- bind_rows(beacon_by_day_new, beacon_by_day_add)
 ## Now bring in recv_start for next step
-beacon_by_day <- merge(beacon_by_day, gap_percent[, c("location", "recv_start")])
+beacon_by_day_new <- merge(beacon_by_day_new, gap_percent[, c("location", "recv_start")])
 ## now remove detections that occured  before the official start time (see above note about receivers shutting off soon after deployment)
-beacon_by_day <- beacon_by_day[beacon_by_day$day > beacon_by_day$recv_start,]
+beacon_by_day_new <- beacon_by_day_new[beacon_by_day_new$day > beacon_by_day_new$recv_start,]
+
+## now merge with all the beacon_by_day records, making sure to overwrite the ones from the last ~30 days
+
+## First, find the records in beacon_by_day that are also in beacon_by_day_new
+remove <- match(do.call("paste", beacon_by_day_new[, c("location", "recv", "TagCode", "day")]), do.call("paste", beacon_by_day[, c("location", "recv", "TagCode", "day")]))
+
+## Now remove these records from beacon_by_day
+beacon_by_day <- beacon_by_day[!remove[is.na(remove)==F],]
+
+## Make sure beacon_by_day$day and recv_start stays as a date/Posixct format, this can get stripped when beacon_by_day is reduced to zero rows
+beacon_by_day$day <- as.Date(beacon_by_day$day)
+beacon_by_day$recv_start <- as.POSIXct(beacon_by_day$recv_start)
+
+## Now merge the two datasets together
+beacon_by_day <- rbind(beacon_by_day, beacon_by_day_new)
+
+## now write this new beacon_by_day file
+write.csv(beacon_by_day, "beacon_by_day.csv", row.names = F)
 
 ## now associate these beacon_by_day records with gap_percent
 gap_percent <- merge(gap_percent, aggregate(list(day_count = beacon_by_day$day), by = list(location = beacon_by_day$location), FUN = length), by = "location", all.x = T)
@@ -529,7 +571,7 @@ beacon_by_day$expected <- 24*60*60/beacon_by_day$beacon_PRI
 ## now adjust detections for today to be representative of efficiency to this point in the day
 beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"expected"] <- period_to_seconds(hms(format(floor_date(Sys.time(), unit = "hour"),tz="Etc/GMT+8", format = "%H:%M:%S")))/beacon_by_day[as.Date(beacon_by_day$day) == as.Date(format(Sys.time(),tz="Etc/GMT+8")),"beacon_PRI"]
 ## Now estimate efficiency
-beacon_by_day$day_efficiency <- round(beacon_by_day$x/beacon_by_day$expected,3)*100
+beacon_by_day$day_efficiency <- round(beacon_by_day$count/beacon_by_day$expected,3)*100
 
 ## Finally, make a table with all-time and last week's mean daiy detection efficiency
 efficiency <- aggregate(list(all_time_efficiency = beacon_by_day$day_efficiency), by = list(location = beacon_by_day$location), FUN = mean, na.rm = T)
@@ -690,7 +732,6 @@ colnames(ATS_processed_files) <- "x"
 write.csv(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
 TECKNO_processed_files <- rbind(TECKNO_processed_files, TECKNO_files)
 write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)  
-
 
 
 ```
