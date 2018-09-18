@@ -499,12 +499,24 @@ gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct
 #gap_percent <- merge(gap_percent, aggregate(list(hour_count = beacon_by_hour$hour), by = list(recv = beacon_by_hour$recv), FUN = length), by = "recv", all.x = T)
 
 
+## Now remove multipaths from detects_beacon for by day aggregation, raw data remains untouched
+## Now create two columns with time in hours between the previous and next detection, for each detection
+## first order data appropriately
+detects_beacon <- detects_beacon[order(detects_beacon$recv, detects_beacon$TagCode, detects_beacon$DateTime_PST),]
+detects_beacon$time_from_previous <- as.numeric(difftime(detects_beacon$DateTime_PST, shift(detects_beacon$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+detects_beacon[which(detects_beacon$recv != shift(detects_beacon$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+detects_beacon[which(detects_beacon$TagCode != shift(detects_beacon$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+## Now remove the second detection every time the detection lag difftime is less than 5 sec (multipath and funny behavior)
+temp_detects <- detects_beacon[detects_beacon$time_from_previous > 5 | is.na(detects_beacon$time_from_previous) == TRUE ,]
+detects_beacon$time_from_previous <- NULL
+
 ## Also do per day
 #beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
-detects_beacon$day <- format(detects_beacon$DateTime_PST, format = "%Y-%m-%d")
-beacon_by_day_new <- detects_beacon[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
-## remove "day" from detects_beacon bow that aggregate operation is over
-detects_beacon$day <- NULL
+temp_detects$day <- format(temp_detects$DateTime_PST, format = "%Y-%m-%d")
+beacon_by_day_new <- temp_detects[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
+## remove temp_detects now that aggregate operation is over
+rm(temp_detects)
 
 beacon_by_day_new$day <- as.Date(beacon_by_day_new$day)
 
@@ -514,7 +526,7 @@ beacon_by_day_new$day <- as.Date(beacon_by_day_new$day)
 remove <- match(do.call("paste", beacon_by_day_new[, c("location", "recv", "TagCode", "day")]), do.call("paste", beacon_by_day[, c("location", "recv", "TagCode", "day")]))
 
 ## Now remove these records from beacon_by_day
-beacon_by_day <- beacon_by_day[!remove[is.na(remove)==F],]
+beacon_by_day <- beacon_by_day[-remove[is.na(remove)==F],]
 
 ## Make sure beacon_by_day$day stays as a date format, this can get stripped when beacon_by_day is reduced to zero rows
 beacon_by_day$day <- as.Date(beacon_by_day$day)
