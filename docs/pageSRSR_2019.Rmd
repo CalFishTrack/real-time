@@ -45,8 +45,6 @@ Chinook salmon stock assignments not currently available, but likely a combinati
 
 ## Project Status
 
-PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
-
 Project has begun, see tagging details below:
 ```{r print table with fish release details, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
@@ -55,8 +53,11 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-
 study_tagcodes <- tagcodes[tagcodes$StudyID == "RBDD-2018",]
+study_tagcodes$tag_life <- NA
+study_tagcodes[study_tagcodes$PRI_nominal < 6, "tag_life"] <- 30
+study_tagcodes[study_tagcodes$PRI_nominal < 11 & study_tagcodes$PRI_nominal > 9, "tag_life"] <- 60
+
 study_tagcodes$Release_week <- NA
 
 study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
@@ -122,7 +123,7 @@ kable(release_stats, format = "html") %>%
 #### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </center>
 
-```{r print figure of fish detections, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+```{r print figure of fish detections at Tower, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -138,15 +139,16 @@ if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   
+  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release_week", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
+  
   detects_tower <- detects_study[detects_study$general_location == "TowerBridge",]
   detects_tower <- merge(detects_tower,aggregate(list(first_detect = detects_tower$DateTime_PST), by = list(TagCode= detects_tower$TagCode), FUN = min))
   
   detects_tower$Day <- as.Date(detects_tower$first_detect, "Etc/GMT+8")
   
-  detects_tower <- merge(detects_tower, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release_week")], by.x = "TagCode", by.y = "TagID_Hex")
-  
   starttime <- as.Date(min(detects_tower$RelDT), "Etc/GMT+8")
-  endtime <- as.Date(c(Sys.time()))#, max(detects_tower$first_detect)+60*60*24)))
+  ## Endtime should be either now, or end of predicted tag life, whichever comes first
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+detects_tower$tag_life))
   
 
   wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
@@ -211,12 +213,10 @@ if (nrow(detects_study) == 0){
 #### Detections at Benicia Bridge
 </center>
 
-```{r print figure of fish detections, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+```{r print figure of fish detections at Benicia, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-#library(CDECRetrieve)
-library(reshape2)
 
 detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
 
@@ -225,10 +225,8 @@ if (nrow(detects_benicia)>0) {
   
   detects_benicia$Day <- as.Date(detects_benicia$first_detect, "Etc/GMT+8")
   
-  detects_benicia <- merge(detects_benicia, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID")], by.x = "TagCode", by.y = "TagID_Hex")
-  
   starttime <- as.Date(min(detects_benicia$RelDT), "Etc/GMT+8")
-  endtime <- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
+  #endtime <- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
   #wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
   #wlk_flow$datetime <- as.Date(wlk_flow$datetime)
   #wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
@@ -295,7 +293,8 @@ if (nrow(detects_benicia)>0) {
 
 <br/>
 
-```{r print table of survival, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
+```{r print table of survival to Tower, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
+
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(data.table)
@@ -309,12 +308,8 @@ if (nrow(detects_tower) == 0){
   "No detections yet"
 } else {
   
-  test <- merge(test, study_tagcodes[,c("TagID_Hex", "Release_week")], by.x = "TagCode", by.y = "TagID_Hex")
-  
-  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
-  
   ## Only do survival to Sac for now
-  test <- test[test$rkm > 160,]
+  test <- detects_study[detects_study$rkm > 168 & detects_study$rkm < 175,]
   
   ## Create inp for survival estimation
   
@@ -387,37 +382,28 @@ cleanup(ask = F)
 <br/>
 
 ```{r print table of survival and routing, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
+
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-library(data.table)
-library(RMark)
 
-test <- fread("detects_RBDD-2018.csv", stringsAsFactors = FALSE)
-gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
-
-
-if (nrow(test) == 0){
+if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   
-  test <- merge(test, study_tagcodes[,c("TagID_Hex", "Release_week")], by.x = "TagCode", by.y = "TagID_Hex")
-  
-  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
-  
   ## Only do survival to Georg split for now
-  test <- test[test$general_location %in% c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
+  test2 <- detects_study[detects_study$general_location %in% c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
   
   ## We can only do multistate model if there is at least one detection in each route
   
-  if(nrow(test[test$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2"),]) == 0 |
-     nrow(test[test$general_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"),]) == 0){
+  if(nrow(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2"),]) == 0 |
+     nrow(test2[test2$general_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"),]) == 0){
     "Too few detections: routing probability cannot be estimated"
   }else{
     
     ## Make a crosstab query with frequencies for all tag/location combination
-    test$general_location <- factor(test$general_location, levels = c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
-    test$TagCode <- factor(test$TagCode, levels = study_tagcodes$TagID_Hex)
-    mytable <- table(test$TagCode, test$general_location) # A will be rows, B will be columns
+    test2$general_location <- factor(test2$general_location, levels = c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
+    test2$TagCode <- factor(test2$TagCode, levels = study_tagcodes$TagID_Hex)
+    mytable <- table(test2$TagCode, test2$general_location) # A will be rows, B will be columns
     
     ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
     mytable[mytable>0] <- "A"
@@ -434,8 +420,8 @@ if (nrow(test) == 0){
     mytable2[which(mytable2[, "Georgiana_Slough2"]=="1"), "Georgiana_Slough2"] <- "B"
     
     ## Make a crosstab query with frequencies for all weekly release groups
-    test$Release_week <- factor(test$Release_week)
-    mytable3 <- table(test$TagCode, test$Release_week) # A will be rows, B will be columns
+    test2$Release_week <- factor(test2$Release_week)
+    mytable3 <- table(test2$TagCode, test2$Release_week) # A will be rows, B will be columns
     
     ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
     mytable3[mytable3>0] <- 1
@@ -460,7 +446,7 @@ if (nrow(test) == 0){
     ## We will say that the last detection at that junction is what determines the route it took
     
     ## find last detection at each genloc
-    departure <- aggregate(list(depart = test$DateTime_PST), by = list(TagID_Hex = test$TagCode, last_location = test$general_location), FUN = max)
+    departure <- aggregate(list(depart = test2$DateTime_PST), by = list(TagID_Hex = test2$TagCode, last_location = test2$general_location), FUN = max)
     ## subset for just juncture locations
     departure <- departure[departure$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
     ## Find genloc of last known detection
@@ -544,6 +530,7 @@ if (nrow(test) == 0){
 }
 
 cleanup(ask = F)
+
 ```
 
 <br/>
@@ -556,28 +543,19 @@ cleanup(ask = F)
 <br/>
 
 ```{r print table of survival to Benicia, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
-library(data.table)
-library(RMark)
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-test <- fread("detects_Nimbus-Fall-2018.csv", stringsAsFactors = FALSE)
-gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
-
-
-test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
-
-if (nrow(test) == 0){
+if (nrow(detects_benicia) == 0){
   "No detections yet"
 } else {
-  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
-  
+
   ## Only do survival to Benicia here
-  test <- test[test$rkm < 53,]
+  test3 <- detects_study[detects_study$rkm < 53,]
   
   ## Create inp for survival estimation
   
-  inp <- as.data.frame(dcast(test, TagCode ~ rkm, fun.aggregate = length))
+  inp <- as.data.frame(dcast(test3, TagCode ~ rkm, fun.aggregate = length))
   
   ## Sort columns by river km in descending order
   # Count number of genlocs
@@ -663,32 +641,24 @@ cleanup(ask = F)
 <br/>
 
 ```{r print tables of fish detections, echo = FALSE, message = FALSE, results= "asis", warning=FALSE}
+
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-library(data.table)
-
-test <- fread("detects_RBDD-2018.csv", stringsAsFactors = FALSE)
-gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
-
-
-if (nrow(test) == 0){
+if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   
-  test <- merge(test, study_tagcodes[,c("TagID_Hex", "Release_week")], by.x = "TagCode", by.y = "TagID_Hex")
-
-  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
-  tag_stats <- aggregate(list(First_arrival = test$DateTime_PST), 
-                         by= list(general_location = test$general_location),
+  tag_stats <- aggregate(list(First_arrival = detects_study$DateTime_PST), 
+                         by= list(general_location = detects_study$general_location),
                          FUN = min)
   tag_stats <- merge(tag_stats, 
-                     aggregate(list(Mean_arrival = test$DateTime_PST), 
-                         by= list(general_location = test$general_location),
+                     aggregate(list(Mean_arrival = detects_study$DateTime_PST), 
+                         by= list(general_location = detects_study$general_location),
                          FUN = mean), 
                      by = c("general_location"))
   tag_stats <- merge(tag_stats, 
-                     aggregate(list(Fish_count = test$TagCode), 
-                         by= list(general_location = test$general_location), 
+                     aggregate(list(Fish_count = detects_study$TagCode), 
+                         by= list(general_location = detects_study$general_location), 
                          FUN = function(x) {length(unique(x))}), 
                      by = c("general_location"))
   tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
@@ -704,9 +674,9 @@ if (nrow(test) == 0){
   
   for (j in sort(unique(study_tagcodes$Release_week))) {
     
-    if(nrow(test[test$Release_week == j,]) > 0 ) {
+    if(nrow(detects_study[detects_study$Release_week == j,]) > 0 ) {
     
-      temp <- test[test$Release_week == j,]
+      temp <- detects_study[detects_study$Release_week == j,]
   
       rel_count <- nrow(study_tagcodes[study_tagcodes$Release_week == j,])
   
