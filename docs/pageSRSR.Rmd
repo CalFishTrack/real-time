@@ -34,6 +34,10 @@ htmltools::img(src = knitr::image_uri("../data/RBDD.jpg"))#,
 
 # *Sacramento River wild Chinook salmon from Red Bluff Diversion Dam Screw Traps*
 
+<br/>
+
+## 2017-2018 Season
+
 
 Chinook salmon stock assignments not currently available, but likely a combination of fall and spring-run fish
 
