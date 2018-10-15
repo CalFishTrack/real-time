@@ -33,23 +33,7 @@ The San Francisco Bay-Delta is both the hub for the infrastructure for Californi
 
 ## Research Objectives 
 
-This work will have significant implications for understanding movement, distribution, and survival of all four runs of Central Valley Chinook salmon. For more information on specific runs and our preliminary efforts in real-time tracking of these fish, click on a link below:
-
-[Hatchery-origin late-fall Chinook salmon](https://calfishtrack.github.io/real-time/pageCHLF.html)
-
-[Hatchery-origin winter-run Chinook salmon](https://calfishtrack.github.io/real-time/pageLSWR.html)
-
-[Butte Creek Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageBCSR.html)
-
-[Mill/Deer Creek Natural-origin spring-run Chinook salmon](https://calfishtrack.github.io/real-time/pageDMSR.html)
-
-[Sacramento River Natural-origin Chinook salmon](https://calfishtrack.github.io/real-time/pageSRSR.html)
-
-[Mokelumne River Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageMHFR.html)
-
-[Nimbus Hatchery-origin fall-run Chinook salmon](https://calfishtrack.github.io/real-time/pageNHFR.html)
-
-[Natural-origin green sturgeon](https://calfishtrack.github.io/real-time/pageSRGS.html)
+This work will have significant implications for understanding movement, distribution, and survival of all four runs of Central Valley Chinook salmon. For more information on specific runs and the real-time tracking of these fish, click on a link in the drop-down "Study Population Detections" menu.
 
 <br />
 

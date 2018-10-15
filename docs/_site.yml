@@ -9,6 +9,14 @@ navbar:
     menu:
     - text: Wild green sturgeon
       href: pageSRGS_2019.html
+    - text: Hatchery late-fall-run salmon
+      href: pageCHLF_2019.html
+    - text: Hatchery winter-run salmon
+      href: pageLSWR_2019.html
+    - text: Butte Creek wild spring-run salmon
+      href: pageBCSR_2019.html
+    - text: Sacramento River wild Chinook salmon
+      href: pageSRSR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
