@@ -447,25 +447,11 @@ for (i in 1:nrow(gen_locs)){
 downloads <- rbind(downloads, downloads_new_all)
 
 ## Merge in gen loc data now for all downloads
-downloads <-  merge(downloads, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv", all.x = TRUE)
-#downloads_new <-  merge(downloads_new, gen_locs[,c("recv", "location", "general_location", "latitude", "longitude", "rkm")],  by = "recv")
+downloads[,c("location", "general_location", "latitude", "longitude", "rkm")] <- NA
 
-## Check for hourly download gaps ##
-#downloads$gapstart <- as.POSIXct(NA)
-#downloads$gapend <- as.POSIXct(NA)
-
-#downloads <- downloads[order(downloads$recv, downloads$start),]
-
-#for (j in 2:nrow(downloads)){
-#  if(downloads[j-1, "recv"] == downloads[j, "recv"] & difftime(downloads[j, "start"], downloads[j-1, "start"], units = "hours") > 1.25 )
-#  {downloads[j-1,"gapstart"] <- downloads[j-1, "end"]
-#  downloads[j-1,"gapend"] <- downloads[j, "start"]
-#  }
-#  if (downloads[j-1, "recv"] != downloads[j, "recv"] & difftime(Sys.time(), downloads[j-1, "start"], units = "hours") > 2.2) {
-#    downloads[j-1,"gapstart"] <- downloads[j-1, "end"]
-#    downloads[j-1,"gapend"] <- Sys.time()
-#  }
-#}
+for (i in 1:nrow(gen_locs)){
+  downloads[which(gen_locs$recv[i] == downloads$recv & gen_locs$start[i] <= downloads$start & (gen_locs$stop[i] > downloads$end | is.na(gen_locs$stop[i]))),c("location", "general_location", "latitude", "longitude", "rkm")] <- gen_locs[i,c("location", "general_location", "latitude", "longitude", "rkm")]
+}
 
 #gaps <- downloads[is.na(downloads$gapstart) == F,]
 #gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
