@@ -196,11 +196,11 @@ if (nrow(ATS_files) > 0) {
     
     if (file.info(ATS_files[i,"x"])$size >0){
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
-              test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
+        test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
       }else{
-              test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
+        test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
       }
-     
+      
       if(colnames(test)[1] != "Internal"){
         colnames(test) <- colnames(test)[-1]
         test[,ncol(test)] <- NULL
@@ -211,14 +211,17 @@ if (nrow(ATS_files) > 0) {
       end_final <- head(grep(".-- Done", test[,1]),1)
     }
     
-    if (length(end_final) == 0 | file.info(ATS_files[i,"x"])$size == 0) {
+    ## This is another error catcher for weird ATS files that are corrupted
+    trytest <- try(as.POSIXct(test[is.na(test$DateTime)==F,"DateTime"], format = "%m/%d/%Y %H:%M:%OS", tz = "Etc/GMT+8"), silent = T)
+    
+    if (length(end_final) == 0 | file.info(ATS_files[i,"x"])$size == 0 | inherits(trytest, "try-error") | nrow(test[is.na(test$DateTime)==F,]) == 0) {
       ## This means the detection file is incomplete aka corrupted
       ## Or, the second term above tests if the file is completely empty, aka also corrupted
       ## If the file is corrupted and new, add to corrupted list
       ## if the file is corrupted and a repeat, tally 1 to the counter
       ## At the end of this code, Remove the file from the downloads table
-      ## And physically remove the file from the computer if the tally counter is <3
-      ## If >= 3, leave the file as this will avoid having to download it again to no avail
+      ## And physically remove the file from the computer if the tally counter is <5
+      ## If >= 5, leave the file as this will avoid having to download it again to no avail
       ## We do this at the end so we don't delete files when prototyping this ATS code segment
       downloads_new <- downloads_new[!downloads_new$filename == ATS_files[i,"shortname"],]
       if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
@@ -327,6 +330,7 @@ if (nrow(ATS_files) > 0) {
     detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
   }  
 }
+
 
 
 
