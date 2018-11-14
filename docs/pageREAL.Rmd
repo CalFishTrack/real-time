@@ -99,6 +99,12 @@ TECKNO_all_files$x <- as.character(TECKNO_all_files$x)
 TECKNO_files <- as.data.frame(TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,])
 colnames(TECKNO_files) <- "x"
 TECKNO_files$x <- as.character(TECKNO_files$x)
+## Remove bad files that don't contain real data from list for processing
+bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character", header = F)
+TECKNO_files <- as.data.frame(TECKNO_files[-grep(paste(bad_files$V1, collapse = "|"), TECKNO_files$x),])
+colnames(TECKNO_files) <- "x"
+TECKNO_files$x <- as.character(TECKNO_files$x)
+
 
 ## Find all ATS file names
 ATS_all_files <- as.data.frame(dir(pattern = "*.csv", path = dirs, full.names = T))
@@ -114,7 +120,6 @@ ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_fil
 colnames(ATS_files) <- "x"
 ATS_files$x <- as.character(ATS_files$x)
 ## Remove bad files that don't contain real data from list for processing
-bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character", header = F)
 ATS_files <- as.data.frame(ATS_files[-grep(paste(bad_files$V1, collapse = "|"), ATS_files$x),])
 colnames(ATS_files) <- "x"
 ATS_files$x <- as.character(ATS_files$x)
