@@ -55,7 +55,7 @@ if (nrow(study_tagcodes) == 0){
   study_tagcodes[study_tagcodes$PRI_nominal < 11 & study_tagcodes$PRI_nominal > 9, "tag_life"] <- 60
   
 
-  study_tagcodes$Release_week <- NA
+  study_tagcodes$Release_week <- "Week 1"
   study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
