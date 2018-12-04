@@ -338,27 +338,45 @@ if (nrow(detects_tower) == 0){
       inp[as.character(inp$Release_week) == i, i] <- 1
     }
     
-    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
+    if(length(unique(inp[,groups])) > 1){
+      inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
+      write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+      WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
+      WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+      
+      WR.ddl <- make.design.data(WR.process)
     
+      WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
     
-    write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
     
-    WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
+      WR.surv <- round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1)
+      WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
+      WR.surv$Detection_efficiency <- NA
+      WR.surv[1,"Detection_efficiency"] <-   round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
     
-    WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+      WR.surv <- cbind(c("ALL", groups), WR.surv)
+    }
+    if(length(unique(inp[,groups])) < 2){
+      inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ", 1,sep = "")
+      write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+      WRinp <- convert.inp("WRinp.inp")
+      WR.process <- process.data(WRinp, model="CJS", begin.time=1) 
+      
+      WR.ddl <- make.design.data(WR.process)
     
-    WR.ddl <- make.design.data(WR.process)
+      WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
     
-    WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
     
-    WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+      WR.surv <- round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1)
+      WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
+      WR.surv$Detection_efficiency <- NA
+      WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
     
-    WR.surv <- round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1)
-    WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
-    WR.surv$Detection_efficiency <- NA
-    WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
-    
-    WR.surv <- cbind(c("ALL", groups), WR.surv)
+      WR.surv <- cbind(c("ALL", groups), WR.surv)
+    }
+
     
     colnames(WR.surv) <- c("Release Week", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
     
