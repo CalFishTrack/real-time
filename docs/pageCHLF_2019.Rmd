@@ -38,7 +38,8 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 ```{r print table with fish release details, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
+
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
@@ -417,6 +418,8 @@ if (nrow(detects_study) == 0){
     "Too few detections: routing probability cannot be estimated"
   }else{
     
+    ## Make tagcode character
+    study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
     ## Make a crosstab query with frequencies for all tag/location combination
     test2$general_location <- factor(test2$general_location, levels = c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
     test2$TagCode <- factor(test2$TagCode, levels = study_tagcodes$TagID_Hex)
@@ -437,17 +440,17 @@ if (nrow(detects_study) == 0){
     mytable2[which(mytable2[, "Georgiana_Slough2"]=="1"), "Georgiana_Slough2"] <- "B"
     
     ## Make a crosstab query with frequencies for all weekly release groups
-    test2$Release_week <- factor(test2$Release_week)
-    mytable3 <- table(test2$TagCode, test2$Release_week) # A will be rows, B will be columns
+    #test2$Release_week <- factor(test2$Release_week)
+    #mytable3 <- table(test2$TagCode, test2$Release_week) # A will be rows, B will be columns
     
     ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
-    mytable3[mytable3>0] <- 1
+    #mytable3[mytable3>0] <- 1
     
     ## Order in order of rkm
-    mytable4 <- mytable3[, order(colnames(mytable3))]
+    #mytable4 <- mytable3[, order(colnames(mytable3))]
     
     ## Now sort the crosstab rows alphabetically
-    mytable4 <- mytable4[order(row.names(mytable2)),]
+    #mytable4 <- mytable4[order(row.names(mytable4)),]
     
     ## Now order the study_tagcodes table the same way
     study_tagcodes <- study_tagcodes[order(study_tagcodes$TagID_Hex),]
@@ -457,7 +460,7 @@ if (nrow(detects_study) == 0){
     study_tagcodes$inp_part1 <- apply(mytable2[,1:2],1,paste,collapse="")
     study_tagcodes$inp_partA <- apply(mytable2[,3:4],1,paste,collapse="")
     study_tagcodes$inp_partB <- apply(mytable2[,5:6],1,paste,collapse="")
-    study_tagcodes$inp_group <- apply(mytable4,1,paste,collapse=" ")
+    #study_tagcodes$inp_group <- apply(mytable4,1,paste,collapse=" ")
     
     ## We need to have a way of picking which route to assign to a fish if it was detected by both georg and blw-georg recvs
     ## We will say that the last detection at that junction is what determines the route it took
@@ -465,16 +468,18 @@ if (nrow(detects_study) == 0){
     ## find last detection at each genloc
     departure <- aggregate(list(depart = test2$DateTime_PST), by = list(TagID_Hex = test2$TagCode, last_location = test2$general_location), FUN = max)
     ## subset for just juncture locations
-    departure <- departure[departure$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
-    ## Find genloc of last known detection
-    last_depart <- departure[which.max(departure$depart),]
-    study_tagcodes <- merge(study_tagcodes, last_depart[,c("TagID_Hex", "last_location")], by = "TagID_Hex", all.x = T)
+    departure <- departure[departure$last_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
+    ## Find genloc of last known detection per tag
+    last_depart <- aggregate(list(depart = departure$depart), by = list(TagID_Hex = departure$TagID_Hex), FUN = max)
+    
+    last_depart1 <- merge(last_depart, departure)
+    study_tagcodes <- merge(study_tagcodes, last_depart1[,c("TagID_Hex", "last_location")], by = "TagID_Hex", all.x = T)
     
     ## Assume that the Sac is default pathway, and for fish that were detected in neither route, it would get a "00" in inp so doesn't matter anyway
     study_tagcodes$inp_final <- paste("A",study_tagcodes$inp_part1, study_tagcodes$inp_partA," 1 ;", sep = "")
     
     ## now put in exceptions...fish that were seen in georgiana last
-    study_tagcodes[study_tagcodes$last_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"), "inp_final"] <- paste("A",study_tagcodes$inp_part1, study_tagcodes$inp_partB," 1 ;", sep = "")
+    study_tagcodes[study_tagcodes$last_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"), "inp_final"] <- paste("A",study_tagcodes[study_tagcodes$last_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"), "inp_final"]inp_part1, study_tagcodes$inp_partB," 1 ;", sep = "")
     
     write.table(study_tagcodes$inp_final,"WRinp_multistate.inp",row.names = F, col.names = F, quote = F)
     
