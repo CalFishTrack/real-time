@@ -167,7 +167,7 @@ if (nrow(ATS_files) > 0) {
        downloads_new[i, "recv"] %in% c("17131","18007", "17134", "17145")) {
       downloads_new[i, "start"] <- downloads_new[i, "start"]-2*60*60
     }
-    if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143", "17135")) {
+    if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143")) {
       downloads_new[i, "start"] <- downloads_new[i, "start"]-24*60*60
     }
   }
@@ -264,7 +264,7 @@ if (nrow(ATS_files) > 0) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
-        if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143", "17135")) {
+        if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
           test4$DateTime_PST <- test4$DateTime_PST-24*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
@@ -307,7 +307,7 @@ if (nrow(ATS_files) > 0) {
     detects_temp[detects_temp$Temp > 99 | detects_temp$Temp < 0, "Temp"] <- NA
     
     ## A few receivers seem to have had temp sensors, so make NA
-    detects_temp[detects_temp$recv %in% c(17127, 17139, 17135, 17143, 17147, 18008, 18003, 17144, 18002, 18006, 18007, 18092), "Temp"] <- NA
+    detects_temp[detects_temp$recv %in% c(17127, 17139, 17143, 17147, 18008, 18003, 17144, 18002, 18006, 18007, 18092), "Temp"] <- NA
     
     ## Here, put only non-beacon detections in detection file
     detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D"),]
