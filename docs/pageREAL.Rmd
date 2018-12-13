@@ -37,8 +37,8 @@ dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 
-ATS_processed_files <- read.csv("ATS_processed_files.csv", stringsAsFactors = F)
-TECKNO_processed_files <- read.csv("TECKNO_processed_files.csv", stringsAsFactors = F)
+ATS_processed_files <- fread("ATS_processed_files.csv", stringsAsFactors = F)
+TECKNO_processed_files <- fread("TECKNO_processed_files.csv", stringsAsFactors = F)
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 gen_locs$recv <- as.character(gen_locs$recv)
 gen_locs$start <- as.POSIXct(gen_locs$start, tz = "Etc/GMT+8")
@@ -48,16 +48,16 @@ beacon_deployments$start <- as.POSIXct(beacon_deployments$start, tz = "Etc/GMT+8
 beacon_deployments$stop <- as.POSIXct(beacon_deployments$stop, tz = "Etc/GMT+8")
 beacon_deployments$recv <- as.character(beacon_deployments$recv)
 
-beacon_by_day <- read.csv("beacon_by_day.csv", stringsAsFactors = F)
+beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
 
 downloads <- read.csv("downloads.csv", stringsAsFactors = FALSE)
-downloads$end <- as.POSIXct(downloads$end, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
-downloads$start <- as.POSIXct(downloads$start, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
+downloads$end <- ymd_hms(downloads$end, tz = "Etc/GMT+8")
+downloads$start <- ymd_hms(downloads$start, tz = "Etc/GMT+8")
 ## remove all gen loc details from downloads, that way these get re-assigned every hour in case gen_loc data changes. This gets reassigned at the end of this code before exporting
 downloads <- downloads[,-which(names(downloads) %in% c("location", "general_location", "latitude", "longitude", "rkm"))]
 
 corrupted_downloads <- read.csv("corrupted_downloads.csv", stringsAsFactors = F)
-tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
+tagcodes <- fread("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
@@ -85,44 +85,26 @@ if(difftime(Sys.time(),weekly_dump, units = "days") > 7){
   write.csv(Sys.time(), "weekly_data_dump.csv", row.names = F)
 }
 
-
-
 ## Now remove all gen loc data from detections in case genloc details have changed. We will add genloc data back in at the end of this code
 detects <- subset(detects, select= -c(location, general_location, latitude, longitude, rkm))
 detects_beacon <- subset(detects_beacon, select= -c(location, general_location, latitude, longitude, rkm))
 
 ## Find all Teckno file names
-TECKNO_all_files <- as.data.frame(dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T))
-colnames(TECKNO_all_files) <- "x"
-TECKNO_all_files$x <- as.character(TECKNO_all_files$x)
+TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T)), stringsAsFactors = F)
 ## Select only newest TECKNO files for massaging
-TECKNO_files <- as.data.frame(TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,])
-colnames(TECKNO_files) <- "x"
-TECKNO_files$x <- as.character(TECKNO_files$x)
+TECKNO_files <- as.data.frame(list(x=TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,]), stringsAsFactors = F)
+
 ## Remove bad files that don't contain real data from list for processing
 bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character", header = F)
-TECKNO_files <- as.data.frame(TECKNO_files[-grep(paste(bad_files$V1, collapse = "|"), TECKNO_files$x),])
-colnames(TECKNO_files) <- "x"
-TECKNO_files$x <- as.character(TECKNO_files$x)
+TECKNO_files <- as.data.frame(list(x=TECKNO_files[-grep(paste(bad_files$V1, collapse = "|"), TECKNO_files$x),]), stringsAsFactors = F)
 
 
 ## Find all ATS file names
-ATS_all_files <- as.data.frame(dir(pattern = "*.csv", path = dirs, full.names = T))
-colnames(ATS_all_files) <- "x"
-ATS_all_files$x <- as.character(ATS_all_files$x)
-## FOR NOW, REMOVE ALL FILES FROM RECEIVER 17135 SINCE IT PRODUCES SO MANY FALSE DETECTIONS
-#ATS_all_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %like% "SR17135",])
-#colnames(ATS_all_files) <- "x"
-#ATS_all_files$x <- as.character(ATS_all_files$x)
+ATS_all_files <- as.data.frame(list(x=dir(pattern = "*.csv", path = dirs, full.names = T)), stringsAsFactors = F)
 ## Select only newest ATS files for massaging
-ATS_files <- as.data.frame(ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,])
-#ATS_files <- data.frame()
-colnames(ATS_files) <- "x"
-ATS_files$x <- as.character(ATS_files$x)
+ATS_files <- as.data.frame(list(x=ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,]), stringsAsFactors = F)
 ## Remove bad files that don't contain real data from list for processing
-ATS_files <- as.data.frame(ATS_files[-grep(paste(bad_files$V1, collapse = "|"), ATS_files$x),])
-colnames(ATS_files) <- "x"
-ATS_files$x <- as.character(ATS_files$x)
+ATS_files <- as.data.frame(list(x=ATS_files[-grep(paste(bad_files$V1, collapse = "|"), ATS_files$x),]), stringsAsFactors = F)
 ## Load CSt timezone file list
 CST_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/receiver_files_with_CST_timezones.csv", colClasses = "character")
 
@@ -138,8 +120,7 @@ if (nrow(ATS_files) > 0) {
   shortname <- strsplit(incomplete_shortname, "/")
   ATS_files$shortname <- unlist(lapply(shortname, tail, 1))
   
-  
-  downloads_new <- data.frame()
+  downloads_new1 <- data.frame()
   
   
   for (i in 1:nrow(ATS_files)) {
@@ -153,35 +134,32 @@ if (nrow(ATS_files) > 0) {
       }
       hour <- substr(hour, start = 13, stop = 31)
       recv <- substr(recv, start = 16, stop = 21)
-      downloads_new <- rbind(downloads_new, 
-                             cbind(filename = ATS_files[i, "shortname"],recv, hour))
+      downloads_new1 <- rbindlist(list(downloads_new1, 
+                             data.frame(filename = ATS_files[i, "shortname"],recv, hour, stringsAsFactors = F)))#, use.names = F, fill = F, idcol = "filename")
     }
   }
-  
-  downloads_new$start <- as.POSIXct(downloads_new$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
+ 
+  downloads_new1$start <- as.POSIXct(downloads_new1$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
   
   ## Now change downloads start and end to correct time since some are on CST and some are PST + 1 day
   
-  for (i in 1:nrow(downloads_new)){ 
-    if(downloads_new[i, "filename"] %in% CST_files$Filenames | 
-       downloads_new[i, "recv"] %in% c("17131","18007", "17134", "17145")) {
-      downloads_new[i, "start"] <- downloads_new[i, "start"]-2*60*60
-    }
-    if(downloads_new[i,"recv"] %in% c("17138", "17125", "17129", "18008", "17143")) {
-      downloads_new[i, "start"] <- downloads_new[i, "start"]-24*60*60
+  for (i in 1:nrow(downloads_new1)){ 
+    if(downloads_new1[i, "filename"] %in% CST_files$Filenames | 
+       downloads_new1[i, "recv"] %in% c("18007")) {
+      downloads_new1[i, "start"] <- downloads_new1[i, "start"]-2*60*60
     }
   }
   
-  downloads_new$end <- downloads_new$start +(60*60)
+  downloads_new1$end <- downloads_new1$start +(60*60)
   
   ## Add dummy columns to match the ones from Tecknos that actually carry data
-  downloads_new$sun_volts <- NA
-  downloads_new$bat_volts <- NA
+  downloads_new1$sun_volts <- NA
+  downloads_new1$bat_volts <- NA
   
   ## Here, remove files that didn't have their download data read correctly and add them to the corrupted files list. These files should not be read for detections
-  short_files <- ATS_files[ATS_files$shortname %in% downloads_new[downloads_new$recv == "","filename"],]
+  short_files <- ATS_files[ATS_files$shortname %in% downloads_new1[downloads_new1$recv == "","filename"],]
   if(nrow(short_files)){  
-    downloads_new <- downloads_new[!downloads_new$recv == "",]
+    downloads_new1 <- downloads_new1[!downloads_new1$recv == "",]
     ATS_files <- ATS_files[!ATS_files$shortname %in% short_files$shortname,]
     for (i in 1:nrow(short_files)){
       if(short_files[i, "shortname"] %in% corrupted_downloads$V1){
@@ -228,7 +206,7 @@ if (nrow(ATS_files) > 0) {
       ## And physically remove the file from the computer if the tally counter is <5
       ## If >= 5, leave the file as this will avoid having to download it again to no avail
       ## We do this at the end so we don't delete files when prototyping this ATS code segment
-      downloads_new <- downloads_new[!downloads_new$filename == ATS_files[i,"shortname"],]
+      downloads_new1 <- downloads_new1[!downloads_new1$filename == ATS_files[i,"shortname"],]
       if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
         corrupted_downloads[corrupted_downloads$V1 == ATS_files[i, "shortname"], "download_attempts"] <- 
           as.numeric(corrupted_downloads[corrupted_downloads$V1 == ATS_files[i, "shortname"], "download_attempts"])+1
@@ -260,25 +238,22 @@ if (nrow(ATS_files) > 0) {
       ## Have this first if statement in case there are no detections in a file
       if(nrow(test4)>0){
         if(ATS_files[i,"x"] %in% CST_files$Filenames | 
-           unique(test4$recv) %in% c("17131","17134","18007", "17145")) {
+           unique(test4$recv) %in% c("18007")) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
-          attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
-        }
-        if(unique(test4$recv) %in% c("17138","17125", "17129", "18008", "17143")) {
-          test4$DateTime_PST <- test4$DateTime_PST-24*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
         
         ## change Datetime_Orig with milliseconds shown (this turns the class into character)
         test4$DateTime_Orig <- format(test4$DateTime_Orig, "%Y-%m-%d %H:%M:%OS6")
         
-        detects_temp <- rbind(detects_temp, test4)
+        detects_temp <- rbindlist(list(detects_temp, test4))
         
       }
     }
   }
+
   
-  downloads_new_all <- rbind(downloads_new_all, downloads_new[,c("filename", "recv", "hour", "sun_volts", "bat_volts", "end", "start")])
+  downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new1[,c("filename", "recv", "hour", "sun_volts", "bat_volts", "end", "start")]))
   
   #locs <- detects_new[detects_new$TagCode == " GPS Fix  ",]
   #N <- unlist(gregexpr(pattern ='N',locs$Internal))
@@ -307,7 +282,7 @@ if (nrow(ATS_files) > 0) {
     detects_temp[detects_temp$Temp > 99 | detects_temp$Temp < 0, "Temp"] <- NA
     
     ## A few receivers seem to have had temp sensors, so make NA
-    detects_temp[detects_temp$recv %in% c(17127, 17139, 17143, 17147, 18008, 18003, 17144, 18002, 18006, 18007, 18092), "Temp"] <- NA
+    #detects_temp[detects_temp$recv %in% c(17127, 17139, 17143, 17147, 18008, 18003, 17144, 18002, 18006, 18007, 18092), "Temp"] <- NA
     
     ## Here, put only non-beacon detections in detection file
     detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D"),]
@@ -331,8 +306,8 @@ if (nrow(ATS_files) > 0) {
     
     #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
     
-    detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
-    detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+    detects_beacon <- rbindlist(list(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
+    detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
   }  
 }
 
@@ -347,7 +322,7 @@ if (nrow(ATS_files) > 0) {
 
 
 if (nrow(TECKNO_files) > 0) {
-  downloads_new <- data.frame()
+  downloads_new2 <- data.frame()
   for (i in 1:nrow(TECKNO_files)) {
     test <- try(read.csv(TECKNO_files[i,], header = F, stringsAsFactors = F ), silent = T) 
     if (inherits(test, "try-error") | ncol(test) < 18) {
@@ -359,20 +334,20 @@ if (nrow(TECKNO_files) > 0) {
       ## Get volts, sometimes in row 1 or 2
       sun_volts <- max(test[1:2,"V17"])
       bat_volts <- max(test[1:2,"V18"])
-      downloads_new <- rbind(downloads_new, cbind(filename = TECKNO_files[i,], recv, hour, sun_volts, bat_volts))
+      downloads_new2 <- rbindlist(list(downloads_new2, data.frame(list(filename = TECKNO_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
     }
   }
   
-  downloads_new$end <- as.POSIXct(downloads_new$hour, tz = "GMT")
-  downloads_new$start <- downloads_new$end -(60*60)
+  downloads_new2$end <- as.POSIXct(downloads_new2$hour, tz = "GMT")
+  downloads_new2$start <- downloads_new2$end -(60*60)
   
   
   
   ## Now change all times to PST to match ATS receivers
-  attributes(downloads_new$start)$tzone <- "Etc/GMT+8"
-  attributes(downloads_new$end)$tzone <- "Etc/GMT+8"
+  attributes(downloads_new2$start)$tzone <- "Etc/GMT+8"
+  attributes(downloads_new2$end)$tzone <- "Etc/GMT+8"
   
-  downloads_new_all <- rbind(downloads_new_all, downloads_new)
+  downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new2))
   
   detects_temp <- data.frame()
   
@@ -393,7 +368,7 @@ if (nrow(TECKNO_files) > 0) {
       if (length(start) > 0) {
         test <- read.csv(TECKNO_files[i,], skip = start-1, header = F, stringsAsFactors = F )
         test1 <- test[nchar(test$V5)==4,]
-        detects_temp <- rbind(detects_temp, test1[,1:9])
+        detects_temp <- rbindlist(list(detects_temp, test1[,1:9]))
         
       }    
     }
@@ -431,8 +406,8 @@ if (nrow(TECKNO_files) > 0) {
   detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
   
   ## Now append these to existing datasets
-  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
-  detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+  detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
+  detects_beacon <- rbindlist(list(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
   
 }
 
@@ -453,10 +428,10 @@ for (i in 1:nrow(gen_locs)){
 }
 
 ## Merge new downloads with exist dataset
-downloads <- rbind(downloads, downloads_new_all)
+downloads <- rbindlist(list(downloads, downloads_new_all))
 
 ## Merge in gen loc data now for all downloads
-downloads[,c("location", "general_location", "latitude", "longitude", "rkm")] <- NA
+downloads[,c("location", "general_location", "latitude", "longitude", "rkm")] <- as.character(NA)
 
 for (i in 1:nrow(gen_locs)){
   downloads[which(gen_locs$recv[i] == downloads$recv & gen_locs$start[i] <= downloads$start & (gen_locs$stop[i] > downloads$end | is.na(gen_locs$stop[i]))),c("location", "general_location", "latitude", "longitude", "rkm")] <- gen_locs[i,c("location", "general_location", "latitude", "longitude", "rkm")]
@@ -527,10 +502,10 @@ beacon_by_day <- beacon_by_day[-remove[is.na(remove)==F],]
 beacon_by_day$day <- as.Date(beacon_by_day$day)
 
 ## Now merge the two datasets together
-beacon_by_day <- rbind(beacon_by_day, beacon_by_day_new)
+beacon_by_day <- rbindlist(list(beacon_by_day, beacon_by_day_new))
 
 ## now write this new beacon_by_day file
-write.csv(beacon_by_day, "beacon_by_day.csv", row.names = F)
+fwrite(beacon_by_day, "beacon_by_day.csv", row.names = F)
 
 ## In this step, associate the correct beacon to the correct recv at that given time, this allows for inseason changes
 beacon_by_day$beacon <- as.character(NA)
@@ -544,7 +519,7 @@ for (i in 1:nrow(beacon_deployments)){
 beacon_by_day <- beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),]
 ## Remove detections at receivers that didn't have beacons yet but detected other's beacons
 #beacon_by_day <- beacon_by_day[-which(beacon_by_day$location == "GeorgSlRT_1.1" & beacon_by_day$day < as.Date("2018-06-19")),]
-beacon_by_day <- beacon_by_day[-which(beacon_by_day$recv %in% c(17136,17139,17140,17142) & beacon_by_day$day < as.Date("2018-06-19")),]
+#beacon_by_day <- beacon_by_day[-which(beacon_by_day$recv %in% c(17136,17139,17140,17142) & beacon_by_day$day < as.Date("2018-06-19")),]
 ## now put in NAs for days when no beacons were deployed at receivers
 beacon_by_day_add <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
 ## Massage these records for binding with beacon_by_day
@@ -643,7 +618,7 @@ study_detections <- NULL
 for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
   ## First, select only detections of correct tagcodes per study
-  temp_detects <- as.data.frame(detects_filtered[detects_filtered$TagCode %in% studycodes,])
+  temp_detects <- as.data.frame(detects_filtered[detects_filtered$TagCode %in% studycodes$TagID_Hex,])
   ## Now remove false detections that occured before release,
   temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT", "PRI_nominal")], by.x = "TagCode", by.y = "TagID_Hex")
   temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
@@ -708,16 +683,16 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
     ## Add this data to study_detections file, only if there is something to add
     if(nrow(temp_detects) > 0){
-      study_detections <- rbind(study_detections, cbind(k,temp_detects))
+      study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
     }
   }
-  write.csv(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  fwrite(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
 #### Now export study_detections
 ## But first change column name for studyid
 colnames(study_detections)[1] <- "Study_ID"
-write.csv(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")], "study_detections.csv", row.names = F)
+fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")], "study_detections.csv", row.names = F)
 
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
@@ -727,7 +702,7 @@ detects$DateTime_PST <- format(detects$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
 detects_beacon$DateTime_PST <- format(detects_beacon$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
 
 write.csv(latest, "latest_download.csv", row.names = F)
-write.csv(downloads, "downloads.csv", row.names = F)
+fwrite(downloads, "downloads.csv", row.names = F)
 fwrite(detects, "detects_final.csv", row.names = F)
 fwrite(detects_beacon, "detects_beacon.csv", row.names = F)
 #write.csv(detects_filtered, "detects_filtered.csv", row.names = F)
@@ -739,13 +714,14 @@ file.remove(remove_these)
 
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
 
-ATS_processed_files <- rbind(ATS_processed_files, ATS_files[names(ATS_processed_files)])
+ATS_processed_files <- rbindlist(list(ATS_processed_files, ATS_files[names(ATS_processed_files)]))
 
-ATS_processed_files <- as.data.frame(ATS_processed_files[!ATS_processed_files$x %in% remove_these,])
-colnames(ATS_processed_files) <- "x"
-write.csv(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
-TECKNO_processed_files <- rbind(TECKNO_processed_files, TECKNO_files)
-write.csv(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)  
+ATS_processed_files <- as.data.frame(list(x=ATS_processed_files[!ATS_processed_files$x %in% remove_these,]), stringsAsFactors = F )
+
+fwrite(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
+TECKNO_processed_files <- rbindlist(list(TECKNO_processed_files, TECKNO_files))
+TECKNO_processed_files$x <- as.character(TECKNO_processed_files$x)
+fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)  
 
 
 ```
