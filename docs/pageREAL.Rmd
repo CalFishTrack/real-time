@@ -721,7 +721,7 @@ ATS_processed_files <- as.data.frame(list(x=ATS_processed_files[!ATS_processed_f
 fwrite(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
 TECKNO_processed_files <- rbindlist(list(TECKNO_processed_files, TECKNO_files))
 TECKNO_processed_files$x <- as.character(TECKNO_processed_files$x)
-fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F)  
+fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F, quote = T)  
 
 
 ```
