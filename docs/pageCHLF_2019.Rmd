@@ -28,7 +28,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
-## 2018-2019 Season
+## 2018-2019 Season (PROVISIONAL DATA)
 
 <br/>
 
@@ -36,6 +36,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 
 ```{r print table with fish release details, echo = FALSE}
+
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
@@ -128,7 +129,7 @@ library(CDECRetrieve)
 library(reshape2)
 
 detects_study <- read.csv("detects_ColemanLateFall_2019.csv", stringsAsFactors = F)
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d T%H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
   detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release_week", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
@@ -233,12 +234,12 @@ if (nrow(detects_benicia)>0) {
   
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
   
-  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), "RelDT"])
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), "Release_week"])
   rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$RelDT))])
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$Release_week))])
   
-  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, RelDT = detects_benicia$RelDT ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ RelDT)
+  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release_week = detects_benicia$Release_week ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ Release_week)
                     
   daterange1 <- merge(daterange, tagcount1, all.x=T)
   
@@ -263,7 +264,7 @@ if (nrow(detects_benicia)>0) {
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2[,1:ncol(daterange2)]), fill= rainbow(rel_num), horiz = T, title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= rainbow(rel_num), horiz = T, title = "Release Group")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -542,9 +543,10 @@ if (nrow(detects_study) == 0){
     
     results_short$Measure <- c("Survival from release to TowerBridge", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)",
                                "Detection probability at TowerBridge", "Detection probability at I80-50_Br", "Detection probability at Blw_Georgiana", "Detection probability at Georgiana Slough",
-                               "Routing probability into Georgiana Slough")
+                               "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
     
     results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
+    colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
 
     print(kable(results_short, row.names = F, "html") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
@@ -592,11 +594,11 @@ if (nrow(detects_benicia) == 0){
   inp2[inp2 > 0] <- 1
   
   inp <- cbind(inp, inp2)
-  groups <- as.character(sort(unique(inp$RelDT)))
+  groups <- as.character(sort(unique(inp$Release_week)))
 
   inp[,groups] <- 0
   for (i in groups) {
-    inp[as.character(inp$RelDT) == i, i] <- 1
+    inp[as.character(inp$Release_week) == i, i] <- 1
   }
   
   if(length(groups) > 1){

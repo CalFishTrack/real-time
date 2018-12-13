@@ -36,11 +36,11 @@ htmltools::img(src = knitr::image_uri("../data/Juvenile_Green_Sturgeon_crop.jpg"
 
 
 
-# *Sacramento River Green Sturgeon*
+# *Sacramento River Green Sturgeon* 
 
 <br/>
 
-## 2018-2019 Season
+## 2018-2019 Season (PROVISIONAL DATA)
 
 
 <br/>
@@ -110,7 +110,7 @@ detects_study <- read.csv("detects_Juv_Green_Sturgeon_2018.csv", stringsAsFactor
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
-  detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+  detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%dT%H:%M:%S", "Etc/GMT+8")
 
   detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
   detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
@@ -172,7 +172,7 @@ study_count <- nrow(study_tagcodes)
 if (nrow(test) == 0){
   "No detections yet"
 } else {
-  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
+  test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%dT%H:%M:%S")
   tag_stats <- aggregate(list(First_arrival = test$DateTime_PST), 
                          by= list(general_location = test$general_location), FUN = min)
   tag_stats <- merge(tag_stats, 
