@@ -268,7 +268,7 @@ if (nrow(detects_benicia)>0) {
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
-  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2)[xbreaks], las = 2)
   axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
   box()
 
