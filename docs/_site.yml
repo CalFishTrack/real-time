@@ -11,6 +11,10 @@ navbar:
       href: pageSRGS_2019.html
     - text: Hatchery late-fall-run salmon
       href: pageCHLF_2019.html
+    - text: Deer Creek wild spring-run salmon
+      href: pageSRDC_2019.html
+    - text: Deer Creek wild steelhead
+      href: pageSHDC_2019.html
     - text: Hatchery winter-run salmon
       href: pageLSWR_2019.html
     - text: Butte Creek wild spring-run salmon
