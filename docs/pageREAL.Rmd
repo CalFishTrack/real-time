@@ -144,8 +144,7 @@ if (nrow(ATS_files) > 0) {
   ## Now change downloads start and end to correct time since some are on CST and some are PST + 1 day
   
   for (i in 1:nrow(downloads_new1)){ 
-    if(downloads_new1[i, "filename"] %in% CST_files$Filenames | 
-       downloads_new1[i, "recv"] %in% c("18007")) {
+    if(downloads_new1[i, "filename"] %in% CST_files$Filenames) {
       downloads_new1[i, "start"] <- downloads_new1[i, "start"]-2*60*60
     }
   }
@@ -237,8 +236,7 @@ if (nrow(ATS_files) > 0) {
       ## Now change DateTime_PST to PST, but this is tricky because for some, orig time is in CST
       ## Have this first if statement in case there are no detections in a file
       if(nrow(test4)>0){
-        if(ATS_files[i,"x"] %in% CST_files$Filenames | 
-           unique(test4$recv) %in% c("18007")) {
+        if(ATS_files[i,"x"] %in% CST_files$Filenames) {
           test4$DateTime_PST <- test4$DateTime_PST-2*60*60
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
