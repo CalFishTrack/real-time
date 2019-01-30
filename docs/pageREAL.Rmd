@@ -882,6 +882,37 @@ ggplot() +
 
 ```
 
+
+<br/>
+
+
+## Voltage for each ATS receiver
+
+<br/>
+
+```{r print voltage for ATS receivers}
+
+library(ggplot2)
+
+volt.files <- data.frame(path =dir(pattern = "*.txt", path = "C:/Users/Trailer/Documents/Voltage_emails", full.names = T), stringsAsFactors = F)
+volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 43, stop = 57), format = "%Y%m%d-%H%M%S")
+volt.files$IP <- NULL
+volt.files$Volts <- NULL
+
+for (i in 1:nrow(volt.files)){
+  test <- read.csv(volt.files[i,"path"], skip = 3, stringsAsFactors = F)
+  volt.files[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
+  volt.files[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
+}
+
+ggplot(volt.files, aes(x = Datetime, y = Volts)) + 
+  geom_line() + 
+  geom_point() +
+  facet_grid(IP ~ ., scales = "free_y") + 
+  theme(legend.position = "none")
+```
+
+
 <br/>
 
 ```{r see winter run counts per tagger, echo=FALSE}
