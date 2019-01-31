@@ -890,12 +890,14 @@ ggplot() +
 
 <br/>
 
-```{r print voltage for ATS receivers}
+```{r print voltage for ATS receivers,fig.height = 10}
 
 library(ggplot2)
 
 volt.files <- data.frame(path =dir(pattern = "*.txt", path = "C:/Users/Trailer/Documents/Voltage_emails", full.names = T), stringsAsFactors = F)
 volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 43, stop = 57), format = "%Y%m%d-%H%M%S")
+
+IPs <- read.csv("C:/Users/Trailer/Desktop/realtime_stuff/ATS_Realtime_download_script/IP_addresses.csv", stringsAsFactors = F)
 volt.files$IP <- NULL
 volt.files$Volts <- NULL
 
@@ -905,11 +907,15 @@ for (i in 1:nrow(volt.files)){
   volt.files[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
 }
 
+volt.files <- merge(volt.files, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
+
 ggplot(volt.files, aes(x = Datetime, y = Volts)) + 
   geom_line() + 
   geom_point() +
-  facet_grid(IP ~ ., scales = "free_y") + 
+  ylim(9,15) +
+  facet_grid(RECV ~ .) + 
   theme(legend.position = "none")
+
 ```
 
 
