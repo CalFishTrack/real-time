@@ -890,7 +890,7 @@ ggplot() +
 
 <br/>
 
-```{r print voltage for ATS receivers,fig.height = 10}
+```{r print voltage for ATS receivers,fig.height = 30}
 
 library(ggplot2)
 
