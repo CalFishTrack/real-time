@@ -913,6 +913,7 @@ ggplot(volt.files, aes(x = Datetime, y = Volts)) +
   geom_line() + 
   geom_point() +
   ylim(9,15) +
+  geom_hline(yintercept=12, linetype="dashed", color = "red") +
   facet_grid(RECV ~ .) + 
   theme(legend.position = "none")
 
