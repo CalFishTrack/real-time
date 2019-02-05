@@ -34,6 +34,8 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 ## Project Status
 
+PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
+
 
 ```{r print table with fish release details, echo = FALSE}
 

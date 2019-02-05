@@ -772,7 +772,10 @@ kable(gen_locs[is.na(gen_locs$stop),c("recv", "location", "general_location", "l
 ``` {r print most recent downloads, echo=FALSE, warning=FALSE}
 
 if (nrow(downloads_new_all) > 0) {
-  downloads_new_all <- merge(downloads_new_all, gen_locs[,c("recv", "location")], by = "recv")
+  for (i in 1:nrow(gen_locs)){
+  downloads_new_all[which(gen_locs$recv[i] == downloads_new_all$recv & gen_locs$start[i] <= downloads_new_all$start & (gen_locs$stop[i] > downloads_new_all$end | is.na(gen_locs$stop[i]))),"location"] <- gen_locs[i,"location"]
+  }
+
   downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location",
                                             "sun_volts", "bat_volts")]
   kable(downloads_new_all, row.names = F)
