@@ -684,12 +684,14 @@ for (k in unique(tagcodes$StudyID)){
       study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
     }
   }
+  temp_detects$DateTime_PST <- format(temp_detects$DateTime_PST, "%Y-%m-%d %H:%M:%S")
   fwrite(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
 #### Now export study_detections
 ## But first change column name for studyid
 colnames(study_detections)[1] <- "Study_ID"
+study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
 fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")], "study_detections.csv", row.names = F)
 
 
