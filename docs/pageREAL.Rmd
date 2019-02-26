@@ -241,11 +241,15 @@ if (nrow(ATS_files) > 0) {
           attributes(test4$DateTime_PST)$tzone <- "Etc/GMT+8"
         }
         
+        ## Finally, if erroneous receiver serial number "09000"" comes up, change it to 18092
+        test4[test4$recv == "09000", "recv"] <- "18092"
+        
         ## change Datetime_Orig with milliseconds shown (this turns the class into character)
         test4$DateTime_Orig <- format(test4$DateTime_Orig, "%Y-%m-%d %H:%M:%OS6")
         
         detects_temp <- rbindlist(list(detects_temp, test4))
         
+
       }
     }
   }
