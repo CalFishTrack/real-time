@@ -607,12 +607,13 @@ efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency,1)
 
 
 #### As a preliminary cut to detection filter, a tag needs to have been detected at least 3 times in the entire array
+## NB: not worth doing any more, all tag code options have happened at least 3 times
 
 
-tags <- sort(table(detects$TagCode), decreasing = T)
-tags <- tags[tags>2]
-detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
-detects_filtered <- detects_filtered[order(detects_filtered$general_location, detects_filtered$TagCode, detects_filtered$DateTime_PST),]
+#tags <- sort(table(detects$TagCode), decreasing = T)
+#tags <- tags[tags>2]
+#detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
+detects <- detects[order(detects$general_location, detects$TagCode, detects$DateTime_PST),]
 
 #### Now run detection filter per study ID, and save as seperate csvs, but also as one combined one for ERDDAP
 study_detections <- NULL
@@ -620,7 +621,7 @@ study_detections <- NULL
 for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
   ## First, select only detections of correct tagcodes per study
-  temp_detects <- as.data.frame(detects_filtered[detects_filtered$TagCode %in% studycodes$TagID_Hex,])
+  temp_detects <- as.data.frame(detects[detects$TagCode %in% studycodes$TagID_Hex,])
   ## Now remove false detections that occured before release,
   temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT", "PRI_nominal")], by.x = "TagCode", by.y = "TagID_Hex")
   temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
