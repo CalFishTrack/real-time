@@ -94,7 +94,7 @@ kable(release_stats, "html") %>%
 
 ## Real-time Fish Detections
 
-*Sacramento real-time receivers deployed 2018-02-01, data current as of `r latest`. All times in Pacific Standard Time.*
+***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
 
 <br/>
 <center>

@@ -43,7 +43,7 @@ Completed and active JSATS receiver deployments since 9/1/2017:
 ```{r print table with deployment data, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-deploy <- read.csv("Deployment_Table.csv")
+deploy <- read.csv("20190313_Deployment_Table.csv")
 
 datatable(deploy)
 

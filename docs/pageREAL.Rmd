@@ -670,32 +670,32 @@ for (k in unique(tagcodes$StudyID)){
   temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)*1.5
   temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]
   
-  ## Currently, all data has filter of 3 detections within 10 minutes. If more strigent filter is wanted for certain studyIDs, uncomment below and use code
-  # if(nrow(temp_detects) > 0){
-  #   ## Now create two columns with time in hours between the previous and next detection, for each detection
-  #   ## Now reorder the data since the above steps may have jumbled things
-  #   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$DateTime_PST),]
-  #   ## Now estimate the time in hours between the previous and next detection, for each detection. 
-  #   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
-  #   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
-  #   ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
-  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
-  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-  #   
+  ## Currently, all data has filter of 3 detections within 10 minutes. But since last 15 minutes of every recv detection history is also kept, we might as well rerun the filter to remove these detections
+  if(nrow(temp_detects) > 0){
+   ## Now create two columns with time in hours between the previous and next detection, for each detection
+   ## Now reorder the data since the above steps may have jumbled things
+   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$DateTime_PST),]
+   ## Now estimate the time in hours between the previous and next detection, for each detection.
+   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
+   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+   ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
+   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
+   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+  
 
-  #   ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
-  #   temp_detects$before_and_after_valid <- NA
-  #   temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < filter_lag & temp_detects$time_from_previous < filter_lag,"before_and_after_valid"] <- 1
-  #   ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
-  #   temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
-  #                                        shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
-  #                                        temp_detects$before_and_after_valid == 1),]
-  #   #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-  #   ## Remove before and after valid column
-  #   temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
-  # }
+   ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after).
+   temp_detects$before_and_after_valid <- 0
+   temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < 0.08333333 & temp_detects$time_from_previous < 0.08333333,"before_and_after_valid"] <- 1
+   ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
+   temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
+                                          shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
+                                          temp_detects$before_and_after_valid == 1),]
+   #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+   ## Remove before and after valid column
+   temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
+  }
   
   ## Now remove RelDT, PRI, tag_life and genloctag columns
   temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
@@ -745,7 +745,7 @@ fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F, quot
 
 
 ```
-*Data current as of `r latest`*
+***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
 
 <br/>
 
