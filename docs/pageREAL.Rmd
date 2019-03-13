@@ -33,9 +33,8 @@ library(dplyr)
 library(data.table)
 library(lubridate)
 
-dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data")
+dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data", recursive = F)
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
-
 
 ATS_processed_files <- fread("ATS_processed_files.csv", stringsAsFactors = F)
 TECKNO_processed_files <- fread("TECKNO_processed_files.csv", stringsAsFactors = F)
@@ -61,7 +60,7 @@ tagcodes <- fread("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
-detects_beacon <- fread("C:/Users/Trailer/Desktop/Real-time data massaging/products/detects_beacon.csv", stringsAsFactors = FALSE)
+detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
 
 #detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
 #detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
@@ -100,7 +99,7 @@ TECKNO_files <- as.data.frame(list(x=TECKNO_files[-grep(paste(bad_files$V1, coll
 
 
 ## Find all ATS file names
-ATS_all_files <- as.data.frame(list(x=dir(pattern = "*.csv", path = dirs, full.names = T)), stringsAsFactors = F)
+ATS_all_files <- as.data.frame(list(x=dir(pattern = ".csv", path = dirs, full.names = T)), stringsAsFactors = F)
 ## Select only newest ATS files for massaging
 ATS_files <- as.data.frame(list(x=ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,]), stringsAsFactors = F)
 ## Remove bad files that don't contain real data from list for processing
@@ -135,10 +134,10 @@ if (nrow(ATS_files) > 0) {
       hour <- substr(hour, start = 13, stop = 31)
       recv <- substr(recv, start = 16, stop = 21)
       downloads_new1 <- rbindlist(list(downloads_new1, 
-                             data.frame(filename = ATS_files[i, "shortname"],recv, hour, stringsAsFactors = F)))#, use.names = F, fill = F, idcol = "filename")
+                                       data.frame(filename = ATS_files[i, "shortname"],recv, hour, stringsAsFactors = F)))#, use.names = F, fill = F, idcol = "filename")
     }
   }
- 
+  
   downloads_new1$start <- as.POSIXct(downloads_new1$hour, format = "%m/%d/%Y %H:%M:%S", tz = "Etc/GMT+8")
   
   ## Now change downloads start and end to correct time since some are on CST and some are PST + 1 day
@@ -249,11 +248,11 @@ if (nrow(ATS_files) > 0) {
         
         detects_temp <- rbindlist(list(detects_temp, test4))
         
-
+        
       }
     }
   }
-
+  
   
   downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new1[,c("filename", "recv", "hour", "sun_volts", "bat_volts", "end", "start")]))
   
@@ -471,24 +470,58 @@ gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct
 #gap_percent <- merge(gap_percent, aggregate(list(hour_count = beacon_by_hour$hour), by = list(recv = beacon_by_hour$recv), FUN = length), by = "recv", all.x = T)
 
 
-## Now remove multipaths from detects_beacon for by day aggregation, raw data remains untouched
+## Now remove multipaths from detects_final
 ## Now create two columns with time in hours between the previous and next detection, for each detection
 ## first order data appropriately
-detects_beacon <- detects_beacon[order(detects_beacon$recv, detects_beacon$TagCode, detects_beacon$DateTime_PST),]
-detects_beacon$time_from_previous <- as.numeric(difftime(detects_beacon$DateTime_PST, shift(detects_beacon$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
-## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
-detects_beacon[which(detects_beacon$recv != shift(detects_beacon$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
-detects_beacon[which(detects_beacon$TagCode != shift(detects_beacon$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-## Now remove the second detection every time the detection lag difftime is less than 5 sec (multipath and funny behavior)
-temp_detects <- detects_beacon[detects_beacon$time_from_previous > 5 | is.na(detects_beacon$time_from_previous) == TRUE ,]
-detects_beacon$time_from_previous <- NULL
 
-## Also do per day
+detects <- detects[order(detects$recv, detects$TagCode, detects$DateTime_PST),]
+detects$time_from_previous <- as.numeric(difftime(detects$DateTime_PST, shift(detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+detects[which(detects$recv != shift(detects$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath and funny behavior)
+detects <- detects[detects$time_from_previous > 5 | is.na(detects$time_from_previous) == TRUE ,]
+detects$time_from_previous <- NULL
+
+## Now remove detections that don't meet the filtering criteria
+
+## Now create two columns with time in hours between the previous and next detection, for each detection
+## Now reorder the data since the above steps may have jumbled things
+detects <- detects[order(detects$TagCode, detects$DateTime_PST),]
+## Now estimate the time in hours between the previous and next detection, for each detection. 
+detects$time_to_next <- as.numeric(difftime(shift(detects$DateTime_PST, fill = NA, type = "lead"), detects$DateTime_PST, units = "hours"))
+detects$time_from_previous <- as.numeric(difftime(detects$DateTime_PST, shift(detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+detects[which(detects$general_location != shift(detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
+detects[which(detects$general_location != shift(detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
+detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+
+## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
+detects$before_and_after_valid <- 0
+detects[is.na(detects$time_to_next) == F & is.na(detects$time_from_previous) == F & detects$time_to_next < 0.08333333 & detects$time_from_previous < 0.08333333,"before_and_after_valid"] <- 1
+## In case a valid fish detection occurs right before the hour mark, we need to make sure to keep these, otherwise they might get dropped before the remaining detections come in the next hour
+last_detects <- aggregate(list(last = detects$DateTime_PST), by = list(location = detects$location), FUN = max)
+last_detects$last <-  last_detects$last - 15*60
+detects <- merge(detects, last_detects, by = "location")
+## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 5 minutes apart
+## Also keep detections that occured within the last 15 minutes of each recv so that valid tag visits aren't dropped before all the detections come in
+detects <- detects[which(shift(detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
+                                     shift(detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
+                                     detects$before_and_after_valid == 1 |
+                                     detects$DateTime_PST > detects$last),]
+## Remove extra columns
+detects$last <- NULL
+detects$time_to_next <- NULL
+detects$time_from_previous <- NULL
+detects$before_and_after_valid <- NULL
+
+## Now summarize beacon detects by day
 #beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
-temp_detects$day <- format(temp_detects$DateTime_PST, format = "%Y-%m-%d")
-beacon_by_day_new <- temp_detects[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
+detects_beacon$day <- format(detects_beacon$DateTime_PST, format = "%Y-%m-%d")
+beacon_by_day_new <- detects_beacon[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
 ## remove temp_detects now that aggregate operation is over
-rm(temp_detects)
+detects_beacon$day <- NULL
 
 beacon_by_day_new$day <- as.Date(beacon_by_day_new$day)
 
@@ -631,63 +664,44 @@ for (k in unique(tagcodes$StudyID)){
   temp_detects[temp_detects$PRI_nominal > 9 & temp_detects$PRI_nominal < 11, "tag_life"] <- 60
   ## Set tag life for sturgeon tags to 150. Also, while at it, set filter_lag for the allowable amount of time between detections, in this case, its 5 minutes for all chinook runs, and 10 minutes for green sturgeon
   if (k %in% c("Juv_Green_Sturgeon_2017", "Juv_Green_Sturgeon_2018")){
-    filter_lag <- 0.1666667
     temp_detects$tag_life <- 150
-  } else {
-    filter_lag <- 0.08333333
   }
-  temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)
+  ## Remove detections that occur past 150% of tag life
+  temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)*1.5
   temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]
-  ## Now if a tag was detected less than 3 times at any gen loc, remove those detections at that gen loc
-  detect_count <- table(temp_detects$general_location, temp_detects$TagCode)
-  detect_count_melt <- melt(detect_count)
-  detect_count_melt <- detect_count_melt[detect_count_melt$value >2,]
-  detect_count_melt$genloctag <- paste(detect_count_melt$Var1, detect_count_melt$Var2, sep = "-")
-  temp_detects$genloctag <- paste(temp_detects$general_location, temp_detects$TagCode, sep = "-")
-  temp_detects <- temp_detects[temp_detects$genloctag %in% detect_count_melt$genloctag,]
   
+  ## Currently, all data has filter of 3 detections within 10 minutes. If more strigent filter is wanted for certain studyIDs, uncomment below and use code
+  # if(nrow(temp_detects) > 0){
+  #   ## Now create two columns with time in hours between the previous and next detection, for each detection
+  #   ## Now reorder the data since the above steps may have jumbled things
+  #   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$DateTime_PST),]
+  #   ## Now estimate the time in hours between the previous and next detection, for each detection. 
+  #   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
+  #   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+  #   ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
+  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+  #   
+
+  #   ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
+  #   temp_detects$before_and_after_valid <- NA
+  #   temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < filter_lag & temp_detects$time_from_previous < filter_lag,"before_and_after_valid"] <- 1
+  #   ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
+  #   temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
+  #                                        shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
+  #                                        temp_detects$before_and_after_valid == 1),]
+  #   #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+  #   ## Remove before and after valid column
+  #   temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
+  # }
+  
+  ## Now remove RelDT, PRI, tag_life and genloctag columns
+  temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
+  ## Add this data to study_detections file, only if there is something to add
   if(nrow(temp_detects) > 0){
-    ## Now create two columns with time in hours between the previous and next detection, for each detection
-    ## Now reorder the data since the above steps may have jumbled things
-    temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$DateTime_PST),]
-    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
-    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
-    ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
-    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
-    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-    ## Now remove single detections per GenLoc, by removing records with NA in the lead and lag columns
-    temp_detects <- temp_detects[!with(temp_detects, is.na(temp_detects$time_to_next)& is.na(temp_detects$time_from_previous)),]
-    ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
-    temp_detects <- temp_detects[temp_detects$time_from_previous > 0.00028 | is.na(temp_detects$time_from_previous) == TRUE ,]
-    ## Now reorder the data since the above steps may have jumbled things
-    temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$DateTime_PST),]
-    ## Now re-estimate the time in hours between the previous and next detection, for each detection. just repeating those earlier lines of code
-    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "hours"))
-    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
-    ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
-    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
-    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-    
-    ## Now remove RelDT, PRI, tag_life and genloctag columns
-    temp_detects <- temp_detects[, !names(temp_detects) %in% c("RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
-    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
-    temp_detects$before_and_after_valid <- NA
-    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < filter_lag & temp_detects$time_from_previous < filter_lag,"before_and_after_valid"] <- 1
-    ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 14 minutes apart
-    temp_detects <- temp_detects[which(shift(temp_detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
-                                         shift(temp_detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
-                                         temp_detects$before_and_after_valid == 1),]
-    #temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-    ## Remove before and after valid column
-    temp_detects <- temp_detects[, !names(temp_detects) == "before_and_after_valid"]
-    ## Add this data to study_detections file, only if there is something to add
-    if(nrow(temp_detects) > 0){
       study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
-    }
   }
   temp_detects$DateTime_PST <- format(temp_detects$DateTime_PST, "%Y-%m-%d %H:%M:%S")
   fwrite(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
@@ -727,6 +741,7 @@ fwrite(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
 TECKNO_processed_files <- rbindlist(list(TECKNO_processed_files, TECKNO_files))
 TECKNO_processed_files$x <- as.character(TECKNO_processed_files$x)
 fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F, quote = T)  
+
 
 
 ```
@@ -816,21 +831,17 @@ points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$locat
 
 ```
 
+<br/>
 
+## Detection filters applied to real-time detections
 
-```{r plot just last weeks receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
+<br/>
 
-## And for last week
-#last_week <- merge(last_week, gen_locs[,c("recv", "location", "rkm")], by = "recv")
-#last_week <- last_week[order(last_week$rkm, decreasing = F),]
-#last_week$recv <- factor(last_week$recv, unique(last_week$recv))
+1. Multipath detection removal: All detections that occur within one second of the original tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original detection.
 
-#par(mar=c(5.1,2.1,2.1,7.1))
-#plot(as.POSIXct(last_week$hour, format = "%Y-%m-%d %H"), last_week$recv, yaxt = "n", xlab =  "Total time receiver has been deployed and operational over last week")
-#axis(4, labels = paste(unique(last_week$recv),unique(last_week$location), sep = " "), at = 1:length(unique(last_week$recv)), las = 2, cex.axis = 0.7)
-#points(unique(last_week$recv_start),unique(last_week$recv), col = "red", pch = 15)
+2. 3 detections within 10 minutes rule: In order to remove false detections, only detections of "valid fish visits" are kept in the database. A valid fish visit is when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections.
 
-```
+3. Detections fall between release time and 150% of battery life: For detections to be assigned to an actual released fish, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag.
 
 <br/>
 
