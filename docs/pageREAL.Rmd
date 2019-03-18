@@ -937,7 +937,7 @@ ggplot(volt.files_2weeks, aes(x = Datetime, y = Volts)) +
   geom_line() + 
   geom_point() +
   ylim(9,15) +
-  scale_x_datetime(date_breaks = "1 day")+
+  scale_x_datetime(date_breaks = "2 days")+
   geom_hline(yintercept=12, linetype="dashed", color = "red") +
   facet_grid(RECV ~ .) + 
   theme(legend.position = "none")
