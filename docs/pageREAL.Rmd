@@ -89,7 +89,7 @@ detects <- subset(detects, select= -c(location, general_location, latitude, long
 detects_beacon <- subset(detects_beacon, select= -c(location, general_location, latitude, longitude, rkm))
 
 ## Find all Teckno file names
-TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/Tekno_data", full.names = T)), stringsAsFactors = F)
+TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T)), stringsAsFactors = F)
 ## Select only newest TECKNO files for massaging
 TECKNO_files <- as.data.frame(list(x=TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,]), stringsAsFactors = F)
 
@@ -411,6 +411,9 @@ if (nrow(TECKNO_files) > 0) {
   detects_beacon <- rbindlist(list(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
   
 }
+
+
+
 
 ## Now remove duplicate detections that may have occured when an hourly file was inadvertantly uploaded twice
 detects <- detects[!duplicated(detects[,c("recv", "DateTime_Orig", "TagCode")])]
