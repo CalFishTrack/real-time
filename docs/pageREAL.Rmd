@@ -89,7 +89,7 @@ detects <- subset(detects, select= -c(location, general_location, latitude, long
 detects_beacon <- subset(detects_beacon, select= -c(location, general_location, latitude, longitude, rkm))
 
 ## Find all Teckno file names
-TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/data", full.names = T)), stringsAsFactors = F)
+TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/Trailer/Desktop/Tekno_data", full.names = T)), stringsAsFactors = F)
 ## Select only newest TECKNO files for massaging
 TECKNO_files <- as.data.frame(list(x=TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,]), stringsAsFactors = F)
 
@@ -918,26 +918,26 @@ library(ggplot2)
 volt.files <- data.frame(path =dir(pattern = "*.txt", path = "C:/Users/Trailer/Documents/Voltage_emails", full.names = T), stringsAsFactors = F)
 volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 43, stop = 57), format = "%Y%m%d-%H%M%S")
 
-IPs <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/IP_addresses.csv", stringsAsFactors = F)
-volt.files$IP <- NULL
-volt.files$Volts <- NULL
+## Only use last 2 weeks of volt files
+volt.files_2weeks <- volt.files[volt.files$Datetime > (Sys.time() - 60*60*24*14),]
 
-for (i in 1:nrow(volt.files)){
-  test <- read.csv(volt.files[i,"path"], skip = 3, stringsAsFactors = F)
-  volt.files[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
-  volt.files[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
+IPs <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/IP_addresses.csv", stringsAsFactors = F)
+volt.files_2weeks$IP <- NULL
+volt.files_2weeks$Volts <- NULL
+
+for (i in 1:nrow(volt.files_2weeks)){
+  test <- read.csv(volt.files_2weeks[i,"path"], skip = 3, stringsAsFactors = F)
+  volt.files_2weeks[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
+  volt.files_2weeks[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
 }
 
-volt.files <- merge(volt.files, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
-
-## Only print last 2 weeks of volt files
-volt.files_2weeks <- volt.files[volt.files$Datetime > (Sys.time() - 60*60*24*14),]
+volt.files_2weeks <- merge(volt.files_2weeks, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
 
 ggplot(volt.files_2weeks, aes(x = Datetime, y = Volts)) + 
   geom_line() + 
   geom_point() +
   ylim(9,15) +
-  scale_x_datetime(date_breaks = "2 days")+
+  scale_x_datetime(date_breaks = "2 days", date_labels = "%Y-%m-%d") +
   geom_hline(yintercept=12, linetype="dashed", color = "red") +
   facet_grid(RECV ~ .) + 
   theme(legend.position = "none")
