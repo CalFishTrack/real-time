@@ -944,6 +944,7 @@ volt.teknos <- downloads[downloads$recv %in% c(157002,157003,157004,157005) & do
 colnames(volt.teknos) <- colnames(volt.files_2weeks)
 
 volt.files_2weeks <- rbind(volt.files_2weeks, volt.teknos)
+volt.files_2weeks$Volts <- as.numeric(volt.files_2weeks$Volts)
 
 ggplot(volt.files_2weeks, aes(x = Datetime, y = Volts)) + 
   geom_line() + 
