@@ -100,7 +100,7 @@ TECKNO_files$dayes <- NULL
 
 
 ## Remove bad files that don't contain real data from list for processing
-bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character", header = F)
+bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character")
 # TECKNO_files <- data.frame(x=TECKNO_files[-grep(paste(bad_files$V1, collapse = "|"), TECKNO_files$x),], stringsAsFactors = F)
 
 
@@ -109,7 +109,7 @@ ATS_all_files <- as.data.frame(list(x=dir(pattern = ".csv", path = dirs, full.na
 ## Select only newest ATS files for massaging
 ATS_files <- as.data.frame(list(x=ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,]), stringsAsFactors = F)
 ## Remove bad files that don't contain real data from list for processing
-ATS_files <- as.data.frame(list(x=ATS_files[-grep(paste(bad_files$V1, collapse = "|"), ATS_files$x),]), stringsAsFactors = F)
+ATS_files <- as.data.frame(list(x=ATS_files[-grep(paste(bad_files$filename, collapse = "|"), ATS_files$x),]), stringsAsFactors = F)
 ## Load CSt timezone file list
 CST_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/receiver_files_with_CST_timezones.csv", colClasses = "character")
 
@@ -133,12 +133,16 @@ if (nrow(ATS_files) > 0) {
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
         recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
+      }  
+      if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
+        recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, nrows = 1, header = F)
+        hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 13, nrows = 1, header = F)
       }else{
         recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 19, nrows = 1, header = F)
       }
       hour <- substr(hour, start = 13, stop = 31)
-      recv <- substr(recv, start = 16, stop = 21)
+      recv <- as.data.frame(strsplit(as.character(recv),": "), stringsAsFactors = F)[2,]
       downloads_new1 <- rbindlist(list(downloads_new1, 
                                        data.frame(filename = ATS_files[i, "shortname"],recv, hour, stringsAsFactors = F)))#, use.names = F, fill = F, idcol = "filename")
     }
@@ -184,6 +188,9 @@ if (nrow(ATS_files) > 0) {
     if (file.info(ATS_files[i,"x"])$size >0){
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
         test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
+      }  
+      if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
+        test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 16, header = T,  row.names=NULL)
       }else{
         test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
       }
@@ -317,7 +324,6 @@ if (nrow(ATS_files) > 0) {
     detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
   }  
 }
-
 
 
 
