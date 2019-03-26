@@ -909,7 +909,7 @@ last_month$location <- factor(last_month$location, unique(last_month$location))
 
 ggplot() +
   geom_tile(data=last_month, aes(x=factor(day), y=location, fill=day_efficiency, colour = "")) + 
-  scale_fill_gradient(low = "red", high = "blue", name = "% Daily Beacon Detection Efficiency", na.value = "black") +
+  scale_fill_gradient(low = "red", high = "blue", name = "% Daily Beacon Detection Efficiency", na.value = "black", limits=c(0, 100)) +
   scale_colour_manual(values = NA) +
   scale_y_discrete(position = "right") +
   scale_x_discrete(labels = 29:0) +
