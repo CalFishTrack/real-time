@@ -19,8 +19,8 @@ navbar:
       href: pageLSWR_2019.html
     - text: Butte Creek wild spring-run salmon
       href: pageBCSR_2019.html
-    - text: Sacramento River wild Chinook salmon
-      href: pageSRSR_2019.html
+    - text: Battle Creek jump-start winter-run
+      href: pageBCJSWR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers

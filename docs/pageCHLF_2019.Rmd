@@ -131,7 +131,7 @@ library(CDECRetrieve)
 library(reshape2)
 
 detects_study <- read.csv("detects_ColemanLateFall_2019.csv", stringsAsFactors = F)
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d T%H:%M:%S", "Etc/GMT+8")
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
   detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release_week", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")

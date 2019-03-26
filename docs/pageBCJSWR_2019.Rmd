@@ -7,12 +7,19 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
 library(kableExtra)
+#library(xtable)
+#library(prettydoc)
+
+
 ```
 
 ```{r logos, echo=FALSE, cache=TRUE}
@@ -24,15 +31,16 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 <br/>
 
-```{r spring run pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/DeerCk.jpg"))#, 
+```{r winter run pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/NF_Battle.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
 <br/>
 <br/>
 
-# *Deer Creek wild spring-run Chinook salmon*
+
+# *Hatchery-origin Battle Creek winter-run Chinook salmon*
 
 <br/>
 
@@ -42,7 +50,6 @@ htmltools::img(src = knitr::image_uri("../data/DeerCk.jpg"))#,
 
 ## Project Status
 
-PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
 ```{r print table with fish release details, echo = FALSE}
 
@@ -53,7 +60,7 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "DeerCk-Wild-2019",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "BC_Jumpstart_2019",]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -113,6 +120,10 @@ if (nrow(study_tagcodes) == 0){
   
   release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
   
+  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  
+  release_stats$Last_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  
   kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }                       
@@ -123,9 +134,103 @@ if (nrow(study_tagcodes) == 0){
 
 ## Real-time Fish Detections
 
-*Data current as of `r latest`. All times in Pacific Standard Time.*
+***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
+
 
 <br/>
+<center>
+#### Detections at Butte City Bridge versus Sacramento River flows at Butte City
+</center>
+
+```{r print figure of fish detections at Butte, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+library(CDECRetrieve)
+library(reshape2)
+
+detects_study <- read.csv("detects_BC_Jumpstart_2019.csv", stringsAsFactors = F)
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+
+if(nrow(detects_study)>0){
+  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release_week", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
+}
+  
+detects_butte <- detects_study[detects_study$general_location == "ButteBrRT",]
+
+#wlk_flow <- read.csv("wlk.csv")
+
+if (nrow(detects_butte) == 0){
+  "No detections yet"
+} else {
+  
+  detects_butte <- merge(detects_butte,aggregate(list(first_detect = detects_butte$DateTime_PST), by = list(TagCode= detects_butte$TagCode), FUN = min))
+  
+  detects_butte$Day <- as.Date(detects_butte$first_detect, "Etc/GMT+8")
+  
+  starttime <- as.Date(min(detects_butte$RelDT), "Etc/GMT+8")
+  ## Endtime should be either now, or end of predicted tag life, whichever comes first
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+detects_butte$tag_life))
+  
+
+  BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
+
+  BTC_flow$datetime <- as.Date(BTC_flow$datetime)
+  BTC_flow_day <- aggregate(list(parameter_value = BTC_flow$parameter_value),
+                            by = list(Day = BTC_flow$datetime),
+                            FUN = mean, na.rm = T)
+
+
+  daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), "Release_week"])
+  rel_num <- length(rels)
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_butte$Release_week))])
+
+  tagcount <- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, Release_week = detects_butte$Release_week ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ Release_week)
+
+  daterange1 <- merge(daterange, tagcount1, all.x=T)
+
+  if(length(rels_no_detects)>0){
+    for(i in rels_no_detects){
+      daterange1 <- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == 'x'] <- paste(i)
+    }
+  }
+
+  daterange2 <- merge(daterange1, BTC_flow_day, by = "Day", all.x = T)
+
+  rownames(daterange2) <- daterange2$Day
+  daterange2$Day <- NULL
+
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=rainbow(rel_num),
+          xlab = "", ylab = "Number of fish arrivals per day",
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
+  #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+  #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release Week")
+  ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
+  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans <- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
+
+  par(new=T)
+
+  plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+  mtext("Flow (cfs) at Butte City", side=4, line=3, cex=1.5, col="blue")
+}
+
+```
+
+<br/>
+<br/>
+
 <center>
 #### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </center>
@@ -137,7 +242,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_DeerCk-Wild-2019.csv", stringsAsFactors = F)
+detects_study <- read.csv("detects_BC_Jumpstart_2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
@@ -299,6 +404,7 @@ if (nrow(detects_benicia)>0) {
 
 </center>
 #### Minimum survival to Tower Bridge (using CJS survival model)
+##### If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival
 </center>
 
 <br/>
@@ -419,7 +525,7 @@ if (nrow(detects_study) == 0){
 } else {
   
   ## Only do survival to Georg split for now
-  test2 <- detects_study[detects_study$general_location %in% c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
+  test2 <- detects_study[detects_study$general_location %in% c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
   
   ## We can only do multistate model if there is at least one detection in each route
   
@@ -431,7 +537,7 @@ if (nrow(detects_study) == 0){
     ## Make tagcode character
     study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
     ## Make a crosstab query with frequencies for all tag/location combination
-    test2$general_location <- factor(test2$general_location, levels = c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
+    test2$general_location <- factor(test2$general_location, levels = c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
     test2$TagCode <- factor(test2$TagCode, levels = study_tagcodes$TagID_Hex)
     mytable <- table(test2$TagCode, test2$general_location) # A will be rows, B will be columns
     
@@ -439,7 +545,7 @@ if (nrow(detects_study) == 0){
     mytable[mytable>0] <- "A"
     
     ## Order in order of rkm
-    mytable2 <- mytable[, c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2")]
+    mytable2 <- mytable[, c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2")]
     
     ## Now sort the crosstab rows alphabetically
     mytable2 <- mytable2[order(row.names(mytable2)),]
@@ -467,9 +573,9 @@ if (nrow(detects_study) == 0){
     
     ## Paste together (concatenate) the data from each column of the crosstab into one string per row, add to tagging_meta.
     ## For this step, make sure both are sorted by FishID
-    study_tagcodes$inp_part1 <- apply(mytable2[,1:2],1,paste,collapse="")
-    study_tagcodes$inp_partA <- apply(mytable2[,3:4],1,paste,collapse="")
-    study_tagcodes$inp_partB <- apply(mytable2[,5:6],1,paste,collapse="")
+    study_tagcodes$inp_part1 <- apply(mytable2[,1:3],1,paste,collapse="")
+    study_tagcodes$inp_partA <- apply(mytable2[,4:5],1,paste,collapse="")
+    study_tagcodes$inp_partB <- apply(mytable2[,6:7],1,paste,collapse="")
     #study_tagcodes$inp_group <- apply(mytable4,1,paste,collapse=" ")
     
     ## We need to have a way of picking which route to assign to a fish if it was detected by both georg and blw-georg recvs
@@ -500,26 +606,26 @@ if (nrow(detects_study) == 0){
     ddl <- make.design.data(dp)
     
     #### p ####
-    # Can't be seen at 2B or 3B (tower or I80)
+    # Can't be seen at 2B or 3B or 4B (butte, tower or I80)
     ddl$p$fix=NA
-    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3)]=0
+    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3,4)]=0
     
     #### Psi ####
     # Only 1 transition allowed:
-    # from A to B at time interval 3 to 4
+    # from A to B at time interval 4 to 5
     
     ddl$Psi$fix=0
-    # A to B can only happen for interval 2-3
+    # A to B can only happen for interval 3-4
     ddl$Psi$fix[ddl$Psi$stratum=="A"&
-                  ddl$Psi$tostratum=="B" & ddl$Psi$time==3]=NA
+                  ddl$Psi$tostratum=="B" & ddl$Psi$time==4]=NA
     
     #### Phi a.k.a. S ####
     ddl$S$fix=NA
-    # None in B for reaches 1,2,3 and fixing it to 1 for 4 (between two georg lines). All getting fixed to 1
-    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4)]=1
+    # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
+    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4,5)]=1
     
-    # For route A, fixing it to 1 for 4 (between two blw_georg lines)
-    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==4]=1
+    # For route A, fixing it to 1 for 5 (between two blw_georg lines)
+    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==5]=1
     ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn't share the same intercept
     
     p.timexstratum=list(formula=~-1+stratum:time)
@@ -540,17 +646,19 @@ if (nrow(detects_study) == 0){
     results_short <- results[rownames(results) %in% c("S sA g1 c1 a0 o1 t1",
                                                       "S sA g1 c1 a1 o2 t2",
                                                       "S sA g1 c1 a2 o3 t3",
+                                                      "S sA g1 c1 a3 o4 t4",
                                                       "p sA g1 c1 a1 o1 t2",
                                                       "p sA g1 c1 a2 o2 t3",
                                                       "p sA g1 c1 a3 o3 t4",
-                                                      "p sB g1 c1 a3 o3 t4",
-                                                      "Psi sA toB g1 c1 a2 o3 t3"
+                                                      "p sA g1 c1 a4 o4 t5",
+                                                      "p sB g1 c1 a4 o4 t5",
+                                                      "Psi sA toB g1 c1 a3 o4 t4"
                                                       ),]
     
     
     results_short <- round(results_short[,c("estimate", "se", "lcl", "ucl")] * 100,1)
     
-    results_short$Measure <- c("Survival from release to TowerBridge", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)",
+    results_short$Measure <- c("Survival from release to Butte City","Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)","Detection probability at Butte City",
                                "Detection probability at TowerBridge", "Detection probability at I80-50_Br", "Detection probability at Blw_Georgiana", "Detection probability at Georgiana Slough",
                                "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
     
