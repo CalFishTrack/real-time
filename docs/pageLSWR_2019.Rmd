@@ -121,6 +121,10 @@ if (nrow(study_tagcodes) == 0){
   
   release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
   
+  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  
+  release_stats$Last_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  
   kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }                       
@@ -795,6 +799,11 @@ if (nrow(detects_study) == 0){
                          FUN = mean), 
                      by = c("general_location"))
   tag_stats <- merge(tag_stats, 
+                     aggregate(list(Last_arrival = detects_study$DateTime_PST), 
+                         by= list(general_location = detects_study$general_location),
+                         FUN = max), 
+                     by = c("general_location"))
+  tag_stats <- merge(tag_stats, 
                      aggregate(list(Fish_count = detects_study$TagCode), 
                          by= list(general_location = detects_study$general_location), 
                          FUN = function(x) {length(unique(x))}), 
@@ -805,6 +814,8 @@ if (nrow(detects_study) == 0){
   
   tag_stats <- tag_stats[order(tag_stats$rkm, decreasing = T),]
   
+  tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
+
   print(kable(tag_stats, row.names = F, 
               caption = "Detections for all release weeks combined",
               "html") %>%
@@ -827,6 +838,11 @@ if (nrow(detects_study) == 0){
                              FUN = mean), 
                          by = c("general_location"))
       tag_stats1 <- merge(tag_stats1, 
+                   aggregate(list(Last_arrival = temp$DateTime_PST), 
+                       by= list(general_location = temp$general_location), 
+                       FUN = max), 
+                   by = c("general_location"))
+      tag_stats1 <- merge(tag_stats1, 
                          aggregate(list(Fish_count = temp$TagCode), 
                                    by= list(general_location = temp$general_location), 
                                    FUN = function(x) {length(unique(x))}), 
@@ -837,10 +853,13 @@ if (nrow(detects_study) == 0){
       tag_stats1 <- merge(tag_stats1, unique(gen_locs[,c("general_location", "rkm")]))
     
       tag_stats1 <- tag_stats1[order(tag_stats1$rkm, decreasing = T),]
-    
+      
+      tag_stats1[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats1[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
+      
       final_stats <- kable(tag_stats1, row.names = F, 
             caption = paste("Detections for",j,"release groups", sep = " "),
             "html")
+      
       print(kable_styling(final_stats, bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
       
     } else {
