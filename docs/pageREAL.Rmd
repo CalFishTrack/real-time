@@ -886,11 +886,12 @@ points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$locat
 
 1. Multipath detection removal: All detections that occur within one second of the original tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original detection.
 
-2. 3 detections within 10 minutes rule: In order to remove false detections, only detections of "valid fish visits" are kept in the database. A valid fish visit is when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections.
+2. "3 detections within 10 minutes rule": In order to remove false detections, only detections of "valid fish visits" are kept in the database. A valid fish visit is when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections.
 
-3. Once valid fish visits have been determined, any visit that has less than 5 detections AND a detection density of less than 4 / (16.6 * PRI) (e.g., for a 10 sec PRI, at least 1.45 detections per minute of time)
+3. Assign Tag Code to a fish: For detections to be assigned to an actual released fish, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag.
 
-4. Detections fall between release time and 150% of battery life: For detections to be assigned to an actual released fish, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag.
+4. Once valid fish visits have been determined and assigned to a specific fish, any visit that has less than 5 detections AND a detection density of less than 4 / (16.6 * PRI) (e.g., for a 10 sec PRI, at least 1.45 detections per minute of time)
+
 
 <br/>
 
