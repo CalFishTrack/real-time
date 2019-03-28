@@ -890,7 +890,7 @@ points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$locat
 
 3. Assign Tag Code to a fish: For detections to be assigned to an actual released fish, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag.
 
-4. Once valid fish visits have been determined and assigned to a specific fish, any visit that has less than 5 detections AND a detection density of less than 4 / (16.6 * PRI) (e.g., for a 10 sec PRI, at least 1.45 detections per minute of time)
+4. Once valid fish visits have been determined and assigned to a specific fish, any visit that has less than 5 detections AND a detection density of less than 4 / (16.6 * PRI) (e.g., for a 10 sec PRI, at least 1.45 detections per minute of time) are removed.
 
 
 <br/>
