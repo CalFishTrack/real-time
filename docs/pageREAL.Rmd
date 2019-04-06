@@ -495,7 +495,7 @@ detects$time_from_previous <- as.numeric(difftime(detects$DateTime_PST, shift(de
 detects[which(detects$recv != shift(detects$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
 detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
 ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath and funny behavior)
-detects <- detects[detects$time_from_previous > 5 | is.na(detects$time_from_previous) == TRUE ,]
+detects <- detects[detects$time_from_previous > 1 | is.na(detects$time_from_previous) == TRUE ,]
 detects$time_from_previous <- NULL
 
 ## Now remove detections that don't meet the filtering criteria
@@ -519,6 +519,8 @@ detects[is.na(detects$time_to_next) == F & is.na(detects$time_from_previous) == 
 last_detects <- aggregate(list(last = detects$DateTime_PST), by = list(location = detects$location), FUN = max)
 last_detects$last <-  last_detects$last - 15*60
 detects <- merge(detects, last_detects, by = "location")
+## Now reorder the data since the above steps may have jumbled things
+detects <- detects[order(detects$TagCode, detects$general_location, detects$DateTime_PST),]
 ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 5 minutes apart
 ## Also keep detections that occured within the last 15 minutes of each recv so that valid tag visits aren't dropped before all the detections come in
 detects <- detects[which(shift(detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
