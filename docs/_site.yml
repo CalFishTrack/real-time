@@ -22,7 +22,7 @@ navbar:
     - text: Battle Creek jump-start winter-run
       href: pageBCJSWR_2019.html
     - text: Hatchery San Joaquin spring-run
-      href: pageBCJSWR_2019.html
+      href: pageSJSR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
