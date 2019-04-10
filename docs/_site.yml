@@ -23,6 +23,8 @@ navbar:
       href: pageBCJSWR_2019.html
     - text: Hatchery San Joaquin spring-run
       href: pageSJSR_2019.html
+    - text: Hatchery Feather River spring-run
+      href: pageFHSR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
