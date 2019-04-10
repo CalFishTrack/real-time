@@ -32,7 +32,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r winter run pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/feather-river-hatchery.png"))#, 
+htmltools::img(src = knitr::image_uri("../data/feather-river-hatchery.jpeg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
