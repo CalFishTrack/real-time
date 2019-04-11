@@ -675,17 +675,10 @@ for (k in unique(tagcodes$StudyID)){
   ## Now remove detections that occurred on 4/1/19 at 17135
   temp_detects <- temp_detects[!(temp_detects$recv == "17135" & as.Date(temp_detects$DateTime_PST) == "2019-04-01"),]
   ## Now remove false detections that occured before release,
-  temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT", "PRI_nominal")], by.x = "TagCode", by.y = "TagID_Hex")
+  temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT", "PRI_nominal", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
   temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
   ## Now remove false detections that occured after the tags expected end of life
   if(nrow(temp_detects) > 0){
-    temp_detects$tag_life <- NA
-    temp_detects[temp_detects$PRI_nominal %in% c(3,5), "tag_life"] <- 30
-    temp_detects[temp_detects$PRI_nominal > 9 & temp_detects$PRI_nominal < 11, "tag_life"] <- 60
-    ## Set tag life for sturgeon tags to 150. Also, while at it, set filter_lag for the allowable amount of time between detections, in this case, its 5 minutes for all chinook runs, and 10 minutes for green sturgeon
-    if (k %in% c("Juv_Green_Sturgeon_2017", "Juv_Green_Sturgeon_2018")){
-      temp_detects$tag_life <- 150
-    }
     ## Remove detections that occur past 150% of tag life
     temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)*1.5
     temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]

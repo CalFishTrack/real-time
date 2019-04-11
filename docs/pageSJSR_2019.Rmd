@@ -150,7 +150,7 @@ detects_study <- read.csv("detects_2019UP_UCD.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
-  study_tagcodes$tag_life <- 71
+
   detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
 
 }
