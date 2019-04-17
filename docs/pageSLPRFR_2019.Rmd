@@ -54,25 +54,18 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "ColemanFall_paired_2019",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "ColemanAltRelStrat2019",]
  
 
 if (nrow(study_tagcodes) == 0){
   cat("Project has not yet begun")
 }else{
   cat("Project has begun, see tagging details below:")
-  
-  study_tagcodes$tag_life <- NA 
-  study_tagcodes[study_tagcodes$PRI_nominal < 6, "tag_life"] <- 30
-  study_tagcodes[study_tagcodes$PRI_nominal < 11 & study_tagcodes$PRI_nominal > 9, "tag_life"] <- 60
-  
 
-  study_tagcodes$release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "release"] <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "release"] <- "Week 2"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "release"] <- "Week 3"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-24") & study_tagcodes$RelDT < as.POSIXct("2018-06-01"), "release"] <- "Week 4"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-06-01") & study_tagcodes$RelDT < as.POSIXct("2018-06-07"), "release"] <- "Week 5"
+
+  study_tagcodes$release <- "1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-12"), "release"] <- "2"
+
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
@@ -143,7 +136,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_Colemanfall_paired_2019.csv", stringsAsFactors = F)
+detects_study <- read.csv("detects_ColemanAltRelStrat2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
@@ -206,7 +199,7 @@ if (nrow(detects_butte) == 0){
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release Week")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Releas")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -236,7 +229,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_Colemanfall_paired_2019.csv", stringsAsFactors = F)
+detects_study <- read.csv("detects_ColemanAltRelStrat2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
@@ -299,7 +292,7 @@ if (nrow(detects_tower) == 0){
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release Week")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Releas")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -489,7 +482,7 @@ if (nrow(detects_tower) == 0){
     }
 
     
-    colnames(WR.surv) <- c("Release Week", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+    colnames(WR.surv) <- c("Release", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
     
     print(kable(WR.surv, row.names = F, "html") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
@@ -811,7 +804,7 @@ if (nrow(detects_study) == 0){
   tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
 
   print(kable(tag_stats, row.names = F, 
-              caption = "Detections for all release weeks combined",
+              caption = "Detections for all releases combined",
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
