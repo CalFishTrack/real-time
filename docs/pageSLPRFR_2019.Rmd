@@ -97,12 +97,12 @@ if (nrow(study_tagcodes) == 0){
   release_stats <- merge(release_stats,
                          aggregate(list(Mean_length = study_tagcodes$Length),
                              by= list(release = study_tagcodes$release),
-                             FUN = mean),
+                             FUN = mean, na.rm = T),
                          by = c("release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Mean_weight = study_tagcodes$Weight),
                              by= list(release = study_tagcodes$release),
-                             FUN = mean),
+                             FUN = mean, na.rm = T),
                          by = c("release"))
   
   release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
