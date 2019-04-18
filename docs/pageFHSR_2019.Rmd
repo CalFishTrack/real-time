@@ -66,7 +66,7 @@ study_tagcodes <- tagcodes[tagcodes$StudyID == "Feather_Spring_2019",]
 if (nrow(study_tagcodes) == 0){
   cat("Project has not yet begun")
 }else{
-  cat("Project has begun, see tagging details below:")
+  cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
 
   study_tagcodes$Release <- "Release 1"
