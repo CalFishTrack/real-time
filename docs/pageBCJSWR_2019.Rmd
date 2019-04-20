@@ -170,7 +170,7 @@ if (nrow(detects_butte) == 0){
   
   starttime <- as.Date(min(detects_butte$RelDT), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+detects_butte$tag_life))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
   
 
   BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
@@ -263,7 +263,7 @@ if (nrow(detects_tower) == 0){
   
   starttime <- as.Date(min(detects_tower$RelDT), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+detects_tower$tag_life))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
 
   wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)

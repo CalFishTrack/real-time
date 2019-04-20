@@ -51,7 +51,6 @@ htmltools::img(src = knitr::image_uri("../data/shasta.jpeg"))#,
 
 ## Project Status
 
-PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
 ```{r print table with fish release details, echo = FALSE}
 
@@ -167,7 +166,7 @@ if (nrow(detects_butte) == 0){
   
   starttime <- as.Date(min(detects_butte$RelDT), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+detects_butte$tag_life))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
   
 
   BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
@@ -260,7 +259,7 @@ if (nrow(detects_tower) == 0){
   
   starttime <- as.Date(min(detects_tower$RelDT), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+detects_tower$tag_life))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
 
   wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
@@ -338,6 +337,7 @@ if (nrow(detects_benicia)>0) {
   detects_benicia$Day <- as.Date(detects_benicia$first_detect, "Etc/GMT+8")
   
   starttime <- as.Date(min(detects_benicia$RelDT), "Etc/GMT+8")
+
   #endtime <- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
   #wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
   #wlk_flow$datetime <- as.Date(wlk_flow$datetime)

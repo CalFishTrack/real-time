@@ -163,7 +163,7 @@ if (nrow(detects_benicia)>0) {
   detects_benicia$Day <- as.Date(detects_benicia$first_detect, "Etc/GMT+8")
   
   starttime <- as.Date(min(detects_benicia$RelDT), "Etc/GMT+8")
-  endtime <- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_benicia$RelDT)+(detects_benicia$tag_life*1.5)))
   #wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
   #wlk_flow$datetime <- as.Date(wlk_flow$datetime)
   #wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
