@@ -716,7 +716,7 @@ if (nrow(detects_study) == 0){
   tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
 
   print(kable(tag_stats, row.names = F, 
-              caption = "Detections for all release weeks combined",
+              caption = "Detections for all releases combined",
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
@@ -756,7 +756,7 @@ if (nrow(detects_study) == 0){
       tag_stats1[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats1[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
       
       final_stats <- kable(tag_stats1, row.names = F, 
-            caption = paste("Detections for",j,"release groups", sep = " "),
+            caption = paste("Detections for",j,"release group", sep = " "),
             "html")
       
       print(kable_styling(final_stats, bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))

@@ -67,11 +67,11 @@ if (nrow(study_tagcodes) == 0){
   
 
   study_tagcodes$Release_week <- NA
-  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-24") & study_tagcodes$RelDT < as.POSIXct("2018-06-01"), "Release_week"] <- "Week 4"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-06-01") & study_tagcodes$RelDT < as.POSIXct("2018-06-07"), "Release_week"] <- "Week 5"
+  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "Release_week"] <- "Week 1"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-04") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "Release_week"] <- "Week 2"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "Release_week"] <- "Week 3"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-18") & study_tagcodes$RelDT < as.POSIXct("2019-06-01"), "Release_week"] <- "Week 4"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-01") & study_tagcodes$RelDT < as.POSIXct("2019-06-07"), "Release_week"] <- "Week 5"
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
@@ -139,7 +139,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_Feather_Spring_2019.csv", stringsAsFactors = F)
+detects_study <- read.csv("detects_SB_Spring_2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
