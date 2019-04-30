@@ -62,11 +62,11 @@ if (nrow(study_tagcodes) == 0){
   cat("Project has begun, see tagging details below:")
 
   study_tagcodes$Release_week <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-11-18"), "Release_week"] <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-11-18") & study_tagcodes$RelDT < as.POSIXct("2018-11-24"), "Release_week"] <- "Week 2"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-12-02") & study_tagcodes$RelDT < as.POSIXct("2018-12-08"), "Release_week"] <- "Week 3"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "Release_week"] <- "Week 4"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-21") & study_tagcodes$RelDT < as.POSIXct("2019-04-21"), "Release_week"] <- "Week 5"
+  #study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-11-18"), "Release_week"] <- "Week 1"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-11-18") & study_tagcodes$RelDT < as.POSIXct("2018-11-25"), "Release_week"] <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-12-02") & study_tagcodes$RelDT < as.POSIXct("2018-12-09"), "Release_week"] <- "Week 2"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "Release_week"] <- "Week 3"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-20") & study_tagcodes$RelDT < as.POSIXct("2019-04-27"), "Release_week"] <- "Week 4"
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
