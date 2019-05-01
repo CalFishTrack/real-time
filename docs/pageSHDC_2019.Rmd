@@ -153,7 +153,7 @@ if (nrow(detects_tower) == 0){
   
   starttime <- as.Date(min(detects_tower$RelDT), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+detects_tower$tag_life))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(study_tagcodes$RelDT)+(study_tagcodes$tag_life*1.5)))
   
 
   wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
@@ -197,7 +197,7 @@ if (nrow(detects_tower) == 0){
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release Week")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
-  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  xbreaks <- if(ncol(barp) > 60) {seq(1, ncol(barp), 4)} else {seq(1, ncol(barp), 2)}
   barpmeans <- colMeans(barp)
   axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
   axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
@@ -270,7 +270,7 @@ if (nrow(detects_benicia)>0) {
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= rainbow(rel_num), horiz = T, title = "Release Group")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
-  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  xbreaks <- if(ncol(barp) > 60) {seq(1, ncol(barp), 4)} else {seq(1, ncol(barp), 2)}
   barpmeans <- colMeans(barp)
   axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2)[xbreaks], las = 2)
   axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
