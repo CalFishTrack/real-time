@@ -435,6 +435,7 @@ if (nrow(detects_study) == 0){
     "Too few detections: routing probability cannot be estimated"
   }else{
     
+    georg <- read.csv("daily_georg_routing.csv", stringsAsFactors = F)
     ## Make tagcode character
     study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
     ## Make a crosstab query with frequencies for all tag/location combination
@@ -564,6 +565,10 @@ if (nrow(detects_study) == 0){
     results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
 
+    georg <- rbind(georg, cbind(tail(results_short,1), latest, unique(study_tagcodes$StudyID)))
+    
+    write.csv(georg, "daily_georg_routing.csv", row.names = F)
+    
     print(kable(results_short, row.names = F, "html") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   }
