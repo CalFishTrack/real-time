@@ -436,6 +436,7 @@ if (nrow(detects_study) == 0){
   }else{
     
     georg <- read.csv("daily_georg_routing.csv", stringsAsFactors = F)
+    
     ## Make tagcode character
     study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
     ## Make a crosstab query with frequencies for all tag/location combination
@@ -563,11 +564,12 @@ if (nrow(detects_study) == 0){
                                "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
     
     results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
-    colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
-
-    georg <- rbind(georg, cbind(tail(results_short,1), latest, unique(study_tagcodes$StudyID)))
     
-    write.csv(georg, "daily_georg_routing.csv", row.names = F)
+    georg <- rbind(georg, data.frame(tail(results_short[,c("estimate", "se", "lcl", "ucl")],1), datetime = latest$x, StudyID = unique(study_tagcodes$StudyID)))
+    write.csv(georg, "daily_georg_routing.csv", row.names = F, quote = F)    
+    
+    
+    colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
     
     print(kable(results_short, row.names = F, "html") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
