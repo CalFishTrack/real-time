@@ -829,7 +829,10 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects <- temp_detects[!temp_detects$visit_num %in% min_max_diff[min_max_diff$ping_density < (4/(temp_detects$PRI_nominal*16.6)) & min_max_diff$count < 5, "Group.2"],]
   }
   
-  temp_detects <- temp_detects[, !names(temp_detects) %in% c()]
+  if(nrow(temp_detects) > 0){
+    ## Now remove any weird beacon tag echos, this was noticed for tag F694 at CVP_Tank1
+    temp_detects <- temp_detects[!(temp_detects$TagCode == "F694" & temp_detects$general_location == "CVP_Tank1"),]
+  }
   
   ## Now remove RelDT, PRI, tag_life and genloctag columns
   temp_detects <- temp_detects[, !names(temp_detects) %in% c("before_and_after_valid", "visit_num", "visit_step", "time_to_next", "time_from_previous", "prev_before_after_valid", "RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
