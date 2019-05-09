@@ -43,7 +43,7 @@ htmltools::img(src = knitr::image_uri("../data/butte_ck_crop.jpg"))#,
 
 <br/>
 
-## 2018-2019 Season
+## 2019 Season
 
 <br/>
 
@@ -68,7 +68,7 @@ if (nrow(study_tagcodes) == 0){
 
   study_tagcodes$Release_week <- NA
   study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "Release_week"] <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-04") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "Release_week"] <- "Week 2"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-06") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "Release_week"] <- "Week 2"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "Release_week"] <- "Week 3"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-18") & study_tagcodes$RelDT < as.POSIXct("2019-06-01"), "Release_week"] <- "Week 4"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-01") & study_tagcodes$RelDT < as.POSIXct("2019-06-07"), "Release_week"] <- "Week 5"
