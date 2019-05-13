@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
 library(kableExtra)
+library(lubridate)
 #library(xtable)
 #library(prettydoc)
 
@@ -54,7 +55,7 @@ htmltools::img(src = knitr::image_uri("../data/butte_ck_crop.jpg"))#,
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
-tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+7")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 study_tagcodes <- tagcodes[tagcodes$StudyID == "SB_Spring_2019",]
  
@@ -65,12 +66,15 @@ if (nrow(study_tagcodes) == 0){
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
   
 
-  study_tagcodes$Release <- "Week 1"
+  #study_tagcodes$Release <- "Week 1"
   #study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "Release_week"] <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-07") & study_tagcodes$RelDT < as.POSIXct("2019-05-10"), "Release"] <- "Week 2"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-07") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "Release"] <- "Week 2"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "Release"] <- "Week 3"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-18") & study_tagcodes$RelDT < as.POSIXct("2019-06-01"), "Release"] <- "Week 4"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-01") & study_tagcodes$RelDT < as.POSIXct("2019-06-07"), "Release"] <- "Week 5"
+  
+  study_tagcodes$Day<-day(study_tagcodes$RelDT)
+  study_tagcodes$Release<-paste("Release",study_tagcodes$Day-min(study_tagcodes$Day)+1, sep=" ")
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
@@ -110,9 +114,12 @@ if (nrow(study_tagcodes) == 0){
                              FUN = mean),
                          by = c("Release"))
   
-  release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
+  release_stats2<-release_stats[,-3]
+  colnames(release_stats2)[2]<-"Release time"
   
-  kable(release_stats, format = "html") %>%
+  release_stats2[,c("Mean_length", "Mean_weight")] <- round(release_stats2[,c("Mean_length", "Mean_weight")],1)
+  
+  kable(release_stats2, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }                       
 
