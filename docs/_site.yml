@@ -27,6 +27,8 @@ navbar:
       href: pageFHSR_2019.html
     - text: Hatchery fall-run net-pen paired release
       href: pageSLPRFR_2019.html
+    - text: Hatchery fall-run Yolo bypass release
+      href: pageYoloFR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
