@@ -109,7 +109,7 @@ if (nrow(study_tagcodes) == 0){
   
   release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
   
-  release_stats$Last_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  release_stats$Last_release_time <- format(release_stats$Last_release_time, tz = "Etc/GMT+8")
   
   kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")

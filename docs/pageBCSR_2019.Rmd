@@ -119,6 +119,10 @@ if (nrow(study_tagcodes) == 0){
   
   release_stats2[,c("Mean_length", "Mean_weight")] <- round(release_stats2[,c("Mean_length", "Mean_weight")],1)
   
+  release_stats2$First_release_time <- format(release_stats2$First_release_time, tz = "Etc/GMT+8")
+  
+  release_stats2$Last_release_time <- format(release_stats2$Last_release_time, tz = "Etc/GMT+8")
+  
   kable(release_stats2, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }                       
