@@ -29,6 +29,8 @@ navbar:
       href: pageSLPRFR_2019.html
     - text: Hatchery fall-run Yolo bypass release
       href: pageYoloFR_2019.html
+    - text: Hatchery-origin fall-run Chinook salmon May Release
+      href: pageCNFH_FMR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
@@ -39,21 +41,21 @@ navbar:
     href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
   - text: Archive Study Pages
     menu:
-    - text: Hatchery late-fall-run salmon
+    - text: 2018 Hatchery late-fall-run salmon
       href: pageCHLF.html
-    - text: Hatchery winter-run salmon
+    - text: 2018 Hatchery winter-run salmon
       href: pageLSWR.html
-    - text: Butte Creek wild spring-run salmon
+    - text: 2018 Butte Creek wild spring-run salmon
       href: pageBCSR.html
-    - text: Mill/Deer Creek wild spring-run salmon
+    - text: 2018 Mill/Deer Creek wild spring-run salmon
       href: pageMDSR.html
-    - text: Sacramento River wild Chinook salmon
+    - text: 2018 Sacramento River wild Chinook salmon
       href: pageSRSR.html
-    - text: Mokelumne hatchery fall-run salmon
+    - text: 2018 Mokelumne hatchery fall-run salmon
       href: pageMHFR.html
-    - text: Nimbus hatchery fall-run salmon
+    - text: 2018 Nimbus hatchery fall-run salmon
       href: pageNHFR.html
-    - text: Wild green sturgeon
+    - text: 2018 Wild green sturgeon
       href: pageSRGS.html
 output:
   html_document:
