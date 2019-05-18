@@ -30,7 +30,7 @@ navbar:
     - text: Hatchery fall-run Yolo bypass release
       href: pageYoloFR_2019.html
     - text: Hatchery-origin fall-run Chinook salmon May Release
-      href: pageCNFH_FMR_2019.html
+      href: CNFH_FMR_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
