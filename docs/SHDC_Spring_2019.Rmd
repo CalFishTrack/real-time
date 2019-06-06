@@ -16,11 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
 library(kableExtra)
-library(lubridate)
 #library(xtable)
 #library(prettydoc)
-library(scales)
-library(viridis)
 
 
 ```
@@ -34,19 +31,20 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 <br/>
 
-```{r spring run pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/butte_ck_crop.jpg"))#, 
+```{r sturgeon pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
-<br/>
-<br/>
-
-# *Butte Creek wild spring-run Chinook salmon*
 
 <br/>
+<br/>
 
-## 2019 Season
+# *Mill Creek wild steelhead*
+
+<br/>
+
+## 2018-2019 Season (PROVISIONAL DATA)
 
 <br/>
 
@@ -54,83 +52,78 @@ htmltools::img(src = knitr::image_uri("../data/butte_ck_crop.jpg"))#,
 
 
 ```{r print table with fish release details, echo = FALSE}
+
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
-tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+7")
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
+
+tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
-study_tagcodes <- tagcodes[tagcodes$StudyID == "SB_Spring_2019",]
+
+study_tagcodes <- tagcodes[tagcodes$StudyID == "MillCk_SH_Wild_S2019",]
  
 
 if (nrow(study_tagcodes) == 0){
   cat("Project has not yet begun")
 }else{
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
-  
 
-  #study_tagcodes$Release <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "Release_week"] <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-07") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "Release"] <- "Week 2"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "Release"] <- "Week 3"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-18") & study_tagcodes$RelDT < as.POSIXct("2019-06-01"), "Release"] <- "Week 4"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-01") & study_tagcodes$RelDT < as.POSIXct("2019-06-07"), "Release"] <- "Week 5"
-  
-  study_tagcodes$Day<-day(study_tagcodes$RelDT)
-  study_tagcodes$Release<-paste("Release",study_tagcodes$Day-min(study_tagcodes$Day)+1, sep=" ")
+
+  study_tagcodes$release <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11"), "release"] <- "Week 2"
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(release = study_tagcodes$release),
                              FUN = min)
   release_stats <- merge(release_stats,
                          aggregate(list(Last_release_time = study_tagcodes$RelDT),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(release = study_tagcodes$release),
                              FUN = max),
-                         by = c("Release"))
+                         by = c("release"))
   
                              
   release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
                                                          study_tagcodes$TagID_Hex),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(release = study_tagcodes$release),
                              FUN = function(x) {length(unique(x))}),
-                         by = c("Release"))
+                         by = c("release"))
   
   release_stats <- merge(release_stats,
                          aggregate(list(Release_location = study_tagcodes$Rel_loc),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(release = study_tagcodes$release),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release"))
+                         by = c("release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(release = study_tagcodes$release),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release"))
+                         by = c("release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Mean_length = study_tagcodes$Length),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = mean),
-                         by = c("Release"))
+                             by= list(release = study_tagcodes$release),
+                             FUN = mean, na.rm = T),
+                         by = c("release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Mean_weight = study_tagcodes$Weight),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = mean),
-                         by = c("Release"))
+                             by= list(release = study_tagcodes$release),
+                             FUN = mean, na.rm = T),
+                         by = c("release"))
   
-  release_stats2<-release_stats[,-3]
+    release_stats2<-release_stats[,-3]
   colnames(release_stats2)[2]<-"Release time"
   
-  release_stats2[,c("Mean_length", "Mean_weight")] <- round(release_stats2[,c("Mean_length", "Mean_weight")],1)
+  release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
   
-  release_stats2$First_release_time <- format(release_stats2$First_release_time, tz = "Etc/GMT+8")
+  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
   
-  release_stats2$Last_release_time <- format(release_stats2$Last_release_time, tz = "Etc/GMT+8")
+  release_stats$Last_release_time <- format(release_stats$Last_release_time, tz = "Etc/GMT+8")
   
-  kable(release_stats2, format = "html") %>%
+  kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }                       
 
 ```
-
 <br/>
 
 ## Real-time Fish Detections
@@ -138,6 +131,100 @@ if (nrow(study_tagcodes) == 0){
 ***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
 
 
+<br/>
+<center>
+#### Detections at Butte City Bridge versus Sacramento River flows at Butte City
+</center>
+
+```{r print figure of fish detections at Butte, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+library(CDECRetrieve)
+library(reshape2)
+
+detects_study <- read.csv("detects_MillCk_SH_Wild_S2019.csv", stringsAsFactors = F)
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+
+if(nrow(detects_study)>0){
+  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "release", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
+}
+
+#detects_study <- detects_study[detects_study$recv != 17135,]
+
+detects_butte <- detects_study[detects_study$general_location == "ButteBrRT",]
+
+#wlk_flow <- read.csv("wlk.csv")
+
+if (nrow(detects_butte) == 0){
+  "No detections yet"
+} else {
+  
+  detects_butte <- merge(detects_butte,aggregate(list(first_detect = detects_butte$DateTime_PST), by = list(TagCode= detects_butte$TagCode), FUN = min))
+  
+  detects_butte$Day <- as.Date(detects_butte$first_detect, "Etc/GMT+8")
+  
+  starttime <- as.Date(min(detects_butte$RelDT), "Etc/GMT+8")
+  ## Endtime should be either now, or end of predicted tag life, whichever comes first
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
+  
+
+  BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
+
+  BTC_flow$datetime <- as.Date(BTC_flow$datetime)
+  BTC_flow_day <- aggregate(list(parameter_value = BTC_flow$parameter_value),
+                            by = list(Day = BTC_flow$datetime),
+                            FUN = mean, na.rm = T)
+
+
+  daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), "release"])
+  rel_num <- length(rels)
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_butte$release))])
+
+  tagcount <- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, release = detects_butte$release ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ release)
+
+  daterange1 <- merge(daterange, tagcount1, all.x=T)
+
+  if(length(rels_no_detects)>0){
+    for(i in rels_no_detects){
+      daterange1 <- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == 'x'] <- paste(i)
+    }
+  }
+
+  daterange2 <- merge(daterange1, BTC_flow_day, by = "Day", all.x = T)
+
+  rownames(daterange2) <- daterange2$Day
+  daterange2$Day <- NULL
+
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=rainbow(rel_num),
+          xlab = "", ylab = "Number of fish arrivals per day",
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
+  #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+  #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release")
+  ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
+  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans <- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
+
+  par(new=T)
+
+  plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+  mtext("Flow (cfs) at Butte City", side=4, line=3, cex=1.5, col="blue")
+}
+
+```
+
+<br/>
 <br/>
 
 <center>
@@ -151,13 +238,6 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_SB_Spring_2019.csv", stringsAsFactors = F)
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
-
-if(nrow(detects_study)>0){
-  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
-}
-  
 detects_tower <- detects_study[detects_study$general_location == "TowerBridge",]
 
 #wlk_flow <- read.csv("wlk.csv")
@@ -185,12 +265,12 @@ if (nrow(detects_tower) == 0){
 
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
 
-  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), "Release"])
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), "release"])
   rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_tower$Release))])
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_tower$release))])
 
-  tagcount <- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, Release = detects_tower$Release ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ Release)
+  tagcount <- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, release = detects_tower$release ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ release)
 
   daterange1 <- merge(daterange, tagcount1, all.x=T)
 
@@ -208,13 +288,13 @@ if (nrow(detects_tower) == 0){
 
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=rainbow(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -241,7 +321,6 @@ if (nrow(detects_tower) == 0){
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-
 detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
 
 if (nrow(detects_benicia)>0) {
@@ -257,12 +336,12 @@ if (nrow(detects_benicia)>0) {
   
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
   
-  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), "Release"])
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), "release"])
   rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$Release))])
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$release))])
   
-  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release = detects_benicia$Release ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ Release)
+  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, release = detects_benicia$release ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ release)
                     
   daterange1 <- merge(daterange, tagcount1, all.x=T)
   
@@ -281,13 +360,13 @@ if (nrow(detects_benicia)>0) {
   
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=rainbow(rel_num), 
           xlab = "", ylab = "Number of fish arrivals per day", 
           ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= rainbow(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -357,11 +436,11 @@ if (nrow(detects_tower) == 0){
     inp2[inp2 > 0] <- 1
     
     inp <- cbind(inp, inp2)
-    groups <- as.character(sort(unique(inp$Release)))
+    groups <- as.character(sort(unique(inp$release)))
   
     inp[,groups] <- 0
     for (i in groups) {
-      inp[as.character(inp$Release) == i, i] <- 1
+      inp[as.character(inp$release) == i, i] <- 1
     }
     
     if(length(unique(inp[,groups])) > 1){
@@ -442,6 +521,8 @@ if (nrow(detects_study) == 0){
      nrow(test2[test2$general_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"),]) == 0){
     "Too few detections: routing probability cannot be estimated"
   }else{
+    
+    georg <- read.csv("daily_georg_routing.csv", stringsAsFactors = F)
     
     ## Make tagcode character
     study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
@@ -570,14 +651,20 @@ if (nrow(detects_study) == 0){
                                "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
     
     results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
+    
+    georg <- rbind(georg, data.frame(tail(results_short[,c("estimate", "se", "lcl", "ucl")],1), datetime = latest$x, StudyID = unique(study_tagcodes$StudyID)))
+    write.csv(georg, "daily_georg_routing.csv", row.names = F, quote = F)    
+    
+    
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
-
+    
     print(kable(results_short, row.names = F, "html") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   }
 }
 
 cleanup(ask = F)
+
 
 ```
 
@@ -618,11 +705,11 @@ if (nrow(detects_benicia) == 0){
   inp2[inp2 > 0] <- 1
   
   inp <- cbind(inp, inp2)
-  groups <- as.character(sort(unique(inp$Release)))
+  groups <- as.character(sort(unique(inp$release)))
 
   inp[,groups] <- 0
   for (i in groups) {
-    inp[as.character(inp$Release) == i, i] <- 1
+    inp[as.character(inp$release) == i, i] <- 1
   }
   
   if(length(groups) > 1){
@@ -724,17 +811,17 @@ if (nrow(detects_study) == 0){
   tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
 
   print(kable(tag_stats, row.names = F, 
-              caption = "Detections for all release weeks combined",
+              caption = "Detections for all releases combined",
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
-  for (j in sort(unique(study_tagcodes$Release))) {
+  for (j in sort(unique(study_tagcodes$release))) {
     
-    if(nrow(detects_study[detects_study$Release == j,]) > 0 ) {
+    if(nrow(detects_study[detects_study$release == j,]) > 0 ) {
     
-      temp <- detects_study[detects_study$Release == j,]
+      temp <- detects_study[detects_study$release == j,]
   
-      rel_count <- nrow(study_tagcodes[study_tagcodes$Release == j,])
+      rel_count <- nrow(study_tagcodes[study_tagcodes$release == j,])
   
       tag_stats1 <- aggregate(list(First_arrival = temp$DateTime_PST), 
                              by= list(general_location = temp$general_location), 

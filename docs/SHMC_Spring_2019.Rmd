@@ -18,7 +18,8 @@ library(knitr)
 library(kableExtra)
 #library(xtable)
 #library(prettydoc)
-
+library(scales)
+library(viridis)
 
 ```
 
@@ -202,13 +203,13 @@ if (nrow(detects_butte) == 0){
 
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=Viridis_pal()(rel_num),
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= Viridis_pal()(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -288,13 +289,13 @@ if (nrow(detects_tower) == 0){
 
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=Viridis_pal()(rel_num),
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= Viridis_pal()(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -360,13 +361,13 @@ if (nrow(detects_benicia)>0) {
   
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=Viridis_pal()(rel_num), 
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
           xlab = "", ylab = "Number of fish arrivals per day", 
           ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= Viridis_pal()(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
