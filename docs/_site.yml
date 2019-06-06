@@ -23,6 +23,10 @@ navbar:
       href: pageYoloFR_2019.html
     - text: Hatchery fall-run Chinook salmon May Release
       href: CNFH_FMR_2019.html
+    - text: 2018 Deer Creek wild steelhead
+      href: pageSHDC_2019.html
+    - text: Spring 2019 Mill Creek wild steelhead
+      href: pageSHMC_Spring_2019.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
@@ -55,8 +59,7 @@ navbar:
       href: pageLSWR_2019.html
     - text: 2019 Deer Creek wild spring-run salmon
       href: pageSRDC_2019.html
-    - text: 2018 Deer Creek wild steelhead
-      href: pageSHDC_2019.html
+
 output:
   html_document:
     lib_dir: site_libs

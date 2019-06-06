@@ -18,7 +18,8 @@ library(knitr)
 library(kableExtra)
 #library(xtable)
 #library(prettydoc)
-
+library(scales)
+library(viridis)
 
 ```
 
@@ -32,7 +33,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#, 
+htmltools::img(src = knitr::image_uri("../data/DeerCk.JPG"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
@@ -40,7 +41,7 @@ htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#,
 <br/>
 <br/>
 
-# *Mill Creek wild steelhead*
+# *Deer Creek wild steelhead*
 
 <br/>
 
@@ -60,7 +61,7 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "MillCk_SH_Wild_S2019",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "DeerCk_SH_Wild_S2019",]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -69,9 +70,18 @@ if (nrow(study_tagcodes) == 0){
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
 
-  study_tagcodes$release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11"), "release"] <- "Week 2"
-  
+  #study_tagcodes$release <- "Week 1"
+#study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2018-04-20"), "Release_week"] <- "Week 1"
+ # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-21") & study_tagcodes$RelDT < as.POSIXct("2019-04-27"), "Release_week"] <- "Week 2"
+ # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-28") & study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "Release_week"] <- "Week 3"
+ # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-05") & study_tagcodes$RelDT < as.POSIXct("2019-05-12"), "Release_week"] <- "Week 4"
+ # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-12"), "Release_week"] <- "Week 5"
+ # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-18"), "release_week"] <- "Week 6"
+study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "Release_week"] <- "Week 1"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-20") & study_tagcodes$RelDT < as.POSIXct("2018-04-28"), "Release_week"] <- "Week 2"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-28") & study_tagcodes$RelDT < as.POSIXct("2019-05-05"), "Release_week"] <- "Week 3"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-05") & study_tagcodes$RelDT < as.POSIXct("2019-05-12"), "Release_week"] <- "Week 4"
+study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-12") & study_tagcodes$RelDT < as.POSIXct("2019-05-19"), "Release_week"] <- "Week 5"
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
                              by= list(release = study_tagcodes$release),
@@ -202,13 +212,13 @@ if (nrow(detects_butte) == 0){
 
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=rainbow(rel_num),
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -288,13 +298,13 @@ if (nrow(detects_tower) == 0){
 
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=rainbow(rel_num),
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
@@ -360,13 +370,13 @@ if (nrow(detects_benicia)>0) {
   
   par(mar=c(6, 5, 2, 5) + 0.1)
   barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=rainbow(rel_num), 
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
           xlab = "", ylab = "Number of fish arrivals per day", 
           ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= rainbow(rel_num), horiz = T, title = "Release")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
   barpmeans <- colMeans(barp)
