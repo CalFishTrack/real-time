@@ -70,8 +70,8 @@ if (nrow(study_tagcodes) == 0){
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
   #study_tagcodes$Release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-04-14"), "Release_week"] <- "Week 1"
- # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "Release_week"] <- "Week 1"
+  #study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-04-14"), "Release_week"] <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "Release_week"] <- "Week 1"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-20") & study_tagcodes$RelDT < as.POSIXct("2019-04-27"), "Release_week"] <- "Week 2"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-27") & study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "Release_week"] <- "Week 3"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-04") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "Release_week"] <- "Week 4"
@@ -113,11 +113,16 @@ release_stats <- merge(release_stats,
                            by= list(Release_week = study_tagcodes$Release_week),
                            FUN = mean),
                        by = c("Release_week"))
-
-release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
-
-kable(release_stats, format = "html") %>%
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")                     
+  
+  release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
+  
+  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  
+  release_stats$Last_release_time <- format(release_stats$Last_release_time, tz = "Etc/GMT+8")
+  
+  kable(release_stats, format = "html") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
+}                       
 
 ```
 <br/>
