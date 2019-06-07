@@ -27,7 +27,6 @@ navbar:
       href: pageSHDC_Spring_2019.html
     - text: 2019 Mill Creek wild steelhead
       href: pageSHMC_Spring_2019.html
-      
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
@@ -62,7 +61,6 @@ navbar:
       href: pageSRDC_2019.html
     - text: Fall 2018 Deer Creek wild steelhead
       href: pageSHDC_2019.html
-
 output:
   html_document:
     lib_dir: site_libs
