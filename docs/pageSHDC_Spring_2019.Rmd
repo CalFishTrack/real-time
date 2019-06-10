@@ -76,7 +76,7 @@ if (nrow(study_tagcodes) == 0){
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-20") & study_tagcodes$RelDT < as.POSIXct("2019-04-27"), "release"] <- "Week 2"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-27") & study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "release"] <- "Week 3"
   study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-04") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "release"] <- "Week 4"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "release"] <- "Week 5"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "release"] <- "Week 5"
   
 release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
                            by= list(release = study_tagcodes$release),
@@ -123,7 +123,7 @@ release_stats <- merge(release_stats,
   
   kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
-}                       
+                      
 
 ```
 <br/>

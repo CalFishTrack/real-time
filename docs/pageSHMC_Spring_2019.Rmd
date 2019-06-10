@@ -71,8 +71,10 @@ if (nrow(study_tagcodes) == 0){
 
 
   study_tagcodes$release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11"), "release"] <- "Week 2"
-  
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-12") & study_tagcodes$RelDT < as.POSIXct("2019-05-19"), "release"] <- "Week 2"
+    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-19") & study_tagcodes$RelDT < as.POSIXct("2019-05-26"), "release"] <- "Week 3"
+    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-26") & study_tagcodes$RelDT < as.POSIXct("2019-06-02"), "release"] <- "Week 4"
+    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-02") & study_tagcodes$RelDT < as.POSIXct("2019-06-09"), "release"] <- "Week 5"
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
                              by= list(release = study_tagcodes$release),
