@@ -58,6 +58,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
 
+
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
@@ -69,64 +70,50 @@ if (nrow(study_tagcodes) == 0){
 }else{
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
+  #study_tagcodes$Release <- "Week 1"
+  #study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2019-04-14"), "Release_week"] <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "release"] <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-20") & study_tagcodes$RelDT < as.POSIXct("2019-04-27"), "release"] <- "Week 2"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-27") & study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "release"] <- "Week 3"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-04") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "release"] <- "Week 4"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "release"] <- "Week 5"
+  
+release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
+                           by= list(release = study_tagcodes$release),
+                           FUN = min)
+release_stats <- merge(release_stats,
+                       aggregate(list(Last_release_time = study_tagcodes$RelDT),
+                           by= list(release = study_tagcodes$release),
+                           FUN = max),
+                       by = c("release"))
 
-  #study_tagcodes$release <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11"), "release"] <- "Week 2"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-20"), "release"] <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-20") & study_tagcodes$RelDT < as.POSIXct("2019-04-27"), "release"] <- "Week 2"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-27") & study_tagcodes$RelDT < as.POSIXct("2019-05-04"), "release"] <- "Week 3"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-04") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "release"] <- "Week 4"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-18"), "release"] <- "Week 5"
-  
-    study_tagcodes$release <- "Week 1"
-# study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-14") & study_tagcodes$RelDT < as.POSIXct("2019-04-21"), "release"] <- "Week 1"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-21") & study_tagcodes$RelDT < as.POSIXct("2019-04-28"), "release"] <- "Week 2"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-04-28") & study_tagcodes$RelDT < as.POSIXct("2019-05-05"), "release"] <- "Week 3"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-05") & study_tagcodes$RelDT < as.POSIXct("2019-05-11"), "release"] <- "Week 4"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-11") & study_tagcodes$RelDT < as.POSIXct("2019-05-19"), "release"] <- "Week 5"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-19") & study_tagcodes$RelDT < as.POSIXct("2019-05-26"), "release"] <- "Week 6"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-26") & study_tagcodes$RelDT < as.POSIXct("2019-06-02"), "release"] <- "Week 7"
-    study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-02") & study_tagcodes$RelDT < as.POSIXct("2019-06-09"), "release"] <- "Week 8"
-    
-  release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
-                             by= list(release = study_tagcodes$release),
-                             FUN = min)
-  release_stats <- merge(release_stats,
-                         aggregate(list(Last_release_time = study_tagcodes$RelDT),
-                             by= list(release = study_tagcodes$release),
-                             FUN = max),
-                         by = c("release"))
-  
-                             
-  release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
-                                                         study_tagcodes$TagID_Hex),
-                             by= list(release = study_tagcodes$release),
-                             FUN = function(x) {length(unique(x))}),
-                         by = c("release"))
-  
-  release_stats <- merge(release_stats,
-                         aggregate(list(Release_location = study_tagcodes$Rel_loc),
-                             by= list(release = study_tagcodes$release),
-                             FUN = function(x) {head(x,1)}),
-                         by = c("release"))
-  release_stats <- merge(release_stats,
-                         aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
-                             by= list(release = study_tagcodes$release),
-                             FUN = function(x) {head(x,1)}),
-                         by = c("release"))
-  release_stats <- merge(release_stats,
-                         aggregate(list(Mean_length = study_tagcodes$Length),
-                             by= list(release = study_tagcodes$release),
-                             FUN = mean, na.rm = T),
-                         by = c("release"))
-  release_stats <- merge(release_stats,
-                         aggregate(list(Mean_weight = study_tagcodes$Weight),
-                             by= list(release = study_tagcodes$release),
-                             FUN = mean, na.rm = T),
-                         by = c("release"))
-  
-    release_stats2<-release_stats[,-3]
-  colnames(release_stats2)[2]<-"Release time"
+                           
+release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
+                                                       study_tagcodes$TagID_Hex),
+                           by= list(release = study_tagcodes$release),
+                           FUN = function(x) {length(unique(x))}),
+                       by = c("release"))
+
+release_stats <- merge(release_stats,
+                       aggregate(list(Release_location = study_tagcodes$Rel_loc),
+                           by= list(release = study_tagcodes$release),
+                           FUN = function(x) {head(x,1)}),
+                       by = c("release"))
+release_stats <- merge(release_stats,
+                       aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
+                           by= list(release = study_tagcodes$release),
+                           FUN = function(x) {head(x,1)}),
+                       by = c("release"))
+release_stats <- merge(release_stats,
+                       aggregate(list(Mean_length = study_tagcodes$Length),
+                           by= list(release = study_tagcodes$release),
+                           FUN = mean),
+                       by = c("release"))
+release_stats <- merge(release_stats,
+                       aggregate(list(Mean_weight = study_tagcodes$Weight),
+                           by= list(release = study_tagcodes$release),
+                           FUN = mean),
+                       by = c("release"))
   
   release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
   
@@ -136,7 +123,7 @@ if (nrow(study_tagcodes) == 0){
   
   kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
-}                       
+                      
 
 ```
 <br/>

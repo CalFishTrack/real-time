@@ -284,7 +284,7 @@ if (nrow(detects_benicia)>0) {
   barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
           xlab = "", ylab = "Number of fish arrivals per day", 
           ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
-          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = "Release Group")
