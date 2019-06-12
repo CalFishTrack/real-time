@@ -789,23 +789,24 @@ if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   
+  arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
   
-  tag_stats <- aggregate(list(First_arrival = detects_study$DateTime_PST), 
-                         by= list(general_location = detects_study$general_location),
+  tag_stats <- aggregate(list(First_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
                          FUN = min)
   tag_stats <- merge(tag_stats, 
-                     aggregate(list(Mean_arrival = detects_study$DateTime_PST), 
-                         by= list(general_location = detects_study$general_location),
+                     aggregate(list(Mean_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
                          FUN = mean), 
                      by = c("general_location"))
   tag_stats <- merge(tag_stats, 
-                     aggregate(list(Last_arrival = detects_study$DateTime_PST), 
-                         by= list(general_location = detects_study$general_location),
+                     aggregate(list(Last_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
                          FUN = max), 
                      by = c("general_location"))
   tag_stats <- merge(tag_stats, 
-                     aggregate(list(Fish_count = detects_study$TagCode), 
-                         by= list(general_location = detects_study$general_location), 
+                     aggregate(list(Fish_count = arrivals$TagCode), 
+                         by= list(general_location = arrivals$general_location), 
                          FUN = function(x) {length(unique(x))}), 
                      by = c("general_location"))
   tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
@@ -817,34 +818,36 @@ if (nrow(detects_study) == 0){
   tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
 
   print(kable(tag_stats, row.names = F, 
-              caption = "Detections for all release weeks combined",
+              caption = "Detections for all releases combined",
               "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   
-  for (j in sort(unique(study_tagcodes$Release_week))) {
+  for (j in sort(unique(study_tagcodes$release))) {
     
-    if(nrow(detects_study[detects_study$Release_week == j,]) > 0 ) {
+    if(nrow(detects_study[detects_study$release == j,]) > 0 ) {
     
-      temp <- detects_study[detects_study$Release_week == j,]
+      temp <- detects_study[detects_study$release == j,]
+      
+        arrivals1 <- aggregate(list(DateTime_PST = temp$DateTime_PST), by = list(general_location = temp$general_location, TagCode = temp$TagCode), FUN = min)
   
-      rel_count <- nrow(study_tagcodes[study_tagcodes$Release_week == j,])
+      rel_count <- nrow(study_tagcodes[study_tagcodes$release == j,])
   
-      tag_stats1 <- aggregate(list(First_arrival = temp$DateTime_PST), 
-                             by= list(general_location = temp$general_location), 
+      tag_stats1 <- aggregate(list(First_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
                              FUN = min)
       tag_stats1 <- merge(tag_stats1, 
-                         aggregate(list(Mean_arrival = temp$DateTime_PST), 
-                             by= list(general_location = temp$general_location), 
+                         aggregate(list(Mean_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
                              FUN = mean), 
                          by = c("general_location"))
       tag_stats1 <- merge(tag_stats1, 
-                   aggregate(list(Last_arrival = temp$DateTime_PST), 
-                       by= list(general_location = temp$general_location), 
+                   aggregate(list(Last_arrival = arrivals1$DateTime_PST), 
+                       by= list(general_location = arrivals1$general_location), 
                        FUN = max), 
                    by = c("general_location"))
       tag_stats1 <- merge(tag_stats1, 
-                         aggregate(list(Fish_count = temp$TagCode), 
-                                   by= list(general_location = temp$general_location), 
+                         aggregate(list(Fish_count = arrivals1$TagCode), 
+                                   by= list(general_location = arrivals1$general_location), 
                                    FUN = function(x) {length(unique(x))}), 
                          by = c("general_location"))
       
@@ -869,5 +872,4 @@ if (nrow(detects_study) == 0){
     }
   }
 }
-
 ```
