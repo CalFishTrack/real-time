@@ -50,6 +50,7 @@ htmltools::img(src = knitr::image_uri("../data/feather-river-hatchery.jpeg"))#,
 
 ## Project Status
 
+PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
 ```{r print table with fish release details, echo = FALSE}
 
@@ -778,4 +779,7 @@ if (nrow(detects_study) == 0){
     }
   }
 }
+
+rm(list = ls())
+cleanup(ask = F)
 ```

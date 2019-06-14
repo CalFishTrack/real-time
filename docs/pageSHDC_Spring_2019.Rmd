@@ -880,4 +880,7 @@ if (nrow(detects_study) == 0){
   }
 }
 
+rm(list = ls())
+cleanup(ask = F)
+
 ```

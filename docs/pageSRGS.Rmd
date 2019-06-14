@@ -107,41 +107,49 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 
 detects_study <- read.csv("detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = F)
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
-detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
-detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
+if (nrow(detects_study) == 0){
+  "No detections yet"
+} else {
+  detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
-starttime <- as.Date(min(detects_study$first_detect)-60*60*24, "Etc/GMT+8")
-endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
-wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
-wlk_flow$datetime <- as.Date(wlk_flow$datetime)
-wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
-
-detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
-daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
 
 
-tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day), FUN = function(x){length(unique(x))})
+  detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
+  detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
+  
+  starttime <- as.Date(min(detects_study$first_detect)-60*60*24, "Etc/GMT+8")
+  ## Endtime should be either now, or end of predicted tag life, whichever comes first
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_study$RelDT)+(detects_study$tag_life*1.5)))
+  wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
+  wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+  wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+  
+  detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
+  daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+  
+  
+  tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day), FUN = function(x){length(unique(x))})
+  
+  daterange1 <- merge(daterange, tagcount, all.x=T)
+  daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
+  
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp <- barplot(height= daterange2$unique_tags, plot = FALSE)
+  barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.2), las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")
+  ybreaks <- if(max(daterange2$unique_tags, na.rm = T) < 4) {max(daterange2$unique_tags, na.rm = T)} else {5}
+  xbreaks <- if(length(barp) > 10) {seq(1, length(barp), 5)} else {1:length(barp)}
+  axis(1, at = barp[xbreaks], labels = daterange2[xbreaks,"Day"], las = 2)
+  axis(2, at = pretty(0:max(daterange2$unique_tags, na.rm = T), ybreaks))
+  
+  par(new=T)
+  
+  plot(x = barp, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+  mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
 
-daterange1 <- merge(daterange, tagcount, all.x=T)
-daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
-
-par(mar=c(6, 5, 2, 5) + 0.1)
-barp <- barplot(height= daterange2$unique_tags, plot = FALSE)
-barplot(height= daterange2$unique_tags, col="gray",  names.arg= daterange2$Day, xlab = "", ylab = "Number of fish arrivals per day", ylim = c(0,max(daterange2$unique_tags, na.rm = T)*1.2), las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")
-ybreaks <- if(max(daterange2$unique_tags, na.rm = T) < 4) {max(daterange2$unique_tags, na.rm = T)} else {5}
-xbreaks <- if(length(barp) > 10) {seq(1, length(barp), 2)} else {1:length(barp)}
-axis(1, at = barp[xbreaks], labels = daterange2[xbreaks,"Day"], las = 2)
-axis(2, at = pretty(0:max(daterange2$unique_tags, na.rm = T), ybreaks))
-
-par(new=T)
-
-plot(x = barp, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
-axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
-
-
+}
 
 ```
 

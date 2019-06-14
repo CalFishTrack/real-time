@@ -33,11 +33,11 @@ library(dplyr)
 library(data.table)
 library(lubridate)
 
-dirs <- list.dirs(path= "C:/Advanced Telemetry Systems, Inc/ATS Trident Receiver/Data", recursive = F)
+dirs <- list.dirs(path= "C:/Users/field/Desktop/ATS_Data", recursive = F)
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 ATS_processed_files <- fread("ATS_processed_files.csv", stringsAsFactors = F)
-TECKNO_processed_files <- fread("TECKNO_processed_files.csv", stringsAsFactors = F)
+TECKNO_processed_files <- fread("TECKNO_processed_files.csv", stringsAsFactors = F, sep = ",")
 UCD_processed_files <- fread("UCD_processed_files.csv", stringsAsFactors = F)
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 gen_locs$recv <- as.character(gen_locs$recv)
@@ -78,7 +78,7 @@ if(difftime(Sys.time(),weekly_dump, units = "days") > 7){
   ## Extract and export detections up to that date, making sure to save datetime as character to save milliseconds
   data_dump <- detects_beacon[detects_beacon$DateTime_PST < dump.end,]
   data_dump$DateTime_PST <- format(data_dump$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
-  fwrite(data_dump, paste("C:/Users/Trailer/Desktop/Real-time data massaging/products/Detects_beacon_old/weekly_detects_beacon_ending_", as.Date(dump.end), ".csv", sep = ""), row.names = F)
+  fwrite(data_dump, paste("C:/Users/field/Desktop/Real-time data massaging/products/Detects_beacon_old/weekly_detects_beacon_ending_", as.Date(dump.end), ".csv", sep = ""), row.names = F)
   ## Remove those records from the detects_beacon dataframe
   detects_beacon <- detects_beacon[!detects_beacon$DateTime_PST < dump.end,]
   ## Now save current datetime if a dump occured
@@ -91,17 +91,17 @@ detects_beacon <- subset(detects_beacon, select= -c(location, general_location, 
 
 
 ## Find all Teckno file names
-TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/Trailer/Data1/Dropbox (Teknologic LLC)/Apps/SRCOM/NOAA.SC", full.names = T, recursive = T)), stringsAsFactors = F)
+TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/field/Desktop/Tekno_data/Dropbox (Teknologic LLC)/Apps/SRCOM/NOAA.SC", full.names = T, recursive = T)), stringsAsFactors = F)
 ## Select only newest TECKNO files for massaging
 TECKNO_files <- as.data.frame(list(x=TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,]), stringsAsFactors = F)
 ## Also, remove all the older files that google drive messed up
-TECKNO_files$dayes <- as.Date(apply(data.frame(TECKNO_files$x, stringsAsFactors = F), MARGIN = 1, FUN = substr, 82, 91), "%Y_%m_%d")
+TECKNO_files$dayes <- as.Date(apply(data.frame(TECKNO_files$x, stringsAsFactors = F), MARGIN = 1, FUN = substr, 93, 102), "%Y_%m_%d")
 TECKNO_files <- TECKNO_files[TECKNO_files$dayes > "2019-02-10",]
 TECKNO_files$dayes <- NULL
 
 
 ## Remove bad files that don't contain real data from list for processing
-bad_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character")
+bad_files <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character")
 # TECKNO_files <- data.frame(x=TECKNO_files[-grep(paste(bad_files$V1, collapse = "|"), TECKNO_files$x),], stringsAsFactors = F)
 
 
@@ -113,11 +113,11 @@ ATS_files <- as.data.frame(list(x=ATS_all_files[!ATS_all_files$x %in% ATS_proces
 ## Bad_files may also be files that have timezone issues that are almost untractable
 ATS_files <- as.data.frame(list(x=ATS_files[-grep(paste(bad_files$filename, collapse = "|"), ATS_files$x),]), stringsAsFactors = F)
 ## Load CSt timezone file list
-CST_files <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/receiver_files_with_CST_timezones.csv", colClasses = "character")
+CST_files <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/receiver_files_with_CST_timezones.csv", colClasses = "character")
 
 
 ## Find all UCD file names
-UCD_all_files <- as.data.frame(list(x=dir(pattern = ".csv", path = "C:/Users/Trailer/Desktop/UCD_files", full.names = T)), stringsAsFactors = F)
+UCD_all_files <- as.data.frame(list(x=dir(pattern = ".csv", path = "C:/Users/field/Desktop/UCD_files", full.names = T)), stringsAsFactors = F)
 ## Only keep "_awked.csv" files
 UCD_all_files <- as.data.frame(list(x=UCD_all_files[substr(UCD_all_files$x, nchar(UCD_all_files$x)-8, nchar(UCD_all_files$x)-4) == "awked",]), stringsAsFactors = F)
 ## Select only newest ATS files for massaging
@@ -1058,13 +1058,13 @@ ggplot() +
 
 library(ggplot2)
 
-volt.files <- data.frame(path =dir(pattern = "*.txt", path = "C:/Users/Trailer/Documents/Voltage_emails", full.names = T), stringsAsFactors = F)
-volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 43, stop = 57), format = "%Y%m%d-%H%M%S")
+volt.files <- data.frame(path =dir(pattern = "*.txt", path = "C:/Users/field/Desktop/Voltage_emails", full.names = T), stringsAsFactors = F)
+volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 39, stop = 53), format = "%Y%m%d-%H%M%S")
 
 ## Only use last 2 weeks of volt files
 volt.files_2weeks <- volt.files[volt.files$Datetime > (Sys.time() - 60*60*24*14),]
 
-IPs <- read.csv("C:/Users/Trailer/Desktop/Real-time data massaging/products/IP_addresses.csv", stringsAsFactors = F)
+IPs <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/IP_addresses.csv", stringsAsFactors = F)
 volt.files_2weeks$IP <- NULL
 volt.files_2weeks$Volts <- NULL
 

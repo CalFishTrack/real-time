@@ -47,6 +47,7 @@ htmltools::img(src = knitr::image_uri("../data/Juvenile_Green_Sturgeon_crop.jpg"
 
 ## Project Status
 
+PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
 ```{r print table with fish release details, echo = FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
@@ -107,6 +108,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 
 detects_study <- read.csv("detects_Juv_Green_Sturgeon_2018.csv", stringsAsFactors = F)
+
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {

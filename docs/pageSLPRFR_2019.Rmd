@@ -44,6 +44,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 ## Project Status
 
+PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
 ```{r print table with fish release details, echo = FALSE}
 
@@ -162,8 +163,13 @@ if (nrow(detects_butte) == 0){
   endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
   
 
+  # library(dataRetrieval)
+  # 
+  # BTC_flow_day <- readNWISdv(siteNumbers = "11389500", parameterCd = "00060", startDate = starttime, endDate = endtime+1)
+  # colnames(BTC_flow_day)[4] <- "parameter_value"
+  # colnames(BTC_flow_day)[3] <- "Day"
   BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
-
+  
   BTC_flow$datetime <- as.Date(BTC_flow$datetime)
   BTC_flow_day <- aggregate(list(parameter_value = BTC_flow$parameter_value),
                             by = list(Day = BTC_flow$datetime),
@@ -200,7 +206,7 @@ if (nrow(detects_butte) == 0){
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
           las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
-  #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
+  #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= rainbow(rel_num), horiz = T, title = "Release")
   ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
   xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
@@ -247,13 +253,18 @@ if (nrow(detects_tower) == 0){
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
   endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
-
-  wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
-
-  wlk_flow$datetime <- as.Date(wlk_flow$datetime)
-  wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value),
-                            by = list(Day = wlk_flow$datetime),
-                            FUN = mean, na.rm = T)
+  library(dataRetrieval)
+  
+  wlk_flow_day <- readNWISdv(siteNumbers = "11390500", parameterCd = "00060", startDate = starttime, endDate = endtime+1)
+  colnames(wlk_flow_day)[4] <- "parameter_value"
+  colnames(wlk_flow_day)[3] <- "Day"
+  
+  # wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
+  # 
+  # wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+  # wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value),
+  #                           by = list(Day = wlk_flow$datetime),
+  #                           FUN = mean, na.rm = T)
 
 
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
@@ -274,7 +285,7 @@ if (nrow(detects_tower) == 0){
     }
   }
 
-  daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
+  daterange2 <- merge(daterange1, wlk_flow_day[,3:4], by = "Day", all.x = T)
 
   rownames(daterange2) <- daterange2$Day
   daterange2$Day <- NULL
@@ -300,7 +311,6 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
 }
-
 ```
 
 <br/>
@@ -853,4 +863,7 @@ if (nrow(detects_study) == 0){
     }
   }
 }
+
+rm(list = ls())
+cleanup(ask = F)
 ```
