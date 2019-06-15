@@ -471,7 +471,7 @@ if (nrow(UCD_files) > 0) {
   
   for (i in 1:nrow(UCD_files)) {
     res <- try(read.csv(UCD_files[i,], header = F), silent = T) 
-    if (inherits(res, "try-error") | ncol(res) != 3) {
+    if (inherits(res, "try-error")) {
       corrupted <- strsplit(UCD_files[i,], "/")
       corrupted2 <- unlist(lapply(corrupted, tail, 1))
       corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 3, filename = UCD_files[i,]))

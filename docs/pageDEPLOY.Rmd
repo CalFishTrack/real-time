@@ -31,6 +31,37 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
+# Map of Currently Active Autonomous Receiver Sites
+
+```{r make map of realtime sites, echo=FALSE, warning=FALSE}
+
+library(leaflet)
+library(maps)
+library(htmlwidgets)
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+deploy <- read.csv("Autonomous_deployments.csv")
+
+leaflet(data = deploy[deploy$EndTime == "active",]) %>%
+    # setView(-72.14600, 43.82977, zoom = 8) %>% 
+    addProviderTiles("Esri.WorldStreetMap", group = "Map") %>%
+    addProviderTiles("Esri.WorldImagery", group = "Satellite") %>% 
+    addProviderTiles("Esri.WorldShadedRelief", group = "Relief") %>%
+    # Marker data are from the sites data frame. We need the ~ symbols
+    # to indicate the columns of the data frame.
+    addMarkers(~Longitude, ~Latitude, label = ~General.Location, group = "Receiver Sites", popup = ~Receiver_location) %>% 
+    # addAwesomeMarkers(~lon_dd, ~lat_dd, label = ~locality, group = "Sites", icon=icons) %>%
+    addScaleBar(position = "bottomleft") %>%
+    addLayersControl(
+        baseGroups = c("Street Map", "Satellite", "Relief"),
+        overlayGroups = c("Receiver Sites"),
+        options = layersControlOptions(collapsed = FALSE)
+    )
+
+```
+
+<br/>
 
 # *Receiver Deployments*
 
@@ -41,14 +72,15 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 Completed and active JSATS receiver deployments since 9/1/2017:
 ```{r print table with deployment data, echo = FALSE}
-setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-deploy <- read.csv("20190313_Deployment_Table.csv")
-
+deploy$X <- NULL
+deploy$Latitude <- round(deploy$Latitude,3)
+deploy$Longitude <- round(deploy$Longitude,3)
+deploy$RiverKM <- round(deploy$RiverKM, 1)
 datatable(deploy)
 
-tot_deploy <- sum(deploy$Number.of.receivers)
-tot_active <- sum(deploy[deploy$End == "active", "Number.of.receivers"])
+tot_deploy <- nrow(deploy)
+tot_active <- nrow(deploy[deploy$End == "active",])
 
 ```
 
