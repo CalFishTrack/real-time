@@ -1,7 +1,6 @@
 ---
-title: |
-  | Central Valley Enhanced
-  | Acoustic Tagging Project
+title: CalFishTrack
+
 output:
   html_document:
     code_folding: hide
@@ -16,13 +15,18 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
 library(kableExtra)
-library(DT)
+library(lubridate)
 #library(xtable)
 #library(prettydoc)
+library(scales)
+library(DT)
+library(viridis)
 
 
 ```
 
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
 ```{r logos, echo=FALSE}
 htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
                alt = 'logo', 
@@ -31,7 +35,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
-# Map of Currently Active Autonomous Receiver Sites
+## *Map of Currently Active Autonomous Receiver Sites*
 
 ```{r make map of realtime sites, echo=FALSE, warning=FALSE}
 

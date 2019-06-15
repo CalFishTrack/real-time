@@ -1,19 +1,31 @@
 ---
-title: |
-  | Central Valley Enhanced
-  | Acoustic Tagging Project
+title: CalFishTrack
+
 output:
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
 ---
-```{r setup, include=FALSE, echo=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+#library(xtable)
+#library(prettydoc)
+library(scales)
+library(viridis)
+
 
 ```
 
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
 ```{r logos, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
                alt = 'logo', 
