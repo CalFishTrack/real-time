@@ -1080,15 +1080,19 @@ IPs <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/IP_add
 volt.files_2weeks$IP <- NULL
 volt.files_2weeks$Volts <- NULL
 
-for (i in 1:nrow(volt.files_2weeks)){
-  test <- read.csv(volt.files_2weeks[i,"path"], skip = 3, stringsAsFactors = F)
-  volt.files_2weeks[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
-  volt.files_2weeks[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
+
+if (nrow(volt.files_2weeks) >0){
+  for (i in 1:nrow(volt.files_2weeks)){
+    test <- read.csv(volt.files_2weeks[i,"path"], skip = 3, stringsAsFactors = F)
+    volt.files_2weeks[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
+    volt.files_2weeks[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
+  }
+  volt.files_2weeks <- merge(volt.files_2weeks, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
+  
+  volt.files_2weeks <- volt.files_2weeks[,c("Datetime", "Volts", "RECV")]
+} else{
+  volt.files_2weeks <- data.frame("Datetime" = character(), "Volts" = numeric(), "RECV" = character())
 }
-
-volt.files_2weeks <- merge(volt.files_2weeks, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
-
-volt.files_2weeks <- volt.files_2weeks[,c("Datetime", "Volts", "RECV")]
 
 ## Get last 2 weeks of Teknos
 volt.teknos <- downloads[downloads$recv %in% c(157002,157003,157004,157005) & downloads$end > (Sys.time() - 60*60*24*14), c("end", "bat_volts", "recv") ]
