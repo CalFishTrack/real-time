@@ -1091,7 +1091,8 @@ if (nrow(volt.files_2weeks) >0){
   
   volt.files_2weeks <- volt.files_2weeks[,c("Datetime", "Volts", "RECV")]
 } else{
-  volt.files_2weeks <- data.frame("Datetime" = character(), "Volts" = numeric(), "RECV" = character())
+  volt.files_2weeks <- data.frame("Datetime" = as.character(), "Volts" = numeric(), "RECV" = character(), stringsAsFactors = F)
+  volt.files_2weeks$Datetime <- as.POSIXct(volt.files_2weeks$Datetime)
 }
 
 ## Get last 2 weeks of Teknos
