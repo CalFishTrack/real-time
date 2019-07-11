@@ -1,7 +1,6 @@
 ---
-title: |
-  | Central Valley Enhanced
-  | Acoustic Tagging Project
+title: CalFishTrack
+
 output:
   html_document:
     code_folding: hide
@@ -15,6 +14,8 @@ library(knitr)
 library(kableExtra)
 ```
 
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
 ```{r logos, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
                alt = 'logo', 
@@ -49,7 +50,7 @@ htmltools::img(src = knitr::image_uri("../data/Juvenile_Green_Sturgeon_crop.jpg"
 
 PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
-```{r print table with fish release details, echo = FALSE}
+```{r print table with fish release details}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
@@ -102,7 +103,7 @@ kable(release_stats, "html") %>%
 #### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Colusa Bridge
 </center>
 
-```{r print figure of fish detections, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+```{r print figure of fish detections, message = FALSE, fig.height = 6, fig.width = 10}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(CDECRetrieve)
@@ -161,7 +162,7 @@ if (nrow(detects_study) == 0){
 #### Detections statistics at all realtime receivers
 </center>
 
-```{r print table of fish detections, echo = FALSE}
+```{r print table of fish detections}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(data.table)

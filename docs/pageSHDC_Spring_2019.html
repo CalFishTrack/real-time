@@ -533,6 +533,87 @@ div.tocify {
 </div>
 <div id="project-status" class="section level2">
 <h2>Project Status</h2>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+tagcodes &lt;- read.csv(&quot;qry_HexCodes.txt&quot;, stringsAsFactors = F, colClasses=c(&quot;TagID_Hex&quot;=&quot;character&quot;))
+
+tagcodes$RelDT &lt;- as.POSIXct(tagcodes$RelDT, format = &quot;%m/%d/%Y %I:%M:%S %p&quot;, tz = &quot;Etc/GMT+8&quot;)
+latest &lt;- read.csv(&quot;latest_download.csv&quot;, stringsAsFactors = F)
+
+study_tagcodes &lt;- tagcodes[tagcodes$StudyID == &quot;DeerCk_SH_Wild_S2019&quot;,]
+ 
+
+if (nrow(study_tagcodes) == 0){
+  cat(&quot;Project has not yet begun&quot;)
+}else{
+  cat(paste(&quot;Project began on &quot;, min(study_tagcodes$RelDT), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
+
+
+ # study_tagcodes$release &lt;- &quot;Week 1&quot;
+ # study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-12&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-05-19&quot;), &quot;release&quot;] &lt;- &quot;Week 2&quot;
+ #   study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-19&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-05-26&quot;), &quot;release&quot;] &lt;- &quot;Week 3&quot;
+ #   study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-26&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-06-02&quot;), &quot;release&quot;] &lt;- &quot;Week 4&quot;
+ #   study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-06-02&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-06-09&quot;), &quot;release&quot;] &lt;- &quot;Week 5&quot;
+ 
+   study_tagcodes$release &lt;- &quot;Week 1&quot;
+#study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-04-14&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-04-21&quot;), &quot;release&quot;] &lt;- &quot;Week 1&quot;
+    study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-04-21&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-04-28&quot;), &quot;release&quot;] &lt;- &quot;Week 2&quot;
+    study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-04-28&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-05-05&quot;), &quot;release&quot;] &lt;- &quot;Week 3&quot;
+    study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-05&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-05-12&quot;), &quot;release&quot;] &lt;- &quot;Week 4&quot;
+    study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-12&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-05-19&quot;), &quot;release&quot;] &lt;- &quot;Week 5&quot;
+  study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-19&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-05-26&quot;), &quot;release&quot;] &lt;- &quot;Week 6&quot;
+    study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-26&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-06-02&quot;), &quot;release&quot;] &lt;- &quot;Week 7&quot;
+    study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-06-02&quot;) &amp; study_tagcodes$RelDT &lt; as.POSIXct(&quot;2019-06-09&quot;), &quot;release&quot;] &lt;- &quot;Week 8&quot;
+    
+  release_stats &lt;- aggregate(list(First_release_time = study_tagcodes$RelDT),
+                             by= list(release = study_tagcodes$release),
+                             FUN = min)
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Last_release_time = study_tagcodes$RelDT),
+                             by= list(release = study_tagcodes$release),
+                             FUN = max),
+                         by = c(&quot;release&quot;))
+  
+                             
+  release_stats &lt;- merge(release_stats, aggregate(list(Number_fish_released =
+                                                         study_tagcodes$TagID_Hex),
+                             by= list(release = study_tagcodes$release),
+                             FUN = function(x) {length(unique(x))}),
+                         by = c(&quot;release&quot;))
+  
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Release_location = study_tagcodes$Rel_loc),
+                             by= list(release = study_tagcodes$release),
+                             FUN = function(x) {head(x,1)}),
+                         by = c(&quot;release&quot;))
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
+                             by= list(release = study_tagcodes$release),
+                             FUN = function(x) {head(x,1)}),
+                         by = c(&quot;release&quot;))
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Mean_length = study_tagcodes$Length),
+                             by= list(release = study_tagcodes$release),
+                             FUN = mean, na.rm = T),
+                         by = c(&quot;release&quot;))
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Mean_weight = study_tagcodes$Weight),
+                             by= list(release = study_tagcodes$release),
+                             FUN = mean, na.rm = T),
+                         by = c(&quot;release&quot;))
+  
+    release_stats2&lt;-release_stats[,-3]
+  colnames(release_stats2)[2]&lt;-&quot;Release time&quot;
+  
+  release_stats[,c(&quot;Mean_length&quot;, &quot;Mean_weight&quot;)] &lt;- round(release_stats[,c(&quot;Mean_length&quot;, &quot;Mean_weight&quot;)],1)
+  
+  release_stats$First_release_time &lt;- format(release_stats$First_release_time, tz = &quot;Etc/GMT+8&quot;)
+  
+  release_stats$Last_release_time &lt;- format(release_stats$Last_release_time, tz = &quot;Etc/GMT+8&quot;)
+  
+  kable(release_stats, format = &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;)
+}                       </code></pre>
 <pre><code>## Project began on 2019-04-16 11:07:00, see tagging details below:</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <thead>
@@ -784,6 +865,89 @@ DeerCkRST
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
 <h4>Detections at Butte City Bridge versus Sacramento River flows at Butte City</h4>
 </center>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+library(CDECRetrieve)
+library(reshape2)
+
+detects_study &lt;- read.csv(&quot;detects_DeerCk_SH_Wild_S2019.csv&quot;, stringsAsFactors = F)
+detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
+
+if(nrow(detects_study)&gt;0){
+  detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
+}
+
+#detects_study &lt;- detects_study[detects_study$recv != 17135,]
+
+detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
+
+#wlk_flow &lt;- read.csv(&quot;wlk.csv&quot;)
+
+if (nrow(detects_butte) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  detects_butte &lt;- merge(detects_butte,aggregate(list(first_detect = detects_butte$DateTime_PST), by = list(TagCode= detects_butte$TagCode), FUN = min))
+  
+  detects_butte$Day &lt;- as.Date(detects_butte$first_detect, &quot;Etc/GMT+8&quot;)
+  
+  starttime &lt;- as.Date(min(detects_butte$RelDT), &quot;Etc/GMT+8&quot;)
+  ## Endtime should be either now, or end of predicted tag life, whichever comes first
+  endtime &lt;- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
+  
+
+  BTC_flow &lt;- cdec_query(&quot;BTC&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
+
+  BTC_flow$datetime &lt;- as.Date(BTC_flow$datetime)
+  BTC_flow_day &lt;- aggregate(list(parameter_value = BTC_flow$parameter_value),
+                            by = list(Day = BTC_flow$datetime),
+                            FUN = mean, na.rm = T)
+
+
+  daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
+
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), &quot;release&quot;])
+  rel_num &lt;- length(rels)
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_butte$release))])
+
+  tagcount &lt;- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, release = detects_butte$release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ release)
+
+  daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
+
+  if(length(rels_no_detects)&gt;0){
+    for(i in rels_no_detects){
+      daterange1 &lt;- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == &#39;x&#39;] &lt;- paste(i)
+    }
+  }
+
+  daterange2 &lt;- merge(daterange1, BTC_flow_day, by = &quot;Day&quot;, all.x = T)
+
+  rownames(daterange2) &lt;- daterange2$Day
+  daterange2$Day &lt;- NULL
+
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp &lt;- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
+          xlab = &quot;&quot;, ylab = &quot;Number of fish arrivals per day&quot;,
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, border=NA)#,
+  #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+  #args.legend = list(x =&#39;topright&#39;, bty=&#39;n&#39;, inset=c(-0.2,0)), title = &quot;Release Group&quot;)
+  legend(x =&#39;topleft&#39;, legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = &quot;Release&quot;)
+  ybreaks &lt;- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) &lt; 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
+  xbreaks &lt;- if(ncol(barp) &gt; 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans &lt;- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
+
+  par(new=T)
+
+  plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
+  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+  mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
+}</code></pre>
 <p><img src="pageSHDC_Spring_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -791,6 +955,80 @@ DeerCkRST
 <div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-wilkins-slough" class="section level4">
 <h4>Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough</h4>
 </center>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+library(CDECRetrieve)
+library(reshape2)
+
+detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
+
+#wlk_flow &lt;- read.csv(&quot;wlk.csv&quot;)
+
+if (nrow(detects_tower) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  detects_tower &lt;- merge(detects_tower,aggregate(list(first_detect = detects_tower$DateTime_PST), by = list(TagCode= detects_tower$TagCode), FUN = min))
+  
+  detects_tower$Day &lt;- as.Date(detects_tower$first_detect, &quot;Etc/GMT+8&quot;)
+  
+  starttime &lt;- as.Date(min(detects_tower$RelDT), &quot;Etc/GMT+8&quot;)
+  ## Endtime should be either now, or end of predicted tag life, whichever comes first
+  endtime &lt;- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
+  
+
+  wlk_flow &lt;- cdec_query(&quot;WLK&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
+
+  wlk_flow$datetime &lt;- as.Date(wlk_flow$datetime)
+  wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$parameter_value),
+                            by = list(Day = wlk_flow$datetime),
+                            FUN = mean, na.rm = T)
+
+
+  daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
+
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), &quot;release&quot;])
+  rel_num &lt;- length(rels)
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_tower$release))])
+
+  tagcount &lt;- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, release = detects_tower$release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ release)
+
+  daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
+
+  if(length(rels_no_detects)&gt;0){
+    for(i in rels_no_detects){
+      daterange1 &lt;- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == &#39;x&#39;] &lt;- paste(i)
+    }
+  }
+
+  daterange2 &lt;- merge(daterange1, wlk_flow_day, by = &quot;Day&quot;, all.x = T)
+
+  rownames(daterange2) &lt;- daterange2$Day
+  daterange2$Day &lt;- NULL
+
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp &lt;- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
+          xlab = &quot;&quot;, ylab = &quot;Number of fish arrivals per day&quot;,
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, border=NA)#,
+  #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+  #args.legend = list(x =&#39;topright&#39;, bty=&#39;n&#39;, inset=c(-0.2,0)), title = &quot;Release Group&quot;)
+  legend(x =&#39;topleft&#39;, legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = &quot;Release&quot;)
+  ybreaks &lt;- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) &lt; 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
+  xbreaks &lt;- if(ncol(barp) &gt; 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans &lt;- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
+
+  par(new=T)
+
+  plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
+  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+  mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
+}</code></pre>
 <p><img src="pageSHDC_Spring_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -798,6 +1036,70 @@ DeerCkRST
 <div id="detections-at-benicia-bridge" class="section level4">
 <h4>Detections at Benicia Bridge</h4>
 </center>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+detects_benicia &lt;- detects_study[detects_study$general_location %in% c(&quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
+
+if (nrow(detects_benicia)&gt;0) {
+  detects_benicia &lt;- merge(detects_benicia,aggregate(list(first_detect = detects_benicia$DateTime_PST), by = list(TagCode= detects_benicia$TagCode), FUN = min))
+  
+  detects_benicia$Day &lt;- as.Date(detects_benicia$first_detect, &quot;Etc/GMT+8&quot;)
+  
+  starttime &lt;- as.Date(min(detects_benicia$RelDT), &quot;Etc/GMT+8&quot;)
+  #endtime &lt;- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
+  #wlk_flow &lt;- cdec_query(&quot;COL&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
+  #wlk_flow$datetime &lt;- as.Date(wlk_flow$datetime)
+  #wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+  
+  daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
+  
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), &quot;release&quot;])
+  rel_num &lt;- length(rels)
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_benicia$release))])
+  
+  tagcount &lt;- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, release = detects_benicia$release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ release)
+                    
+  daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
+  
+  if(length(rels_no_detects)&gt;0){
+    for(i in rels_no_detects){
+      daterange1 &lt;- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == &#39;x&#39;] &lt;- paste(i)
+    }
+  }
+  
+  #daterange2 &lt;- merge(daterange1, wlk_flow_day, by = &quot;Day&quot;, all.x = T)
+  daterange2 &lt;- daterange1
+  
+  rownames(daterange2) &lt;- daterange2$Day
+  daterange2$Day &lt;- NULL
+  
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp &lt;- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
+          xlab = &quot;&quot;, ylab = &quot;Number of fish arrivals per day&quot;, 
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, border=NA)#,
+          #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+          #args.legend = list(x =&#39;topright&#39;, bty=&#39;n&#39;, inset=c(-0.2,0)), title = &quot;Release Group&quot;)
+  legend(x =&#39;topleft&#39;, legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = &quot;Release&quot;)
+  ybreaks &lt;- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) &lt; 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
+  xbreaks &lt;- if(ncol(barp) &gt; 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans &lt;- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2)[xbreaks], las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
+  box()
+
+#par(new=T)
+
+#plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
+#axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+#mtext(&quot;Flow (cfs) at Colusa Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
+
+}else{
+  print(&quot;No detections at Benicia yet&quot;)
+}</code></pre>
 <p><img src="pageSHDC_Spring_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" width="960" /></p>
 <p><br/> <br/></p>
 </center>
@@ -808,6 +1110,96 @@ DeerCkRST
 <h5>If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival</h5>
 </center>
 <p><br/></p>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+library(data.table)
+library(RMark)
+
+gen_locs &lt;- read.csv(&quot;realtime_locs.csv&quot;, stringsAsFactors = F)
+
+study_count &lt;- nrow(study_tagcodes)
+
+if (nrow(detects_tower) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  ## Only do survival to Sac for now
+  test &lt;- detects_study[detects_study$rkm &gt; 168 &amp; detects_study$rkm &lt; 175,]
+  
+  ## Create inp for survival estimation
+  
+  inp &lt;- as.data.frame(dcast(test, TagCode ~ rkm, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  # Count number of genlocs
+  gen_loc_sites &lt;- ncol(inp)-1
+  
+  if(gen_loc_sites &lt;2){
+    &quot;Detections at only one location so far, survival cannot yet be estimated&quot;
+  }else{
+  
+    inp &lt;- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+  
+    inp &lt;- merge(study_tagcodes, inp, by.x = &quot;TagID_Hex&quot;, by.y = &quot;TagCode&quot;, all.x = T)
+    
+    inp2 &lt;- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+    inp2[is.na(inp2)] &lt;- 0
+    inp2[inp2 &gt; 0] &lt;- 1
+    
+    inp &lt;- cbind(inp, inp2)
+    groups &lt;- as.character(sort(unique(inp$release)))
+  
+    inp[,groups] &lt;- 0
+    for (i in groups) {
+      inp[as.character(inp$release) == i, i] &lt;- 1
+    }
+    
+    if(length(unique(inp[,groups])) &gt; 1){
+      inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,apply(inp[,groups], 1, paste, collapse=&quot; &quot;),&quot; ;&quot;,sep = &quot;&quot;)
+      write.table(inp$inp_final,&quot;WRinp.inp&quot;,row.names = F, col.names = F, quote = F)
+      WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;, group.df=data.frame(rel=groups))
+      WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;) 
+      
+      WR.ddl &lt;- make.design.data(WR.process)
+    
+      WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+      WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    
+      WR.surv &lt;- round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+      WR.surv &lt;- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+      WR.surv$Detection_efficiency &lt;- NA
+      WR.surv[1,&quot;Detection_efficiency&quot;] &lt;-   round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
+    
+      WR.surv &lt;- cbind(c(&quot;ALL&quot;, groups), WR.surv)
+    }
+    if(length(unique(inp[,groups])) &lt; 2){
+      inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;, 1,sep = &quot;&quot;)
+      write.table(inp$inp_final,&quot;WRinp.inp&quot;,row.names = F, col.names = F, quote = F)
+      WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;)
+      WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1) 
+      
+      WR.ddl &lt;- make.design.data(WR.process)
+    
+      WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+      WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+      WR.surv &lt;- round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+      WR.surv &lt;- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+      WR.surv$Detection_efficiency &lt;- NA
+      WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
+    
+      WR.surv &lt;- cbind(c(&quot;ALL&quot;, groups), WR.surv)
+    }
+
+    
+    colnames(WR.surv) &lt;- c(&quot;Release&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+    
+    print(kable(WR.surv, row.names = F, &quot;html&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+  }
+}</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <thead>
 <tr>
@@ -863,7 +1255,7 @@ Week 1
 0.0
 </td>
 <td style="text-align:right;">
-0.0
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1014,6 +1406,7 @@ NA
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>cleanup(ask = F)</code></pre>
 <p><br/> <br/></p>
 </center>
 </div>
@@ -1022,6 +1415,163 @@ NA
 <h4>Reach-specific survival and probability of entering Georgiana Slough</h4>
 </center>
 <p><br/></p>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+
+if (nrow(detects_study) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  ## Only do survival to Georg split for now
+  test2 &lt;- detects_study[detects_study$general_location %in% c(&quot;TowerBridge&quot;, &quot;I80-50_Br&quot;, &quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;, &quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;),]
+  
+  ## We can only do multistate model if there is at least one detection in each route
+  
+  if(nrow(test2[test2$general_location %in% c(&quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;),]) == 0 |
+     nrow(test2[test2$general_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;),]) == 0){
+    &quot;Too few detections: routing probability cannot be estimated&quot;
+  }else{
+    
+    georg &lt;- read.csv(&quot;daily_georg_routing.csv&quot;, stringsAsFactors = F)
+    
+    ## Make tagcode character
+    study_tagcodes$TagID_Hex &lt;- as.character(study_tagcodes$TagID_Hex)
+    ## Make a crosstab query with frequencies for all tag/location combination
+    test2$general_location &lt;- factor(test2$general_location, levels = c(&quot;TowerBridge&quot;, &quot;I80-50_Br&quot;, &quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;, &quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;))
+    test2$TagCode &lt;- factor(test2$TagCode, levels = study_tagcodes$TagID_Hex)
+    mytable &lt;- table(test2$TagCode, test2$general_location) # A will be rows, B will be columns
+    
+    ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
+    mytable[mytable&gt;0] &lt;- &quot;A&quot;
+    
+    ## Order in order of rkm
+    mytable2 &lt;- mytable[, c(&quot;TowerBridge&quot;, &quot;I80-50_Br&quot;, &quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;, &quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;)]
+    
+    ## Now sort the crosstab rows alphabetically
+    mytable2 &lt;- mytable2[order(row.names(mytable2)),]
+    
+    mytable2[which(mytable2[, &quot;Sac_BlwGeorgiana&quot;]==&quot;A&quot;), &quot;Sac_BlwGeorgiana&quot;] &lt;- &quot;A&quot;
+    mytable2[which(mytable2[, &quot;Sac_BlwGeorgiana2&quot;]==&quot;A&quot;), &quot;Sac_BlwGeorgiana2&quot;] &lt;- &quot;A&quot;
+    mytable2[which(mytable2[, &quot;Georgiana_Slough1&quot;]==&quot;A&quot;), &quot;Georgiana_Slough1&quot;] &lt;- &quot;B&quot;
+    mytable2[which(mytable2[, &quot;Georgiana_Slough2&quot;]==&quot;A&quot;), &quot;Georgiana_Slough2&quot;] &lt;- &quot;B&quot;
+    
+    ## Make a crosstab query with frequencies for all weekly release groups
+    #test2$Release_week &lt;- factor(test2$Release_week)
+    #mytable3 &lt;- table(test2$TagCode, test2$Release_week) # A will be rows, B will be columns
+    
+    ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
+    #mytable3[mytable3&gt;0] &lt;- 1
+    
+    ## Order in order of rkm
+    #mytable4 &lt;- mytable3[, order(colnames(mytable3))]
+    
+    ## Now sort the crosstab rows alphabetically
+    #mytable4 &lt;- mytable4[order(row.names(mytable4)),]
+    
+    ## Now order the study_tagcodes table the same way
+    study_tagcodes &lt;- study_tagcodes[order(study_tagcodes$TagID_Hex),]
+    
+    ## Paste together (concatenate) the data from each column of the crosstab into one string per row, add to tagging_meta.
+    ## For this step, make sure both are sorted by FishID
+    study_tagcodes$inp_part1 &lt;- apply(mytable2[,1:2],1,paste,collapse=&quot;&quot;)
+    study_tagcodes$inp_partA &lt;- apply(mytable2[,3:4],1,paste,collapse=&quot;&quot;)
+    study_tagcodes$inp_partB &lt;- apply(mytable2[,5:6],1,paste,collapse=&quot;&quot;)
+    #study_tagcodes$inp_group &lt;- apply(mytable4,1,paste,collapse=&quot; &quot;)
+    
+    ## We need to have a way of picking which route to assign to a fish if it was detected by both georg and blw-georg recvs
+    ## We will say that the last detection at that junction is what determines the route it took
+    
+    ## find last detection at each genloc
+    departure &lt;- aggregate(list(depart = test2$DateTime_PST), by = list(TagID_Hex = test2$TagCode, last_location = test2$general_location), FUN = max)
+    ## subset for just juncture locations
+    departure &lt;- departure[departure$last_location %in% c(&quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;, &quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;),]
+    ## Find genloc of last known detection per tag
+    last_depart &lt;- aggregate(list(depart = departure$depart), by = list(TagID_Hex = departure$TagID_Hex), FUN = max)
+    
+    last_depart1 &lt;- merge(last_depart, departure)
+    study_tagcodes &lt;- merge(study_tagcodes, last_depart1[,c(&quot;TagID_Hex&quot;, &quot;last_location&quot;)], by = &quot;TagID_Hex&quot;, all.x = T)
+    
+    ## Assume that the Sac is default pathway, and for fish that were detected in neither route, it would get a &quot;00&quot; in inp so doesn&#39;t matter anyway
+    study_tagcodes$inp_final &lt;- paste(&quot;A&quot;,study_tagcodes$inp_part1, study_tagcodes$inp_partA,&quot; 1 ;&quot;, sep = &quot;&quot;)
+    
+    ## now put in exceptions...fish that were seen in georgiana last
+    study_tagcodes[study_tagcodes$last_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;), &quot;inp_final&quot;] &lt;- paste(&quot;A&quot;,study_tagcodes[study_tagcodes$last_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;), &quot;inp_part1&quot;], study_tagcodes[study_tagcodes$last_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;), &quot;inp_partB&quot;],&quot; 1 ;&quot;, sep = &quot;&quot;)
+    
+    write.table(study_tagcodes$inp_final,&quot;WRinp_multistate.inp&quot;,row.names = F, col.names = F, quote = F)
+    
+    WRinp &lt;- convert.inp(&quot;WRinp_multistate.inp&quot;)
+    
+    dp &lt;- process.data(WRinp, model=&quot;Multistrata&quot;) 
+    
+    ddl &lt;- make.design.data(dp)
+    
+    #### p ####
+    # Can&#39;t be seen at 2B or 3B ( tower or I80)
+    ddl$p$fix=NA
+    ddl$p$fix[ddl$p$stratum == &quot;B&quot; &amp; ddl$p$time %in% c(2,3)]=0
+    
+    #### Psi ####
+    # Only 1 transition allowed:
+    # from A to B at time interval 4 to 5
+    
+    ddl$Psi$fix=0
+    # A to B can only happen for interval 3
+    ddl$Psi$fix[ddl$Psi$stratum==&quot;A&quot;&amp;
+                  ddl$Psi$tostratum==&quot;B&quot; &amp; ddl$Psi$time==3]=NA
+    
+    #### Phi a.k.a. S ####
+    ddl$S$fix=NA
+    # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
+    ddl$S$fix[ddl$S$stratum==&quot;B&quot; &amp; ddl$S$time %in% c(1,2,3,4)]=1
+    
+    # For route A, fixing it to 1 for 5 (between two blw_georg lines)
+    ddl$S$fix[ddl$S$stratum==&quot;A&quot; &amp; ddl$S$time==4]=1
+    ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn&#39;t share the same intercept
+    
+    p.timexstratum=list(formula=~-1+stratum:time)
+    Psi.stratumxtime=list(formula=~-1+stratum:time)
+    S.stratumxtime=list(formula=~-1+stratum:time)
+    
+    ## Run model a first time
+    S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, silent = T, output = F)
+    
+    ## Identify any parameter estimates at 1, which would likely have bad SE estimates.
+    profile.intervals &lt;- which(S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$estimate %in% c(0,1) &amp; !S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$fixed == &quot;Fixed&quot;)
+    
+    ## Rerun model using profile interval estimation for the tricky parameters
+    S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, profile.int = profile.intervals, silent = T, output = F)
+    
+    results &lt;- S.timexstratum.p.timexstratum.Psi.timexstratum$results$real
+    
+    results_short &lt;- results[rownames(results) %in% c(&quot;S sA g1 c1 a0 o1 t1&quot;,
+                                                      &quot;S sA g1 c1 a1 o2 t2&quot;,
+                                                      &quot;S sA g1 c1 a2 o3 t3&quot;,
+                                                      &quot;p sA g1 c1 a1 o1 t2&quot;,
+                                                      &quot;p sA g1 c1 a2 o2 t3&quot;,
+                                                      &quot;p sA g1 c1 a3 o3 t4&quot;,
+                                                      &quot;p sB g1 c1 a3 o3 t4&quot;,
+                                                      &quot;Psi sA toB g1 c1 a2 o3 t3&quot;
+                                                      ),]
+    
+    
+    results_short &lt;- round(results_short[,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    
+    results_short$Measure &lt;- c(&quot;Survival from release to Tower Bridge (minimum estimate since fish may have taken Yolo Bypass)&quot;, &quot;Survival from TowerBridge to I80-50_Br&quot;, &quot;% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)&quot;,
+                               &quot;Detection probability at TowerBridge&quot;, &quot;Detection probability at I80-50_Br&quot;, &quot;Detection probability at Blw_Georgiana&quot;, &quot;Detection probability at Georgiana Slough&quot;,
+                               &quot;Routing probability into Georgiana Slough (Conditional on fish arriving to junction)&quot;)
+    
+    results_short &lt;- results_short[,c(&quot;Measure&quot;, &quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)]
+    
+    georg &lt;- rbind(georg, data.frame(tail(results_short[,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)],1), datetime = latest$x, StudyID = unique(study_tagcodes$StudyID)))
+    write.csv(georg, &quot;daily_georg_routing.csv&quot;, row.names = F, quote = F)    
+    
+    
+    colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+    
+    print(kable(results_short, row.names = F, &quot;html&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+  }
+}</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <thead>
 <tr>
@@ -1071,7 +1621,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-89.4
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1181,6 +1731,7 @@ Routing probability into Georgiana Slough (Conditional on fish arriving to junct
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>cleanup(ask = F)</code></pre>
 <p><br/> <br/></p>
 <center>
 </div>
@@ -1188,6 +1739,87 @@ Routing probability into Georgiana Slough (Conditional on fish arriving to junct
 <h4>Minimum survival to Benicia Bridge East Span (using CJS survival model)</h4>
 </center>
 <p><br/></p>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+if (nrow(detects_benicia) == 0){
+  &quot;No detections yet&quot;
+} else {
+
+  ## Only do survival to Benicia here
+  test3 &lt;- detects_study[detects_study$rkm &lt; 53,]
+  
+  ## Create inp for survival estimation
+  
+  inp &lt;- as.data.frame(dcast(test3, TagCode ~ rkm, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  # Count number of genlocs
+  gen_loc_sites &lt;- ncol(inp)-1
+  
+  inp &lt;- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+
+  inp &lt;- merge(study_tagcodes, inp, by.x = &quot;TagID_Hex&quot;, by.y = &quot;TagCode&quot;, all.x = T)
+  
+  inp2 &lt;- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+  inp2[is.na(inp2)] &lt;- 0
+  inp2[inp2 &gt; 0] &lt;- 1
+  
+  inp &lt;- cbind(inp, inp2)
+  groups &lt;- as.character(sort(unique(inp$release)))
+
+  inp[,groups] &lt;- 0
+  for (i in groups) {
+    inp[as.character(inp$release) == i, i] &lt;- 1
+  }
+  
+  if(length(groups) &gt; 1){
+    inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,apply(inp[,groups], 1, paste, collapse=&quot; &quot;),&quot; ;&quot;,sep = &quot;&quot;)
+  }else{
+    inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,inp[,groups],&quot; ;&quot;,sep = &quot;&quot;)
+  }
+  
+  
+  write.table(inp$inp_final,&quot;WRinp.inp&quot;,row.names = F, col.names = F, quote = F)
+  
+  if(length(groups) &gt; 1){
+  
+    WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;, group.df=data.frame(rel=groups))
+    WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;) 
+    
+    WR.ddl &lt;- make.design.data(WR.process)
+    
+    WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.surv &lt;- round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    WR.surv &lt;- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    
+  }else{
+    
+    WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;)
+    WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1) 
+    
+      
+    WR.ddl &lt;- make.design.data(WR.process)
+    
+    WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+
+    WR.surv &lt;- round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    
+  }
+  
+  WR.surv$Detection_efficiency &lt;- NA
+  WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
+    
+  WR.surv &lt;- cbind(c(&quot;ALL&quot;, groups), WR.surv)
+  
+  colnames(WR.surv) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+  
+  print(kable(WR.surv, row.names = F, &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+
+}</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <thead>
 <tr>
@@ -1394,6 +2026,7 @@ NA
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>cleanup(ask = F)</code></pre>
 <p><br/> <br/></p>
 <center>
 </div>
@@ -1401,6 +2034,95 @@ NA
 <h4>Detections statistics at all realtime receivers</h4>
 </center>
 <p><br/></p>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+if (nrow(detects_study) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  arrivals &lt;- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+  
+  tag_stats &lt;- aggregate(list(First_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = min)
+  tag_stats &lt;- merge(tag_stats, 
+                     aggregate(list(Mean_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = mean), 
+                     by = c(&quot;general_location&quot;))
+  tag_stats &lt;- merge(tag_stats, 
+                     aggregate(list(Last_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = max), 
+                     by = c(&quot;general_location&quot;))
+  tag_stats &lt;- merge(tag_stats, 
+                     aggregate(list(Fish_count = arrivals$TagCode), 
+                         by= list(general_location = arrivals$general_location), 
+                         FUN = function(x) {length(unique(x))}), 
+                     by = c(&quot;general_location&quot;))
+  tag_stats$Percent_arrived &lt;- round(tag_stats$Fish_count/study_count * 100,2)
+      
+  tag_stats &lt;- merge(tag_stats, unique(gen_locs[,c(&quot;general_location&quot;, &quot;rkm&quot;)]))
+  
+  tag_stats &lt;- tag_stats[order(tag_stats$rkm, decreasing = T),]
+  
+  tag_stats[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)] &lt;- format(tag_stats[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)], tz = &quot;Etc/GMT+8&quot;)
+
+  print(kable(tag_stats, row.names = F, 
+              caption = &quot;Detections for all releases combined&quot;,
+              &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+  
+  for (j in sort(unique(study_tagcodes$release))) {
+    
+    if(nrow(detects_study[detects_study$release == j,]) &gt; 0 ) {
+    
+      temp &lt;- detects_study[detects_study$release == j,]
+      
+        arrivals1 &lt;- aggregate(list(DateTime_PST = temp$DateTime_PST), by = list(general_location = temp$general_location, TagCode = temp$TagCode), FUN = min)
+  
+      rel_count &lt;- nrow(study_tagcodes[study_tagcodes$release == j,])
+  
+      tag_stats1 &lt;- aggregate(list(First_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
+                             FUN = min)
+      tag_stats1 &lt;- merge(tag_stats1, 
+                         aggregate(list(Mean_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
+                             FUN = mean), 
+                         by = c(&quot;general_location&quot;))
+      tag_stats1 &lt;- merge(tag_stats1, 
+                   aggregate(list(Last_arrival = arrivals1$DateTime_PST), 
+                       by= list(general_location = arrivals1$general_location), 
+                       FUN = max), 
+                   by = c(&quot;general_location&quot;))
+      tag_stats1 &lt;- merge(tag_stats1, 
+                         aggregate(list(Fish_count = arrivals1$TagCode), 
+                                   by= list(general_location = arrivals1$general_location), 
+                                   FUN = function(x) {length(unique(x))}), 
+                         by = c(&quot;general_location&quot;))
+      
+      tag_stats1$Percent_arrived &lt;- round(tag_stats1$Fish_count/rel_count * 100,2)
+    
+      tag_stats1 &lt;- merge(tag_stats1, unique(gen_locs[,c(&quot;general_location&quot;, &quot;rkm&quot;)]))
+    
+      tag_stats1 &lt;- tag_stats1[order(tag_stats1$rkm, decreasing = T),]
+      
+      tag_stats1[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)] &lt;- format(tag_stats1[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)], tz = &quot;Etc/GMT+8&quot;)
+      
+      final_stats &lt;- kable(tag_stats1, row.names = F, 
+            caption = paste(&quot;Detections for&quot;,j,&quot;release groups&quot;, sep = &quot; &quot;),
+            &quot;html&quot;)
+      
+      print(kable_styling(final_stats, bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+      
+    } else {
+      cat(&quot;\n\n\\pagebreak\n&quot;)
+      print(paste(&quot;No detections for&quot;,j,&quot;release group yet&quot;, sep=&quot; &quot;), quote = F)
+      cat(&quot;\n\n\\pagebreak\n&quot;)
+    }
+  }
+}</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <caption>
 Detections for all releases combined
@@ -2919,6 +3641,8 @@ Benicia_west
 
 <p>No detections for Week 8 release group yet</p>
 
+<pre class="r"><code>rm(list = ls())
+cleanup(ask = F)</code></pre>
 </div>
 </div>
 </div>
