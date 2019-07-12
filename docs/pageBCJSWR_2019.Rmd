@@ -56,6 +56,8 @@ htmltools::img(src = knitr::image_uri("../data/NF_Battle.jpg"))#,
 
 PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry Study Summary_WCS_BattleCreekReintro.pdf?raw=true)
+
 ```{r print table with fish release details}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
