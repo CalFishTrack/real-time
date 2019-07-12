@@ -96,11 +96,3 @@ htmltools::img(src = knitr::image_uri("../data/JSATS_Delta.png"))#,
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
-
-<br />
-<br />
-
-<br />
-
-For realtime tracking diagnostics, click here:
-[Real-time tracking diagnostics](https://calfishtrack.github.io/real-time/pageREAL.html)
