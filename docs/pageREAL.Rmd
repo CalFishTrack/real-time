@@ -907,6 +907,7 @@ fwrite(UCD_processed_files, "UCD_processed_files.csv", row.names = F, quote = T)
 library(leaflet)
 library(maps)
 library(htmlwidgets)
+library(leaflet.extras)
 
 leaflet(data = gen_locs[is.na(gen_locs$stop),]) %>%
     # setView(-72.14600, 43.82977, zoom = 8) %>% 
@@ -921,8 +922,9 @@ leaflet(data = gen_locs[is.na(gen_locs$stop),]) %>%
     addLayersControl(
         baseGroups = c("Street Map", "Satellite", "Relief"),
         overlayGroups = c("Receiver Sites"),
-        options = layersControlOptions(collapsed = FALSE)
-    )
+        options = layersControlOptions(collapsed = FALSE)) %>%
+    addSearchMarker('marker', position='topleft', propertyName = 'label') %>%
+    addSearchFeatures(targetGroups = c("Receiver Sites"))
 
 ```
 

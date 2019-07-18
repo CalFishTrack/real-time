@@ -42,6 +42,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 library(leaflet)
 library(maps)
 library(htmlwidgets)
+library(leaflet.extras)
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -61,7 +62,8 @@ leaflet(data = deploy[deploy$EndTime == "active",]) %>%
         baseGroups = c("Street Map", "Satellite", "Relief"),
         overlayGroups = c("Receiver Sites"),
         options = layersControlOptions(collapsed = FALSE)
-    )
+    ) %>%
+    addSearchFeatures(targetGroups = c("Receiver Sites"))
 
 ```
 
