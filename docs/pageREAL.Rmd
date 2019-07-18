@@ -856,11 +856,16 @@ for (k in unique(tagcodes$StudyID)){
   fwrite(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
+
 #### Now export study_detections
 ## But first change column name for studyid
 colnames(study_detections)[1] <- "Study_ID"
+
+## Now merge in important release data
+study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T)
+
 study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
-fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")], "study_detections.csv", row.names = F)
+fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc")], "study_detections.csv", row.names = F)
 
 
 latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
@@ -923,7 +928,6 @@ leaflet(data = gen_locs[is.na(gen_locs$stop),]) %>%
         baseGroups = c("Street Map", "Satellite", "Relief"),
         overlayGroups = c("Receiver Sites"),
         options = layersControlOptions(collapsed = FALSE)) %>%
-    addSearchMarker('marker', position='topleft', propertyName = 'label') %>%
     addSearchFeatures(targetGroups = c("Receiver Sites"))
 
 ```
