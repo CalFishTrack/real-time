@@ -122,7 +122,7 @@ kable(release_stats, format = "html") %>%
 #### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </center>
 
-```{r print figure of fish detections, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
+```{r print figure of fish detections at Tower, echo = FALSE, message = FALSE, fig.height = 6, fig.width = 10}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
