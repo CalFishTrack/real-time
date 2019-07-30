@@ -41,7 +41,7 @@ This work will have significant implications for understanding movement, distrib
 
 ## Telemetry Summary Forms
 
-Every year, telemetry researchers from multiple organizations and agencies utilize the receivers deployed and data tools developed as part of this project. We request that if there is interest is utilizing these resources, please fill out this [summary form](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Template_final.docx?raw=true) prior to your study's releases, and to send the form as well as coordinate tag codes with the tag code coordinator (Arnold Ammann <arnold.ammann@noaa.gov>). Receiving this information is critical to utilizing the data visualization tools so that databases are aware of your tag codes. We request that after your study, you provide us with an updated telemetry summary form.  
+Every year, telemetry researchers from multiple organizations and agencies utilize the receivers deployed and data tools developed as part of this project. We request that if there is interest is utilizing these resources, please fill out this [summary form](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Framework_BlankTemplate.docx?raw=true) prior to your study's releases, and to send the form as well as coordinate tag codes with the tag code coordinator (Arnold Ammann <arnold.ammann@noaa.gov>). Receiving this information is critical to utilizing the data visualization tools so that databases are aware of your tag codes. We request that after your study, you provide us with an updated telemetry summary form.  
 
 ## Receiver deployments
 
