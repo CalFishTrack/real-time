@@ -107,10 +107,10 @@ if (nrow(detects_study)>0) {
   
   detects_study$Day <- as.Date(detects_study$first_detect, "Etc/GMT+8")
   
-  detects_study <- merge(detects_study, tagcodes[,c("TagID_Hex", "RelDT", "StudyID")], by.x = "TagCode", by.y = "TagID_Hex")
+  detects_study <- merge(detects_study, tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
   
   starttime <- as.Date(min(detects_study$RelDT), "Etc/GMT+8")
-  endtime <- as.Date(c(Sys.time()))#, max(detects_study$first_detect)+60*60*24)))
+  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_study$RelDT)+detects_study$tag_life))
   #wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
   #wlk_flow$datetime <- as.Date(wlk_flow$datetime)
   #wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)

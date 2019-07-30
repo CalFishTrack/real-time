@@ -822,7 +822,7 @@ NULL
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-07-29 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-07-30 07:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <p><br/></p>
 <center>
 <div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-wilkins-slough" class="section level4">
@@ -1576,6 +1576,9 @@ Routing probability into Georgiana Slough (Conditional on fish arriving to junct
 if (nrow(detects_benicia) == 0){
   &quot;No detections yet&quot;
 } else {
+  
+  benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F)
+  benicia$RelDT &lt;- as.POSIXct(benicia$RelDT)
 
   ## Only do survival to Benicia here
   test3 &lt;- detects_study[detects_study$rkm &lt; 53,]
@@ -1644,13 +1647,32 @@ if (nrow(detects_benicia) == 0){
   WR.surv$Detection_efficiency &lt;- NA
   WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
     
-  WR.surv &lt;- cbind(c(&quot;ALL&quot;, groups), WR.surv)
-  
-  colnames(WR.surv) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
-  
-  print(kable(WR.surv, row.names = F, &quot;html&quot;) %&gt;%
-          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups), WR.surv)
 
+  WR.surv1 &lt;- WR.surv
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))    
+  
+  ## Find mean release time per release group, and ALL
+  reltimes &lt;- aggregate(list(RelDT = study_tagcodes$RelDT), by = list(Release = study_tagcodes$Release), FUN = mean)
+  reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$RelDT)))
+
+  ## Assign whether the results are tentative or final
+  quality &lt;- &quot;tentative&quot;
+  if(endtime &lt; as.Date(c(Sys.time()))) { quality &lt;- &quot;final&quot;}
+  WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
+  
+  WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
+  
+  ## remove old benicia record for this studyID
+  benicia &lt;- benicia[!benicia$StudyID == unique(study_tagcodes$StudyID),]
+  
+  benicia &lt;- rbind(benicia, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
+  
+  write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
+  
 }</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <thead>

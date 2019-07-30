@@ -551,47 +551,47 @@ if (nrow(study_tagcodes) == 0){
   cat(paste(&quot;Project began on &quot;, min(study_tagcodes$RelDT), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
 
 
-  study_tagcodes$release &lt;- &quot;Week 1&quot;
-  study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-17&quot;), &quot;release&quot;] &lt;- &quot;Week 2&quot;
+  study_tagcodes$Release &lt;- &quot;Week 1&quot;
+  study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2019-05-17&quot;), &quot;Release&quot;] &lt;- &quot;Week 2&quot;
 
   
   
   release_stats &lt;- aggregate(list(First_release_time = study_tagcodes$RelDT),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = min)
   release_stats &lt;- merge(release_stats,
                          aggregate(list(Last_release_time = study_tagcodes$RelDT),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = max),
-                         by = c(&quot;release&quot;))
+                         by = c(&quot;Release&quot;))
   
                              
   release_stats &lt;- merge(release_stats, aggregate(list(Number_fish_released =
                                                          study_tagcodes$TagID_Hex),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = function(x) {length(unique(x))}),
-                         by = c(&quot;release&quot;))
+                         by = c(&quot;Release&quot;))
   
   release_stats &lt;- merge(release_stats,
                          aggregate(list(Release_location = study_tagcodes$Rel_loc),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = function(x) {head(x,1)}),
-                         by = c(&quot;release&quot;))
+                         by = c(&quot;Release&quot;))
   release_stats &lt;- merge(release_stats,
                          aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = function(x) {head(x,1)}),
-                         by = c(&quot;release&quot;))
+                         by = c(&quot;Release&quot;))
   release_stats &lt;- merge(release_stats,
                          aggregate(list(Mean_length = study_tagcodes$Length),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = mean, na.rm = T),
-                         by = c(&quot;release&quot;))
+                         by = c(&quot;Release&quot;))
   release_stats &lt;- merge(release_stats,
                          aggregate(list(Mean_weight = study_tagcodes$Weight),
-                             by= list(release = study_tagcodes$release),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = mean, na.rm = T),
-                         by = c(&quot;release&quot;))
+                         by = c(&quot;Release&quot;))
   
     release_stats2&lt;-release_stats[,-3]
   colnames(release_stats2)[2]&lt;-&quot;Release time&quot;
@@ -610,7 +610,7 @@ if (nrow(study_tagcodes) == 0){
 <thead>
 <tr>
 <th style="text-align:left;">
-release
+Release
 </th>
 <th style="text-align:left;">
 First_release_time
@@ -694,7 +694,7 @@ RBDD_Rel
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-07-29 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-07-30 07:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -709,7 +709,7 @@ detects_study &lt;- read.csv(&quot;detects_CNFH_FMR_2019.csv&quot;, stringsAsFac
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
-  detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
+  detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
 }
 
 #detects_study &lt;- detects_study[detects_study$recv != 17135,]
@@ -741,12 +741,12 @@ if (nrow(detects_butte) == 0){
 
   daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
 
-  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), &quot;release&quot;])
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), &quot;Release&quot;])
   rel_num &lt;- length(rels)
-  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_butte$release))])
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_butte$Release))])
 
-  tagcount &lt;- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, release = detects_butte$release ), FUN = function(x){length(unique(x))})
-  tagcount1 &lt;- dcast(tagcount, Day ~ release)
+  tagcount &lt;- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, Release = detects_butte$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ Release)
 
   daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
 
@@ -823,12 +823,12 @@ if (nrow(detects_tower) == 0){
 
   daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
 
-  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), &quot;release&quot;])
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), &quot;Release&quot;])
   rel_num &lt;- length(rels)
-  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_tower$release))])
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_tower$Release))])
 
-  tagcount &lt;- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, release = detects_tower$release ), FUN = function(x){length(unique(x))})
-  tagcount1 &lt;- dcast(tagcount, Day ~ release)
+  tagcount &lt;- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, Release = detects_tower$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ Release)
 
   daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
 
@@ -890,12 +890,12 @@ if (nrow(detects_benicia)&gt;0) {
   
   daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
   
-  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), &quot;release&quot;])
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), &quot;Release&quot;])
   rel_num &lt;- length(rels)
-  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_benicia$release))])
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_benicia$Release))])
   
-  tagcount &lt;- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, release = detects_benicia$release ), FUN = function(x){length(unique(x))})
-  tagcount1 &lt;- dcast(tagcount, Day ~ release)
+  tagcount &lt;- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release = detects_benicia$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ Release)
                     
   daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
   
@@ -984,11 +984,11 @@ if (nrow(detects_tower) == 0){
     inp2[inp2 &gt; 0] &lt;- 1
     
     inp &lt;- cbind(inp, inp2)
-    groups &lt;- as.character(sort(unique(inp$release)))
+    groups &lt;- as.character(sort(unique(inp$Release)))
   
     inp[,groups] &lt;- 0
     for (i in groups) {
-      inp[as.character(inp$release) == i, i] &lt;- 1
+      inp[as.character(inp$Release) == i, i] &lt;- 1
     }
     
     if(length(unique(inp[,groups])) &gt; 1){
@@ -1459,6 +1459,9 @@ Routing probability into Georgiana Slough (Conditional on fish arriving to junct
 if (nrow(detects_benicia) == 0){
   &quot;No detections yet&quot;
 } else {
+  
+  benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F)
+  benicia$RelDT &lt;- as.POSIXct(benicia$RelDT)
 
   ## Only do survival to Benicia here
   test3 &lt;- detects_study[detects_study$rkm &lt; 53,]
@@ -1480,11 +1483,11 @@ if (nrow(detects_benicia) == 0){
   inp2[inp2 &gt; 0] &lt;- 1
   
   inp &lt;- cbind(inp, inp2)
-  groups &lt;- as.character(sort(unique(inp$release)))
+  groups &lt;- as.character(sort(unique(inp$Release)))
 
   inp[,groups] &lt;- 0
   for (i in groups) {
-    inp[as.character(inp$release) == i, i] &lt;- 1
+    inp[as.character(inp$Release) == i, i] &lt;- 1
   }
   
   if(length(groups) &gt; 1){
@@ -1527,13 +1530,32 @@ if (nrow(detects_benicia) == 0){
   WR.surv$Detection_efficiency &lt;- NA
   WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
     
-  WR.surv &lt;- cbind(c(&quot;ALL&quot;, groups), WR.surv)
-  
-  colnames(WR.surv) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
-  
-  print(kable(WR.surv, row.names = F, &quot;html&quot;) %&gt;%
-          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups), WR.surv)
 
+  WR.surv1 &lt;- WR.surv
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))    
+  
+  ## Find mean release time per release group, and ALL
+  reltimes &lt;- aggregate(list(RelDT = study_tagcodes$RelDT), by = list(Release = study_tagcodes$Release), FUN = mean)
+  reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$RelDT)))
+
+  ## Assign whether the results are tentative or final
+  quality &lt;- &quot;tentative&quot;
+  if(endtime &lt; as.Date(c(Sys.time()))) { quality &lt;- &quot;final&quot;}
+  WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
+  
+  WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
+  
+  ## remove old benicia record for this studyID
+  benicia &lt;- benicia[!benicia$StudyID == unique(study_tagcodes$StudyID),]
+  
+  benicia &lt;- rbind(benicia, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
+  
+  write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
+  
 }</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
 <thead>
@@ -1667,15 +1689,15 @@ if (nrow(detects_study) == 0){
               &quot;html&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
   
-  for (j in sort(unique(study_tagcodes$release))) {
+  for (j in sort(unique(study_tagcodes$Release))) {
     
-    if(nrow(detects_study[detects_study$release == j,]) &gt; 0 ) {
+    if(nrow(detects_study[detects_study$Release == j,]) &gt; 0 ) {
     
-      temp &lt;- detects_study[detects_study$release == j,]
+      temp &lt;- detects_study[detects_study$Release == j,]
       
         arrivals1 &lt;- aggregate(list(DateTime_PST = temp$DateTime_PST), by = list(general_location = temp$general_location, TagCode = temp$TagCode), FUN = min)
   
-      rel_count &lt;- nrow(study_tagcodes[study_tagcodes$release == j,])
+      rel_count &lt;- nrow(study_tagcodes[study_tagcodes$Release == j,])
   
       tag_stats1 &lt;- aggregate(list(First_arrival = arrivals1$DateTime_PST), 
                              by= list(general_location = arrivals1$general_location), 

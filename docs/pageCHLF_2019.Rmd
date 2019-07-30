@@ -56,50 +56,50 @@ if (nrow(study_tagcodes) == 0){
 }else{
   cat("Project has begun, see tagging details below:")
 
-  study_tagcodes$Release_week <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release_week"] <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release_week"] <- "Week 2"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release_week"] <- "Week 3"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-24") & study_tagcodes$RelDT < as.POSIXct("2018-06-01"), "Release_week"] <- "Week 4"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-06-01") & study_tagcodes$RelDT < as.POSIXct("2018-06-07"), "Release_week"] <- "Week 5"
+  study_tagcodes$Release <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release"] <- "Week 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release"] <- "Week 2"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release"] <- "Week 3"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-24") & study_tagcodes$RelDT < as.POSIXct("2018-06-01"), "Release"] <- "Week 4"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-06-01") & study_tagcodes$RelDT < as.POSIXct("2018-06-07"), "Release"] <- "Week 5"
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = min)
   release_stats <- merge(release_stats,
                          aggregate(list(Last_release_time = study_tagcodes$RelDT),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = max),
-                         by = c("Release_week"))
+                         by = c("Release"))
   
                              
   release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
                                                          study_tagcodes$TagID_Hex),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = function(x) {length(unique(x))}),
-                         by = c("Release_week"))
+                         by = c("Release"))
   
   release_stats <- merge(release_stats,
                          aggregate(list(Release_location = study_tagcodes$Rel_loc),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release_week"))
+                         by = c("Release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release_week"))
+                         by = c("Release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Mean_length = study_tagcodes$Length),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = mean),
-                         by = c("Release_week"))
+                         by = c("Release"))
   release_stats <- merge(release_stats,
                          aggregate(list(Mean_weight = study_tagcodes$Weight),
-                             by= list(Release_week = study_tagcodes$Release_week),
+                             by= list(Release = study_tagcodes$Release),
                              FUN = mean),
-                         by = c("Release_week"))
+                         by = c("Release"))
   
   release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
   
@@ -131,7 +131,7 @@ detects_study <- read.csv("detects_ColemanLateFall_2019.csv", stringsAsFactors =
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
-  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release_week", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
+  detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
 }
   
 detects_tower <- detects_study[detects_study$general_location == "TowerBridge",]
@@ -161,12 +161,12 @@ if (nrow(detects_tower) == 0){
 
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
 
-  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), "Release_week"])
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_tower$StudyID), "Release"])
   rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_tower$Release_week))])
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_tower$Release))])
 
-  tagcount <- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, Release_week = detects_tower$Release_week ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ Release_week)
+  tagcount <- aggregate(list(unique_tags = detects_tower$TagCode), by = list(Day = detects_tower$Day, Release = detects_tower$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ Release)
 
   daterange1 <- merge(daterange, tagcount1, all.x=T)
 
@@ -233,12 +233,12 @@ if (nrow(detects_benicia)>0) {
   
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
   
-  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), "Release_week"])
+  rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), "Release"])
   rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$Release_week))])
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$Release))])
   
-  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release_week = detects_benicia$Release_week ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ Release_week)
+  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release = detects_benicia$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 <- dcast(tagcount, Day ~ Release)
                     
   daterange1 <- merge(daterange, tagcount1, all.x=T)
   
@@ -332,11 +332,11 @@ if (nrow(detects_tower) == 0){
     inp2[inp2 > 0] <- 1
     
     inp <- cbind(inp, inp2)
-    groups <- as.character(sort(unique(inp$Release_week)))
+    groups <- as.character(sort(unique(inp$Release)))
   
     inp[,groups] <- 0
     for (i in groups) {
-      inp[as.character(inp$Release_week) == i, i] <- 1
+      inp[as.character(inp$Release) == i, i] <- 1
     }
     
     if(length(unique(inp[,groups])) > 1){
@@ -437,8 +437,8 @@ if (nrow(detects_study) == 0){
     mytable2[which(mytable2[, "Georgiana_Slough2"]=="A"), "Georgiana_Slough2"] <- "B"
     
     ## Make a crosstab query with frequencies for all weekly release groups
-    #test2$Release_week <- factor(test2$Release_week)
-    #mytable3 <- table(test2$TagCode, test2$Release_week) # A will be rows, B will be columns
+    #test2$Release <- factor(test2$Release)
+    #mytable3 <- table(test2$TagCode, test2$Release) # A will be rows, B will be columns
     
     ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
     #mytable3[mytable3>0] <- 1
@@ -566,6 +566,9 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 if (nrow(detects_benicia) == 0){
   "No detections yet"
 } else {
+  
+  benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F)
+  benicia$RelDT <- as.POSIXct(benicia$RelDT)
 
   ## Only do survival to Benicia here
   test3 <- detects_study[detects_study$rkm < 53,]
@@ -587,11 +590,11 @@ if (nrow(detects_benicia) == 0){
   inp2[inp2 > 0] <- 1
   
   inp <- cbind(inp, inp2)
-  groups <- as.character(sort(unique(inp$Release_week)))
+  groups <- as.character(sort(unique(inp$Release)))
 
   inp[,groups] <- 0
   for (i in groups) {
-    inp[as.character(inp$Release_week) == i, i] <- 1
+    inp[as.character(inp$Release) == i, i] <- 1
   }
   
   if(length(groups) > 1){
@@ -634,15 +637,34 @@ if (nrow(detects_benicia) == 0){
   WR.surv$Detection_efficiency <- NA
   WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
     
-  WR.surv <- cbind(c("ALL", groups), WR.surv)
-  
-  colnames(WR.surv) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
-  
-  print(kable(WR.surv, row.names = F, "html") %>%
-          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
+  WR.surv <- cbind(Release = c("ALL", groups), WR.surv)
 
+  WR.surv1 <- WR.surv
+  colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+
+  print(kable(WR.surv1, row.names = F, "html") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))    
+  
+  ## Find mean release time per release group, and ALL
+  reltimes <- aggregate(list(RelDT = study_tagcodes$RelDT), by = list(Release = study_tagcodes$Release), FUN = mean)
+  reltimes <- rbind(reltimes, data.frame(Release = "ALL", RelDT = mean(study_tagcodes$RelDT)))
+
+  ## Assign whether the results are tentative or final
+  quality <- "tentative"
+  if(endtime < as.Date(c(Sys.time()))) { quality <- "final"}
+  WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
+  
+  WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
+  
+  ## remove old benicia record for this studyID
+  benicia <- benicia[!benicia$StudyID == unique(study_tagcodes$StudyID),]
+  
+  benicia <- rbind(benicia, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
+  
+  write.csv(benicia, "benicia_surv.csv", row.names = F, quote = F) 
+  
 }
-```    
+```  
 
 
 <br/>
