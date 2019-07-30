@@ -1,0 +1,118 @@
+---
+title: CalFishTrack
+
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r logos, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:0px; width:200px;')
+```
+
+<br/>
+<br/>
+
+# *Water Year 2019 Survival Summary*
+
+<br/>
+
+## Survival to Benicia for all major Chinook salmon tagging efforts (n > 100)
+
+
+```{r print plot of season total survival, echo = FALSE}
+library(CDECRetrieve)
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F)
+benicia$RelDT <- as.POSIXct(benicia$RelDT)
+
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
+
+tol_released <- aggregate(list(total_released = tagcodes$TagID_Hex), by = list(StudyID = tagcodes$StudyID), FUN = length)
+
+benicia <- merge(benicia, tol_released)
+
+## Now remove any release smaller than 100
+benicia <- benicia[benicia$total_released >99,]
+
+benicia_rel <- benicia[benicia$Release != "ALL",]
+
+## Remove late fall
+benicia_rel <- benicia_rel[benicia_rel$StudyID != "ColemanLateFall_2019",]
+
+## Combine sutter bypass releases
+
+benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
+benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
+
+wlk_flow <- as.data.frame(cdec_query("WLK", "41", "D", as.Date(min(benicia_rel$RelDT))-7, as.Date(max(benicia_rel$RelDT))+14))
+wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+
+ma <- function(x, n = 5){filter(x, rep(1 / n, n), sides = 1)}
+
+wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
+
+wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
+
+benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
+
+benicia_rel <- merge(benicia_rel, wlk_flow[, c("datetime", "ma")], all.x = T, by = "datetime")
+
+benicia_rel$Basin <- "Sacramento basin"
+benicia_rel[benicia_rel$StudyID == "2019UP_UCD", "Basin"] <- "San Joaquin basin"
+benicia_rel[benicia_rel$Release == "Release Yolo", "Basin"] <- "Yolo bypass"
+
+
+## Now plot
+
+library(ggplot2)
+
+normalizer <- max(wlk_flow$ma) / max(benicia_rel$estimate)
+
+pd <- position_dodge(1)
+
+boolColors <- as.character(c("final"="black", "tentative"="gray"))
+boolScale <- scale_colour_manual(name="data_quality", values=boolColors)
+
+
+ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate)) +
+  xlim(range(wlk_flow$datetime)) +
+  geom_line(data = wlk_flow, mapping = aes(x = datetime, y = ma/normalizer), color = "blue") +
+  scale_y_continuous( sec.axis = sec_axis(trans= ~.*normalizer, name = "7-day moving average of Flow (cfs) at Wilkins Slough")) +
+  geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
+  #geom_line(position=pd) +
+  geom_point(data = benicia_rel, size=4, shape = 21, position = pd, stroke = 2, aes(colour= data_quality, fill = Basin, group = Basin)) +
+  boolScale +
+  #geom_point(data = benicia_rel[benicia_rel$data_quality == "final",], size=4, position = pd, aes(colour= Basin, group = Basin)) +
+  #geom_point(data = benicia_rel[benicia_rel$data_quality == "tentative",], size=4, shape = 13, position = pd, aes(colour = Basin, group = Basin)) +
+    #geom_text(aes(label=total_released),position=pd, vjust=0, colour = "black", size = 2) +
+  labs(x="Release Date", size = 5) +
+  labs(y="Survival to Benicia Bridge", size = 5) +  
+  #facet_grid(.~basin, scales = "free_x", space = "free_x")+
+  theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "light grey"),
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #axis.text.x=element_blank(),
+        #axis.ticks.x=element_blank(),
+        axis.line.y.right = element_line(color = "blue"), 
+        axis.title.y.right = element_text(color = "blue"),
+        axis.text.y.right = element_text(color = "blue"),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        legend.position="bottom")
+
+                
+
+```
+
