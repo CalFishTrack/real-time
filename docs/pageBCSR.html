@@ -11,7 +11,7 @@
 
 
 
-<title>Central Valley Enhanced Acoustic Tagging Project</title>
+<title>pageBCSR.utf8</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,6 +26,7 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -73,9 +74,7 @@ h6 {
 </style>
 
 
-</head>
 
-<body>
 
 <style type = "text/css">
 .main-container {
@@ -94,8 +93,14 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
+}
+summary {
+  display: list-item;
 }
 </style>
 
@@ -111,7 +116,6 @@ body {
   padding-top: 56px;
   margin-top: -56px;
 }
-
 .section h2 {
   padding-top: 56px;
   margin-top: -56px;
@@ -131,6 +135,43 @@ body {
 .section h6 {
   padding-top: 56px;
   margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
 }
 </style>
 
@@ -152,13 +193,71 @@ $(document).ready(function () {
 });
 </script>
 
-
-<div class="container-fluid main-container">
-
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
 });
 </script>
 
@@ -171,7 +270,6 @@ $(document).ready(function () {
   window.initializeCodeFolding("hide" === "show");
 });
 </script>
-
 
 
 
@@ -249,8 +347,6 @@ div.tocify {
 
 .tocify-subheader .tocify-item {
   font-size: 0.90em;
-  padding-left: 25px;
-  text-indent: 0;
 }
 
 .tocify .list-group-item {
@@ -259,6 +355,16 @@ div.tocify {
 
 
 </style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row-fluid">
@@ -298,18 +404,6 @@ div.tocify {
       <a href="pageSRGS_2019.html">Wild green sturgeon</a>
     </li>
     <li>
-      <a href="pageCHLF_2019.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageSRDC_2019.html">Deer Creek wild spring-run salmon</a>
-    </li>
-    <li>
-      <a href="pageSHDC_2019.html">Deer Creek wild steelhead</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2019.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
       <a href="pageBCSR_2019.html">Butte Creek wild spring-run salmon</a>
     </li>
     <li>
@@ -323,6 +417,18 @@ div.tocify {
     </li>
     <li>
       <a href="pageSLPRFR_2019.html">Hatchery fall-run net-pen paired release</a>
+    </li>
+    <li>
+      <a href="pageYoloFR_2019.html">Hatchery fall-run Yolo bypass release</a>
+    </li>
+    <li>
+      <a href="pageCNFH_FMR_2019.html">Hatchery fall-run Chinook salmon May Release</a>
+    </li>
+    <li>
+      <a href="pageSHDC_Spring_2019.html">2019 Deer Creek wild steelhead</a>
+    </li>
+    <li>
+      <a href="pageSHMC_Spring_2019.html">2019 Mill Creek wild steelhead</a>
     </li>
   </ul>
 </li>
@@ -346,28 +452,40 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageCHLF.html">Hatchery late-fall-run salmon</a>
+      <a href="pageCHLF.html">2018 Hatchery late-fall-run salmon</a>
     </li>
     <li>
-      <a href="pageLSWR.html">Hatchery winter-run salmon</a>
+      <a href="pageLSWR.html">2018 Hatchery winter-run salmon</a>
     </li>
     <li>
-      <a href="pageBCSR.html">Butte Creek wild spring-run salmon</a>
+      <a href="pageBCSR.html">2018 Butte Creek wild spring-run salmon</a>
     </li>
     <li>
-      <a href="pageMDSR.html">Mill/Deer Creek wild spring-run salmon</a>
+      <a href="pageMDSR.html">2018 Mill/Deer Creek wild spring-run salmon</a>
     </li>
     <li>
-      <a href="pageSRSR.html">Sacramento River wild Chinook salmon</a>
+      <a href="pageSRSR.html">2018 Sacramento River wild Chinook salmon</a>
     </li>
     <li>
-      <a href="pageMHFR.html">Mokelumne hatchery fall-run salmon</a>
+      <a href="pageMHFR.html">2018 Mokelumne hatchery fall-run salmon</a>
     </li>
     <li>
-      <a href="pageNHFR.html">Nimbus hatchery fall-run salmon</a>
+      <a href="pageNHFR.html">2018 Nimbus hatchery fall-run salmon</a>
     </li>
     <li>
-      <a href="pageSRGS.html">Wild green sturgeon</a>
+      <a href="pageSRGS.html">2018 Wild green sturgeon</a>
+    </li>
+    <li>
+      <a href="pageCHLF_2019.html">2019 Hatchery late-fall-run salmon</a>
+    </li>
+    <li>
+      <a href="pageLSWR_2019.html">2019 Hatchery winter-run salmon</a>
+    </li>
+    <li>
+      <a href="pageSRDC_2019.html">2019 Deer Creek wild spring-run salmon</a>
+    </li>
+    <li>
+      <a href="pageSHDC_2019.html">Fall 2018 Deer Creek wild steelhead</a>
     </li>
   </ul>
 </li>
@@ -391,8 +509,8 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore"><p>Central Valley Enhanced<br />
-Acoustic Tagging Project</p></h1>
+<h1 class="title toc-ignore"><div class="line-block">Central Valley Enhanced<br />
+Acoustic Tagging Project</div></h1>
 
 </div>
 
@@ -599,7 +717,7 @@ ButteCreek-ppdd-RST
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><em>Sacramento real-time receivers deployed 2018-02-01, Georgiana_Slough and Sac_BlwGeorgiana receivers deployed 2018-04-16, data current as of 2019-05-08 17:00:00. All times in Pacific Standard Time.</em></p>
+<p><em>Sacramento real-time receivers deployed 2018-02-01, Georgiana_Slough and Sac_BlwGeorgiana receivers deployed 2018-04-16, data current as of 2019-07-29 14:00:00. All times in Pacific Standard Time.</em></p>
 <br/>
 <center>
 <div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-wilkins-slough" class="section level4">
@@ -1411,10 +1529,12 @@ Sac_BlwGeorgiana
 </tr>
 </tbody>
 </table>
+
 <p>No detections for Week 5 release group yet</p>
-<p></p>
+
+
 <p>No detections for Week 6 release group yet</p>
-<p></p>
+
 </div>
 </div>
 </div>

@@ -11,7 +11,7 @@
 
 
 
-<title>Central Valley Enhanced Acoustic Tagging Project</title>
+<title>pageLSWR.utf8</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,6 +26,7 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -73,9 +74,7 @@ h6 {
 </style>
 
 
-</head>
 
-<body>
 
 <style type = "text/css">
 .main-container {
@@ -94,8 +93,14 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
+}
+summary {
+  display: list-item;
 }
 </style>
 
@@ -111,7 +116,6 @@ body {
   padding-top: 56px;
   margin-top: -56px;
 }
-
 .section h2 {
   padding-top: 56px;
   margin-top: -56px;
@@ -131,6 +135,43 @@ body {
 .section h6 {
   padding-top: 56px;
   margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
 }
 </style>
 
@@ -152,13 +193,71 @@ $(document).ready(function () {
 });
 </script>
 
-
-<div class="container-fluid main-container">
-
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
 });
 </script>
 
@@ -171,7 +270,6 @@ $(document).ready(function () {
   window.initializeCodeFolding("hide" === "show");
 });
 </script>
-
 
 
 
@@ -249,8 +347,6 @@ div.tocify {
 
 .tocify-subheader .tocify-item {
   font-size: 0.90em;
-  padding-left: 25px;
-  text-indent: 0;
 }
 
 .tocify .list-group-item {
@@ -259,6 +355,16 @@ div.tocify {
 
 
 </style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row-fluid">
@@ -289,45 +395,99 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Study Populations
+    Study Population Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageCHLF.html">Hatchery late-fall-run salmon</a>
+      <a href="pageSRGS_2019.html">Wild green sturgeon</a>
     </li>
     <li>
-      <a href="pageLSWR.html">Hatchery winter-run salmon</a>
+      <a href="pageBCSR_2019.html">Butte Creek wild spring-run salmon</a>
     </li>
     <li>
-      <a href="pageBCSR.html">Butte Creek wild spring-run salmon</a>
+      <a href="pageBCJSWR_2019.html">Battle Creek jump-start winter-run</a>
     </li>
     <li>
-      <a href="pageMDSR.html">Mill/Deer Creek wild spring-run salmon</a>
+      <a href="pageSJSR_2019.html">Hatchery San Joaquin spring-run</a>
     </li>
     <li>
-      <a href="pageSRSR.html">Sacramento River wild Chinook salmon</a>
+      <a href="pageFHSR_2019.html">Hatchery Feather River spring-run</a>
     </li>
     <li>
-      <a href="pageMHFR.html">Mokelumne hatchery fall-run salmon</a>
+      <a href="pageSLPRFR_2019.html">Hatchery fall-run net-pen paired release</a>
     </li>
     <li>
-      <a href="pageNHFR.html">Nimbus hatchery fall-run salmon</a>
+      <a href="pageYoloFR_2019.html">Hatchery fall-run Yolo bypass release</a>
     </li>
     <li>
-      <a href="pageSRGS.html">Wild green sturgeon</a>
+      <a href="pageCNFH_FMR_2019.html">Hatchery fall-run Chinook salmon May Release</a>
+    </li>
+    <li>
+      <a href="pageSHDC_Spring_2019.html">2019 Deer Creek wild steelhead</a>
+    </li>
+    <li>
+      <a href="pageSHMC_Spring_2019.html">2019 Mill Creek wild steelhead</a>
     </li>
   </ul>
 </li>
 <li>
-  <a href="pageDEPLOY.html">Receiver Deployments</a>
+  <a href="pageREAL.html">Real-time Receivers</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download data</a>
+  <a href="pageDEPLOY.html">Autonomous Receivers</a>
+</li>
+<li>
+  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download real-time data</a>
 </li>
 <li>
   <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">SHINY app</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Archive Study Pages
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pageCHLF.html">2018 Hatchery late-fall-run salmon</a>
+    </li>
+    <li>
+      <a href="pageLSWR.html">2018 Hatchery winter-run salmon</a>
+    </li>
+    <li>
+      <a href="pageBCSR.html">2018 Butte Creek wild spring-run salmon</a>
+    </li>
+    <li>
+      <a href="pageMDSR.html">2018 Mill/Deer Creek wild spring-run salmon</a>
+    </li>
+    <li>
+      <a href="pageSRSR.html">2018 Sacramento River wild Chinook salmon</a>
+    </li>
+    <li>
+      <a href="pageMHFR.html">2018 Mokelumne hatchery fall-run salmon</a>
+    </li>
+    <li>
+      <a href="pageNHFR.html">2018 Nimbus hatchery fall-run salmon</a>
+    </li>
+    <li>
+      <a href="pageSRGS.html">2018 Wild green sturgeon</a>
+    </li>
+    <li>
+      <a href="pageCHLF_2019.html">2019 Hatchery late-fall-run salmon</a>
+    </li>
+    <li>
+      <a href="pageLSWR_2019.html">2019 Hatchery winter-run salmon</a>
+    </li>
+    <li>
+      <a href="pageSRDC_2019.html">2019 Deer Creek wild spring-run salmon</a>
+    </li>
+    <li>
+      <a href="pageSHDC_2019.html">Fall 2018 Deer Creek wild steelhead</a>
+    </li>
+  </ul>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -349,8 +509,8 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore"><p>Central Valley Enhanced<br />
-Acoustic Tagging Project</p></h1>
+<h1 class="title toc-ignore"><div class="line-block">Central Valley Enhanced<br />
+Acoustic Tagging Project</div></h1>
 
 </div>
 
@@ -435,7 +595,7 @@ Bonnyview_Rel
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><em>Sacramento real-time receivers deployed 2018-02-01, data current as of 2018-05-23 20:00:00. All times in Pacific Standard Time.</em></p>
+<p><em>Sacramento real-time receivers deployed 2018-02-01, data current as of 2019-07-29 14:00:00. All times in Pacific Standard Time.</em></p>
 <br/>
 <center>
 <div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-colusa-bridge" class="section level4">
@@ -478,19 +638,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-23.2
+22.5
 </td>
 <td style="text-align:right;">
 1.8
 </td>
 <td style="text-align:right;">
-19.9
+19.1
 </td>
 <td style="text-align:right;">
-26.9
+26.3
 </td>
 <td style="text-align:right;">
-85.6
+78.5
 </td>
 </tr>
 <tr>
@@ -498,7 +658,7 @@ ALL
 2018-03-01 17:50:00
 </td>
 <td style="text-align:right;">
-20.7
+20.8
 </td>
 <td style="text-align:right;">
 2.2
@@ -507,7 +667,7 @@ ALL
 16.8
 </td>
 <td style="text-align:right;">
-25.3
+25.5
 </td>
 <td style="text-align:right;">
 NA
@@ -518,16 +678,16 @@ NA
 2018-03-13 18:00:00
 </td>
 <td style="text-align:right;">
-26.9
+25.1
 </td>
 <td style="text-align:right;">
-3.0
+3.1
 </td>
 <td style="text-align:right;">
-21.4
+19.5
 </td>
 <td style="text-align:right;">
-33.2
+31.7
 </td>
 <td style="text-align:right;">
 NA
@@ -577,13 +737,13 @@ TowerBridge
 2018-03-08 01:12:56
 </td>
 <td style="text-align:left;">
-2018-03-18 18:12:13
+2018-03-18 01:44:15
 </td>
 <td style="text-align:right;">
-119
+106
 </td>
 <td style="text-align:right;">
-19.83
+17.67
 </td>
 <td style="text-align:right;">
 172.000
@@ -597,13 +757,13 @@ I80-50_Br
 2018-03-08 01:58:18
 </td>
 <td style="text-align:left;">
-2018-03-18 02:57:08
+2018-03-17 19:04:41
 </td>
 <td style="text-align:right;">
-104
+93
 </td>
 <td style="text-align:right;">
-17.33
+15.50
 </td>
 <td style="text-align:right;">
 170.748
@@ -611,22 +771,42 @@ I80-50_Br
 </tr>
 <tr>
 <td style="text-align:left;">
-Georgiana_Slough
+Georgiana_Slough1
 </td>
 <td style="text-align:left;">
-2018-04-19 13:38:35
+2018-03-24 19:50:52
 </td>
 <td style="text-align:left;">
-2018-04-19 13:47:56
+2018-03-29 20:38:20
 </td>
 <td style="text-align:right;">
-1
+16
 </td>
 <td style="text-align:right;">
-0.17
+2.67
 </td>
 <td style="text-align:right;">
 119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sac_BlwGeorgiana
+</td>
+<td style="text-align:left;">
+2018-03-22 17:51:34
+</td>
+<td style="text-align:left;">
+2018-03-31 06:59:00
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+5.67
+</td>
+<td style="text-align:right;">
+119.058
 </td>
 </tr>
 </tbody>
@@ -666,13 +846,13 @@ TowerBridge
 2018-03-08 01:12:56
 </td>
 <td style="text-align:left;">
-2018-03-15 13:24:40
+2018-03-15 06:48:42
 </td>
 <td style="text-align:right;">
-70
+67
 </td>
 <td style="text-align:right;">
-19.39
+18.56
 </td>
 <td style="text-align:right;">
 172.000
@@ -686,13 +866,13 @@ I80-50_Br
 2018-03-08 01:58:18
 </td>
 <td style="text-align:left;">
-2018-03-15 12:47:22
+2018-03-15 12:08:01
 </td>
 <td style="text-align:right;">
-63
+61
 </td>
 <td style="text-align:right;">
-17.45
+16.90
 </td>
 <td style="text-align:right;">
 170.748
@@ -700,22 +880,22 @@ I80-50_Br
 </tr>
 <tr>
 <td style="text-align:left;">
-Georgiana_Slough
+Sac_BlwGeorgiana
 </td>
 <td style="text-align:left;">
-2018-04-19 13:38:35
+2018-03-22 17:51:34
 </td>
 <td style="text-align:left;">
-2018-04-19 13:47:56
+2018-03-31 16:01:01
 </td>
 <td style="text-align:right;">
-1
+8
 </td>
 <td style="text-align:right;">
-0.28
+2.22
 </td>
 <td style="text-align:right;">
-119.208
+119.058
 </td>
 </tr>
 </tbody>
@@ -752,16 +932,16 @@ rkm
 TowerBridge
 </td>
 <td style="text-align:left;">
-2018-03-19 04:57:22
+2018-03-19 04:59:25
 </td>
 <td style="text-align:left;">
-2018-03-28 20:27:46
+2018-03-28 14:53:29
 </td>
 <td style="text-align:right;">
-49
+39
 </td>
 <td style="text-align:right;">
-20.50
+16.32
 </td>
 <td style="text-align:right;">
 172.000
@@ -775,16 +955,56 @@ I80-50_Br
 2018-03-18 11:46:10
 </td>
 <td style="text-align:left;">
-2018-03-27 15:15:04
+2018-03-27 02:24:02
 </td>
 <td style="text-align:right;">
-41
+32
 </td>
 <td style="text-align:right;">
-17.15
+13.39
 </td>
 <td style="text-align:right;">
 170.748
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgiana_Slough1
+</td>
+<td style="text-align:left;">
+2018-03-24 19:50:52
+</td>
+<td style="text-align:left;">
+2018-03-29 20:38:20
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+6.69
+</td>
+<td style="text-align:right;">
+119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sac_BlwGeorgiana
+</td>
+<td style="text-align:left;">
+2018-03-22 22:36:55
+</td>
+<td style="text-align:left;">
+2018-03-31 01:47:05
+</td>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:right;">
+10.88
+</td>
+<td style="text-align:right;">
+119.058
 </td>
 </tr>
 </tbody>
