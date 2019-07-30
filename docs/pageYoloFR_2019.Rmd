@@ -55,7 +55,7 @@ htmltools::img(src = knitr::image_uri("../data/yolo.jpg"))#,
 
 ## Project Status
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry Study Summary Framework_RiceProject.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_RiceProject.pdf?raw=true)
 
 ```{r print table with fish release details}
 

@@ -53,7 +53,7 @@ htmltools::img(src = knitr::image_uri("../data/feather-river-hatchery.jpeg"))#,
 
 PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/TelemetryStudySummary_NOAA_Feather_Hatchery_Spring-run.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_Feather_Hatchery_Spring-run.pdf?raw=true)
 ```{r print table with fish release details}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))

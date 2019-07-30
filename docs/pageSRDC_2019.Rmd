@@ -45,7 +45,7 @@ htmltools::img(src = knitr::image_uri("../data/DeerCk.jpg"))#,
 
 PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Deer Creek Spring-Run Smolt Telemetry Study Summary.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Deer_Creek_Spring-Run.pdf?raw=true)
 
 ```{r print table with fish release details}
 
