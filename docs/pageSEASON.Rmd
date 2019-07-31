@@ -29,6 +29,14 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 ## Survival to Benicia for all major Chinook salmon tagging efforts (n > 100)
 
+```{r pull in latest data download time}
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+latest <- read.csv("latest_download.csv", stringsAsFactors = F)
+```
+
+***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
 
 ```{r print plot of season total survival, echo = FALSE}
 library(CDECRetrieve)
@@ -99,7 +107,7 @@ ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate)) +
   #geom_point(data = benicia_rel[benicia_rel$data_quality == "tentative",], size=4, shape = 13, position = pd, aes(colour = Basin, group = Basin)) +
     #geom_text(aes(label=total_released),position=pd, vjust=0, colour = "black", size = 2) +
   labs(x="Release Date", size = 5) +
-  labs(y="Survival to Benicia Bridge", size = 5) +  
+  labs(y="% Survival to Benicia Bridge", size = 5) +  
   #facet_grid(.~basin, scales = "free_x", space = "free_x")+
   theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "light grey"),
         panel.grid.major.x = element_blank(), 
