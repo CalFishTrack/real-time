@@ -38,8 +38,9 @@ latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
 ***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
 
-```{r print plot of season total survival, echo = FALSE}
+```{r print plot of season total survival, echo = FALSE, warning=FALSE, message = FALSE}
 library(CDECRetrieve)
+library(plotly)
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -61,14 +62,17 @@ benicia_rel <- benicia[benicia$Release != "ALL",]
 benicia_rel <- benicia_rel[benicia_rel$StudyID != "ColemanLateFall_2019",]
 
 ## Combine sutter bypass releases
-
 benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
 benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
+
+## Label "ALL" release for any study with just 1 record
+benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
+
 
 wlk_flow <- as.data.frame(cdec_query("WLK", "41", "D", as.Date(min(benicia_rel$RelDT))-7, as.Date(max(benicia_rel$RelDT))+14))
 wlk_flow$datetime <- as.Date(wlk_flow$datetime)
 
-ma <- function(x, n = 5){filter(x, rep(1 / n, n), sides = 1)}
+ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
 
 wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
 
@@ -76,38 +80,50 @@ wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
 
 benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
 
-benicia_rel <- merge(benicia_rel, wlk_flow[, c("datetime", "ma")], all.x = T, by = "datetime")
-
 benicia_rel$Basin <- "Sacramento basin"
 benicia_rel[benicia_rel$StudyID == "2019UP_UCD", "Basin"] <- "San Joaquin basin"
 benicia_rel[benicia_rel$Release == "Release Yolo", "Basin"] <- "Yolo bypass"
 
+## merge the two datasets for easier plotting
+#benicia_rel <- merge(wlk_flow, benicia_rel, by = "datetime", all.x = T)
 
 ## Now plot
 
 library(ggplot2)
 
-normalizer <- max(wlk_flow$ma) / max(benicia_rel$estimate)
+normalizer <- max(wlk_flow$ma, na.rm = T) / max(benicia_rel$estimate, na.rm = T)
+wlk_flow$ma_norm <- wlk_flow$ma/normalizer
 
 pd <- position_dodge(1)
 
 boolColors <- as.character(c("final"="black", "tentative"="gray"))
 boolScale <- scale_colour_manual(name="data_quality", values=boolColors)
 
+ay <- list(
+  #tickfont = list(size=11.7),
+  #titlefont=list(size=14.6),
+  overlaying = "y",
+  nticks = 5,
+  color = "blue",
+  side = "right",
+  title = "7-day moving average of Flow (cfs) at Wilkins Slough",
+  automargin = TRUE
+)
 
-ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate)) +
+
+p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
   xlim(range(wlk_flow$datetime)) +
-  geom_line(data = wlk_flow, mapping = aes(x = datetime, y = ma/normalizer), color = "blue") +
-  scale_y_continuous( sec.axis = sec_axis(trans= ~.*normalizer, name = "7-day moving average of Flow (cfs) at Wilkins Slough")) +
+  #geom_line(data = wlk_flow, mapping = aes(x = datetime, y = ma_norm), color = "blue") +
+  #scale_y_continuous( sec.axis = sec_axis(trans= ~.*normalizer, name = "7-day moving average of Flow (cfs) at Wilkins Slough")) +
   geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
   #geom_line(position=pd) +
-  geom_point(data = benicia_rel, size=4, shape = 21, position = pd, stroke = 2, aes(colour= data_quality, fill = Basin, group = Basin)) +
+  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= data_quality)) +
   boolScale +
   #geom_point(data = benicia_rel[benicia_rel$data_quality == "final",], size=4, position = pd, aes(colour= Basin, group = Basin)) +
   #geom_point(data = benicia_rel[benicia_rel$data_quality == "tentative",], size=4, shape = 13, position = pd, aes(colour = Basin, group = Basin)) +
     #geom_text(aes(label=total_released),position=pd, vjust=0, colour = "black", size = 2) +
-  labs(x="Release Date", size = 5) +
-  labs(y="% Survival to Benicia Bridge", size = 5) +  
+  labs(x="Release Date", size = 8) +
+  labs(y="% Survival to Benicia Bridge", size = 8) +  
   #facet_grid(.~basin, scales = "free_x", space = "free_x")+
   theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "light grey"),
         panel.grid.major.x = element_blank(), 
@@ -119,6 +135,16 @@ ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate)) +
         axis.text.y.right = element_text(color = "blue"),
         panel.background = element_rect(fill = "white", colour = "black"),
         legend.position="bottom")
+
+ggplotly(p, tooltip = c("StudyID", "Release")) %>%
+  #add_trace(x=~datetime, y=~ma, colors="blue", yaxis = "y2", inherit=FALSE, showlegend=FALSE) %>%
+  add_annotations( text="Data status", xref="paper", yref="paper",
+                   x=0.25, xanchor="left",
+                   y=-0.26, yanchor="bottom",    # Same y as legend below
+                   legendtitle=TRUE, showarrow=FALSE ) %>%
+  #layout( legend=list(y=0.8, yanchor="top") )
+  add_lines(x=~wlk_flow$datetime, y=~wlk_flow$ma, colors="blue", yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
+  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2), width = 800, height = 600) 
 
                 
 
