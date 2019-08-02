@@ -544,7 +544,7 @@ tagcodes &lt;- read.csv(&quot;qry_HexCodes.txt&quot;, stringsAsFactors = F, colC
 tagcodes$RelDT &lt;- as.POSIXct(tagcodes$RelDT, format = &quot;%m/%d/%Y %I:%M:%S %p&quot;, tz = &quot;Etc/GMT+8&quot;)
 latest &lt;- read.csv(&quot;latest_download.csv&quot;, stringsAsFactors = F)
 
-study_tagcodes &lt;- tagcodes[tagcodes$StudyID == &quot;2019UP_UCD&quot;,]
+study_tagcodes &lt;- tagcodes[tagcodes$StudyID == &quot;SCARF_San_Joaquin_Spring_run_2019&quot;,]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -691,7 +691,7 @@ FreemontFord
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-07-30 12:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-08-02 09:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <p><br/> <br/></p>
 <center>
 <div id="detections-at-benicia-bridge" class="section level4">
@@ -701,7 +701,7 @@ FreemontFord
 
 setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-detects_study &lt;- read.csv(&quot;detects_2019UP_UCD.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;detects_SCARF_San_Joaquin_Spring_run_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
