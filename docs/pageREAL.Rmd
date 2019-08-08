@@ -868,7 +868,7 @@ study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d
 fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc")], "study_detections.csv", row.names = F)
 
 
-latest <- as.character(round.POSIXt(max(downloads$end), units = "hour"))
+latest <- as.character(round.POSIXt(max(downloads$end, na.rm = T), units = "hour"))
 
 ## Now that all data manipulations are complete, export detects with milliseconds shown (this turns the class into character)
 detects$DateTime_PST <- format(detects$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
