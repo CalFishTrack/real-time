@@ -54,6 +54,8 @@ htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#,
 
 ## Project Status
 
+PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
+
 Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Mill_Creek_Steelhead_Smolt.pdf?raw=true)
 
 ```{r print table with fish release details}

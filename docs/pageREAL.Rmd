@@ -361,7 +361,7 @@ if (nrow(TECKNO_files) > 0) {
   downloads_new2 <- data.frame()
   for (i in 1:nrow(TECKNO_files)) {
     test <- try(read.csv(TECKNO_files[i,], header = F, stringsAsFactors = F ), silent = T) 
-    if (inherits(test, "try-error") | ncol(test) < 18) {
+    if (inherits(test, "try-error") | ifelse(is.null(ncol(test)) ==T, TRUE, ncol(test) < 18)) {
       next
     } else {
       test1 <- tail(test[nchar(test$V5) > 4,],1)
