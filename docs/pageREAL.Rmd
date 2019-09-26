@@ -865,7 +865,7 @@ colnames(study_detections)[1] <- "Study_ID"
 study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T)
 
 study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
-fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc")], "study_detections.csv", row.names = F)
+fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "recv", "location", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc")], "study_detections.csv", row.names = F)
 
 
 latest <- as.character(round.POSIXt(max(downloads$end, na.rm = T), units = "hour"))

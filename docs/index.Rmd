@@ -54,9 +54,15 @@ For more information on where and when receivers are deployed, visit our receive
 
 ## Detection Data
 
-For downloading detection data from the receiver array, visit our ERDDAP page:
+For downloading *preliminary* real-time detection data from the receiver array, visit our ERDDAP page:
 
 [CalFishTrack ERDDAP page](http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset)
+
+<br />
+
+For downloading *QAQCed and Final* real-time and autonomous detection data from the receiver array from 2013-2018, visit our other ERDDAP page. Note, detections from the current water year will typically be made available in October:
+
+[Archived detections ERDDAP page](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.subset)
 
 <br />
 
