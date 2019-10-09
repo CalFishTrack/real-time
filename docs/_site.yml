@@ -8,7 +8,7 @@ navbar:
   - text: Study Population Detections
     menu:
     - text: Wild green sturgeon
-      href: pageSRGS_2019.html
+      href: pageSRGS_2020.html
     - text: Butte Creek wild spring-run salmon
       href: pageBCSR_2019.html
     - text: Battle Creek jump-start winter-run
@@ -63,6 +63,8 @@ navbar:
       href: pageSRDC_2019.html
     - text: Fall 2018 Deer Creek wild steelhead
       href: pageSHDC_2019.html
+    - text: 2019 Wild green sturgeon
+      href: pageSRGS_2019.html
 output:
   html_document:
     lib_dir: site_libs
