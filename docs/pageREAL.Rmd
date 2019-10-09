@@ -486,7 +486,7 @@ if (nrow(UCD_files) > 0) {
     if (inherits(res, "try-error")) {
       corrupted <- strsplit(UCD_files[i,], "/")
       corrupted2 <- unlist(lapply(corrupted, tail, 1))
-      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 3, filename = UCD_files[i,]))
+      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,]))
       ## Also make corrupted downloads more palateable
       next
     } else {
