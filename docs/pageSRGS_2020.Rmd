@@ -68,60 +68,38 @@ if (nrow(study_tagcodes) == 0){
 }else{
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
+  study_tagcodes$Release <- "ALL"
 
-  study_tagcodes$Release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-17"), "Release"] <- "Week 2"
-
-  
-  
-  release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = min)
-  release_stats <- merge(release_stats,
-                         aggregate(list(Last_release_time = study_tagcodes$RelDT),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = max),
-                         by = c("Release"))
-  
-                             
-  release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
-                                                         study_tagcodes$TagID_Hex),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = function(x) {length(unique(x))}),
-                         by = c("Release"))
-  
+  release_stats <- aggregate(list(Number_fish_released = study_tagcodes$TagID_Hex),
+                             by= list(Release_time = study_tagcodes$RelDT),
+                             FUN = function(x) {length(unique(x))}
+                             )
   release_stats <- merge(release_stats,
                          aggregate(list(Release_location = study_tagcodes$Rel_loc),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(Release_time = study_tagcodes$RelDT),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release"))
+                         by = c("Release_time"))
   release_stats <- merge(release_stats,
                          aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(Release_time = study_tagcodes$RelDT),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release"))
+                         by = c("Release_time"))
   release_stats <- merge(release_stats,
-                         aggregate(list(Mean_length = study_tagcodes$Length),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = mean, na.rm = T),
-                         by = c("Release"))
+                         aggregate(list(Total_length = study_tagcodes$Length),
+                             by= list(Release_time = study_tagcodes$RelDT),
+                             FUN = mean),
+                         by = c("Release_time"))
   release_stats <- merge(release_stats,
-                         aggregate(list(Mean_weight = study_tagcodes$Weight),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = mean, na.rm = T),
-                         by = c("Release"))
+                         aggregate(list(Weight = study_tagcodes$Weight),
+                             by= list(Release_time = study_tagcodes$RelDT),
+                             FUN = mean),
+                         by = c("Release_time"))
   
-    release_stats2<-release_stats[,-3]
-  colnames(release_stats2)[2]<-"Release time"
+  release_stats[,c("Total_length", "Weight")] <- round(release_stats[,c("Total_length", "Weight")],1)
   
-  release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
-  
-  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
-  
-  release_stats$Last_release_time <- format(release_stats$Last_release_time, tz = "Etc/GMT+8")
-  
-  kable(release_stats, format = "html") %>%
+  kable(release_stats, "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
+
 }                       
 
 ```
