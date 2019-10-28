@@ -292,15 +292,6 @@ if (nrow(ATS_files) > 0) {
   
   downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new1[,c("filename", "recv", "hour", "sun_volts", "bat_volts", "end", "start")]))
   
-  #locs <- detects_new[detects_new$TagCode == " GPS Fix  ",]
-  #N <- unlist(gregexpr(pattern ='N',locs$Internal))
-  #locs$lat <- as.numeric(substr(locs$Internal, start = 1, stop = N-1))
-  #locs$lon <- as.numeric(substr(locs$Internal, start = N+1, stop= nchar(locs$Internal)-2))
-  #locs$lat <- round(locs$lat, 0)/100
-  #locs$lon <- round(locs$lon, 0)/100*-1
-  
-  #coords <- unique(locs[,c("recv", "lat", "lon")])
-  
   ## In case all new files were corrupted i.e. length(detects_temp) = 0, have this if statement
   if (length(detects_temp) > 0){
     ## Now remove prefix and suffix of TagCode
@@ -556,13 +547,6 @@ for (i in 1:nrow(gen_locs)){
   downloads[which(gen_locs$recv[i] == downloads$recv & gen_locs$start[i] <= downloads$start & (gen_locs$stop[i] > downloads$end | is.na(gen_locs$stop[i]))),c("location", "general_location", "latitude", "longitude", "rkm")] <- gen_locs[i,c("location", "general_location", "latitude", "longitude", "rkm")]
 }
 
-#gaps <- downloads[is.na(downloads$gapstart) == F,]
-#gaps$gapstart <- as.POSIXct(gaps$gapstart,format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
-#gaps$gapend <- as.POSIXct(gaps$gapend, format = "%Y-%m-%d %H:%M:%S", tz = "Etc/GMT+8")
-
-#gaps$gap_length_hours <- round(difftime(gaps$gapend, gaps$gapstart, units = "hours"), 0)
-#gaps$start <- NULL
-#gaps$end <- NULL
 
 gap_percent <- aggregate(list(total_files = downloads$start), by = list(location = downloads$location), FUN = length) 
 gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(location = downloads$location), FUN = min), by = "location", all.y = T)
@@ -576,16 +560,6 @@ gap_percent[gap_percent$location == "BeniciaRT_02", "recv_start"] <- as.POSIXct(
 gap_percent[gap_percent$location == "DCCRT_1", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
 gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
 
-## Calculate the individual hours that have beacon detections
-## First, make sure only a receivers specific beacon tag is allowed to count
-#detects_beacon1 <- merge(detects_beacon, gen_locs[,c("recv", "beacon")], by = "recv", all.x = T)
-#detects_beacon1 <- detects_beacon
-
-#detects_beacon1 <- detects_beacon1[detects_beacon1$TagCode == detects_beacon1$beacon,]
-#beacon_by_hour <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,TagCode = detects_beacon1$TagCode, hour = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d %H")), FUN = length)
-#beacon_by_hour <- merge(beacon_by_hour, gap_percent[, c("recv", "recv_start")])
-#beacon_by_hour <- beacon_by_hour[beacon_by_hour$hour > beacon_by_hour$recv_start,]
-#gap_percent <- merge(gap_percent, aggregate(list(hour_count = beacon_by_hour$hour), by = list(recv = beacon_by_hour$recv), FUN = length), by = "recv", all.x = T)
 
 
 ## Now remove multipaths from detects_final
@@ -692,17 +666,6 @@ gap_percent <- merge(gap_percent, aggregate(list(day_count = beacon_by_day$day),
 gap_percent$num_of_days <- round(difftime(Sys.time(), gap_percent$recv_start, units = "d"), 0)
 ## Now estimate the number of days with no beacon detections
 gap_percent$percent_downtime <- 100-round(gap_percent$day_count/as.numeric(gap_percent$num_of_days)*100,1)
-## Now for receivers with no beacon, or a broken beacon, just use the old method of number of hourly files compared to number expected
-#gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "percent_downtime"] <- 100-round(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "total_files"]/as.numeric(gap_percent[gap_percent$recv %in% c("17131", "17136", "17139", "17140", "17142"), "num_of_hours"])*100,1)
-
-## remove the receivers without beacons THESE NOW HAVE BEACON TAGS aS OF 6/19/18, THIS SHOULD NO LONGER BE NECESSARY
-#beacon_by_hour <- beacon_by_hour[!beacon_by_hour$recv %in% c("17131", "17136", "17139", "17140", "17142"),]
-#beacon_by_hour$recv <- factor(beacon_by_hour$recv)
-
-## Estimate hourly detection efficiency
-#beacon_by_hour <- merge(beacon_by_hour,gen_locs[,c("recv", "beacon_PRI")], by = "recv", all.x = T)
-#beacon_by_hour$expected <- 60*60/beacon_by_hour$beacon_PRI
-#beacon_by_hour$hourly_efficiency <- round(beacon_by_hour$x/beacon_by_hour$expected,3)*100
 
 ## Estimate daily detection efficiency
 beacon_by_day <- merge(beacon_by_day,unique(beacon_deployments[,c("beacon", "beacon_PRI")]), by = "beacon", all.x = T)
@@ -721,51 +684,6 @@ efficiency$all_time_efficiency <- round(efficiency$all_time_efficiency,1)
 efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency,1)
 
 
-
-
-#downloads$gapstart <- NULL
-#downloads$gapend <- NULL
-
-## Find data gaps by finding hours for which there are zero detectsion
-## These should never happen since there are so many beacon detections
-
-# res <- aggregate(detects_beacon$TagCode,
-#                  by=list(detects_beacon$recv, format(detects_beacon$DateTime_PST, "%Y-%m-%d %H")),
-#                  length)
-# 
-# colnames(res) <- c("recv", "DateTimeHour_PST", "detect_count")
-# 
-# hours <- as.data.frame(format(seq(
-#   from= min(detects_beacon$DateTime_PST)+60*60*24,
-#   to=as.POSIXct(Sys.time(), tz="Etc/GMT+8")-60*60*12,
-#   by="hour"
-# ),
-# "%Y-%m-%d %H"))
-# 
-# colnames(hours) <- "DateTimeHour_PST"
-# 
-# res2 <- dcast(data = res, DateTimeHour_PST ~ recv)
-# 
-# res3 <- merge(hours, res2, by = "DateTimeHour_PST", all.x = T)
-# 
-# gaps <- res3[rowSums(is.na(res3)) > 0,]
-# 
-# gaps <- melt(gaps)
-# 
-# gaps <- gaps[is.na(gaps$value)==T,]
-# 
-# gaps$value <- NULL
-# 
-# colnames(gaps) <- c("DateHour_PST", "recv")
-
-
-#### As a preliminary cut to detection filter, a tag needs to have been detected at least 3 times in the entire array
-## NB: not worth doing any more, all tag code options have happened at least 3 times
-
-
-#tags <- sort(table(detects$TagCode), decreasing = T)
-#tags <- tags[tags>2]
-#detects_filtered <- detects[detects$TagCode %in% rownames(tags),]
 detects <- detects[order(detects$general_location, detects$TagCode, detects$DateTime_PST),]
 
 #### Now run detection filter per study ID, and save as seperate csvs, but also as one combined one for ERDDAP
@@ -805,7 +723,7 @@ for (k in unique(tagcodes$StudyID)){
     ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after).
     temp_detects$before_and_after_valid <- 0
     temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < (300) & temp_detects$time_from_previous < (300),"before_and_after_valid"] <- 1
-  
+    
     ## now determine unique gen loc visits based on the before_after_valid criteria. Two zeros in a row means a new visit
     temp_detects$prev_before_after_valid <- shift(temp_detects$before_and_after_valid, fill = NA, type = "lag")
     
@@ -815,7 +733,6 @@ for (k in unique(tagcodes$StudyID)){
     
     ## just do cumulative sum of the visit step to get visit num
     temp_detects$visit_num <- cumsum(temp_detects$visit_step)
-
     ## Now repeat estimation of time to next and time from previous, but setting visit_num changes to NA now
     temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
     ## Now estimate the time in secs between the previous and next detection, for each detection.
@@ -841,19 +758,84 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects <- temp_detects[!temp_detects$visit_num %in% min_max_diff[min_max_diff$ping_density < (4/(temp_detects$PRI_nominal*16.6)) & min_max_diff$count < 5, "Group.2"],]
   }
   
+  #### NEW PRI code
   if(nrow(temp_detects) > 0){
-    ## Now remove any weird beacon tag echos, this was noticed for tag F694 at CVP_Tank1
-    temp_detects <- temp_detects[!(temp_detects$TagCode == "F694" & temp_detects$general_location == "CVP_Tank1"),]
+    ## Now create two columns with time in hours between the previous and next detection, for each detection
+    ## Now reorder the data since the above steps may have jumbled things
+    temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$recv, temp_detects$DateTime_PST),]
+    ## Now estimate the time in secs between the previous and next detection, for each detection.
+    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, type = "lead"), temp_detects$DateTime_Orig, units = "secs"))
+    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_Orig, shift(temp_detects$DateTime_Orig, fill = NA, type = "lag"),  units = "secs"))
+    temp_detects$next_interval <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, n = 2, type = "lead"), shift(temp_detects$DateTime_Orig, fill = NA, n = 1, type = "lead"), units = "secs"))
+    temp_detects$prev_interval <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, n = 1, type = "lag"), shift(temp_detects$DateTime_Orig, fill = NA, n = 2, type = "lag"), units = "secs"))
+    
+    ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, n = 2, fill = NA, type = "lead")), "next_interval"] <- NA
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lead")), "next_interval"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, n = 2, fill = NA, type = "lag")), "prev_interval"] <- NA
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lag")), "prev_interval"] <- NA
+    # Is current detection within PRI*1.3*12+1 seconds from of the one after next?
+    temp_detects$part_of_valid_3 <- rowSums(cbind(temp_detects$time_to_next + temp_detects$next_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1,
+                                        temp_detects$time_to_next + temp_detects$time_from_previous < (temp_detects$PRI_nominal * 1.3 * 12) +1,
+                                        temp_detects$time_from_previous + temp_detects$prev_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1), na.rm = T)
+    
+    temp_detects <- temp_detects[temp_detects$part_of_valid_3 >0,]
+    
+    ## Create a counter that says whether to tick visit_num up by one. These need to be when a recv or TagCode changes, OR when a fish revisits a receiver
+    temp_detects$visit_step <- 0
+    temp_detects[is.na(temp_detects$time_from_previous),"visit_step"] <- 1  #scenario 1. I've kept this here even though scenario 2 actually captures these as well
+    temp_detects$first_of_three_good <- ((temp_detects$time_to_next + temp_detects$next_interval) < (temp_detects$PRI_nominal * 1.3 * 12) +1) ## setting up scenario 2
+    temp_detects[temp_detects$part_of_valid_3 == 1 & is.na(temp_detects$first_of_three_good) == F & temp_detects$first_of_three_good == T,"visit_step"] <- 1  #scenario 2
+    
+    ## just do cumulative sum of the visit step to get visit num
+    temp_detects$visit_num <- cumsum(temp_detects$visit_step)
+  
+    ## Now reorder the data by receiver to look at PRIs. That's because PRIs can only be accurately calculated using detection time on an individual receiver
+    ## Also, to calculate PRI, we'll need to recalculate time to next and time from previous once we've reordered
+    temp_detects <- temp_detects[order(temp_detects$visit_num, temp_detects$DateTime_PST),]
+    ## Now estimate the time in secs between the previous and next detection, for each detection.
+    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, type = "lead"), temp_detects$DateTime_Orig, units = "secs"))
+    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_Orig, shift(temp_detects$DateTime_Orig, fill = NA, type = "lag"),  units = "secs"))
+    temp_detects$time_to_2ndnext <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, n = 2, type = "lead"), temp_detects$DateTime_Orig, units = "secs"))
+    temp_detects$time_from_2ndprevious <- as.numeric(difftime(temp_detects$DateTime_Orig, shift(temp_detects$DateTime_Orig, fill = NA, n=2, type = "lag"),  units = "secs"))
+    ## Now make NA the time diff values when it's between 2 different visit_nums
+    temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lead")), "time_to_next"] <- NA
+    temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, n = 2, fill = NA, type = "lag")), "time_from_2ndprevious"] <- NA
+    temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, n = 2, fill = NA, type = "lead")), "time_to_2ndnext"] <- NA
+  
+    estPRI <- function(span = span, PRI = PRI){(span/PRI) / round(span/PRI, digits = 0) * PRI}
+  
+    ## If a middle detection from a ping train, look at before and after
+    temp_detects$two_good_PRIS <- apply(apply(temp_detects[,c("time_from_previous", "time_to_next")], MARGIN = 2, function(x){abs(temp_detects$PRI_nominal - estPRI(span = x, PRI = temp_detects$PRI_nominal)) < temp_detects$PRI_nominal*0.11}), MARGIN = 1, FUN = sum)
+    ## If first detection from a ping train, look at 2 next subsequent
+    temp_detects[is.na(temp_detects$time_from_previous), "two_good_PRIS"] <- apply(apply(temp_detects[is.na(temp_detects$time_from_previous),c("time_to_2ndnext", "time_to_next")], MARGIN = 2, function(x){abs(temp_detects[is.na(temp_detects$time_from_previous),"PRI_nominal"] - estPRI(span = x, PRI = temp_detects[is.na(temp_detects$time_from_previous),"PRI_nominal"])) < temp_detects[is.na(temp_detects$time_from_previous),"PRI_nominal"]*0.11}), MARGIN = 1, FUN = sum)
+    ## If last detection from a ping train, look at 2 previous
+    temp_detects[is.na(temp_detects$time_to_next), "two_good_PRIS"] <- apply(apply(temp_detects[is.na(temp_detects$time_to_next),c("time_from_previous", "time_from_2ndprevious")], MARGIN = 2, function(x){abs(temp_detects[is.na(temp_detects$time_to_next),"PRI_nominal"] - estPRI(span = x, PRI = temp_detects[is.na(temp_detects$time_to_next),"PRI_nominal"])) < temp_detects[is.na(temp_detects$time_to_next),"PRI_nominal"]*0.11}), MARGIN = 1, FUN = sum)
+    
+    temp_detects <- temp_detects[which(temp_detects$two_good_PRIS == 2),]
   }
   
-  ## Now remove RelDT, PRI, tag_life and genloctag columns
-  temp_detects <- temp_detects[, !names(temp_detects) %in% c("before_and_after_valid", "visit_num", "visit_step", "time_to_next", "time_from_previous", "prev_before_after_valid", "RelDT", "genloctag", "PRI_nominal", "tag_life", "tag_end")]
+  ## Now remove a recv visit with less than 3 detections, now that we've removed some false detects
+  if(nrow(temp_detects) > 0){  
+    detects_per_visit_num <- aggregate(temp_detects$DateTime_Orig, by = list(visit_num = temp_detects$visit_num), FUN = length)
+    
+    temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 2, "visit_num"],]
+  }
+  
+  ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
+  temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "Temp", "general_location", "latitude", "longitude", "rkm")]
+  
   ## Add this data to study_detections file, only if there is something to add
   if(nrow(temp_detects) > 0){
       study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
   }
   temp_detects$DateTime_PST <- format(temp_detects$DateTime_PST, "%Y-%m-%d %H:%M:%S")
-  fwrite(temp_detects, paste(paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  fwrite(temp_detects, paste("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
 

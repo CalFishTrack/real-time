@@ -33,9 +33,9 @@ navbar:
     href: pageREAL.html
   - text: Autonomous Receivers
     href: pageDEPLOY.html
-  - text: Download real-time data
-    href: http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset
-  - text: SHINY app
+  - text: Download data
+    href: pageRealtime_download.html
+  - text: STARS shiny app
     href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
   - text: Archive Study Pages
     menu:

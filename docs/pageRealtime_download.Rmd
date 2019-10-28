@@ -1,0 +1,84 @@
+---
+title: CalFishTrack
+
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+#library(xtable)
+#library(prettydoc)
+library(scales)
+library(DT)
+library(viridis)
+
+
+```
+
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
+```{r logos, echo=FALSE}
+htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:0px; width:200px;')
+```
+
+<br/>
+
+# *Download Real-time data*
+
+Data can be downloaded via ERDDAP website. Data is *preliminary* and subject to revision:
+http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset
+
+Alternatively, data can be imported directly into R. To do so, please follow instructions [here.](https://github.com/CalFishTrack/real-time/blob/master/data/How_to_download_realtime_data_into_R.pdf) 
+
+<br/>
+
+# *Download archived and QAQC'd detection data*
+<br/>
+
+
+Now you can find *QAQCed and Final* real-time and autonomous filtered JSATS detection data for 2013-2018 on ERDDAP at this url:
+https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html
+
+
+**This data delivery project is still under development but it is usable now**.
+
+The dataset title is: JSATS California Fish Tracking. There are many available fields so click on the question mark bubble for an explanation of each field.
+
+A simple data request to get you started would be:
+
+1) Click on the above link
+
+2) Uncheck all variables at the top of webpage.
+
+3) In the "time (Receiver Detection Time, UTC)" field, you need to adjust the start and stop
+date. By default it limits the start and stop time to today's date. To expand the 
+time range pull the left side of the slider bar all the way to the left. Or you can 
+type in the date range if you know it already.
+
+4) Then check only these fields: 
+fish_id, 
+time, 
+study_id, (Go over to the far pulldown box and select only one study_id)
+receiver general location, 
+receiver_location (Receiver Location (GPS name)), 
+receiver_river_km (Receiver River Kilometer, km)
+
+5) In "Server side functions" - in the pull down select "Order by", then in the box to the right select "fish_id", then in next box to right select "time".
+
+6) File type: pick a file type, try *.csv, which can be opened directly with Notepad, Notepad++, or imported into Excel.
+
+This should get you a table of detections (filtered from raw data) that is sorted by FishID and detection time for one Study.
+
+
