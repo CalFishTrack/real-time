@@ -442,10 +442,10 @@ div.tocify {
   <a href="pageDEPLOY.html">Autonomous Receivers</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download real-time data</a>
+  <a href="pageRealtime_download.html">Download data</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">SHINY app</a>
+  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -668,7 +668,7 @@ DeerCkRST
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><em>Data current as of 2019-10-09 10:00:00. All times in Pacific Standard Time.</em></p>
+<p><em>Data current as of 2019-10-28 11:00:00. All times in Pacific Standard Time.</em></p>
 <br/>
 <center>
 <div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-wilkins-slough" class="section level4">
@@ -679,7 +679,7 @@ DeerCkRST
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- read.csv(&quot;detects_DeerCk-Wild-2019.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_DeerCk-Wild-2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){

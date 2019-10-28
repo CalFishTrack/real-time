@@ -56,23 +56,17 @@ For more information on where and when receivers are deployed, visit our receive
 
 ## Detection Data
 
-For downloading *preliminary* real-time detection data from the receiver array, visit our ERDDAP page:
+For downloading real-time detection data and archived detection data from the entire receiver array, visit our Data download page:
 
-[CalFishTrack ERDDAP page](http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset)
-
-<br />
-
-For downloading *QAQCed and Final* real-time and autonomous detection data from the receiver array from 2013-2018, visit our other ERDDAP page. Note, detections from the current water year will typically be made available in October:
-
-[Archived detections ERDDAP page](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.subset)
+[Download Data](https://calfishtrack.github.io/real-time/pageRealtime_download.html)
 
 <br />
 
-## SHINY app
+## STARS Shiny app
 
-For viewing fish survival and movement simulations based on current conditions, visit out SHINY app:
+For viewing fish survival and movement predictions based on current river conditions, visit our SHINY app:
 
-[CalFishTrack SHINY app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack)
+[STARS Shiny app](http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack)
 
 <br />
 

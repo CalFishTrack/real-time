@@ -152,7 +152,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_DeerCk-SH-Wild-2019.csv", stringsAsFactors = F)
+detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_DeerCk-SH-Wild-2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){

@@ -110,7 +110,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 library(CDECRetrieve)
 
-detects_study <- read.csv("detects_Juv_Green_Sturgeon_2018.csv", stringsAsFactors = F)
+detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2018.csv", stringsAsFactors = F)
 
 if (nrow(detects_study) == 0){
   "No detections yet"

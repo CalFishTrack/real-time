@@ -442,10 +442,10 @@ div.tocify {
   <a href="pageDEPLOY.html">Autonomous Receivers</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download real-time data</a>
+  <a href="pageRealtime_download.html">Download data</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">SHINY app</a>
+  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -696,7 +696,7 @@ FR_Gridley_Rel
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-10-09 10:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-10-28 11:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <p><br/></p>
 <center>
 <div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-wilkins-slough" class="section level4">
@@ -707,7 +707,7 @@ FR_Gridley_Rel
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- read.csv(&quot;detects_FR_Spring_2019.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_FR_Spring_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -984,19 +984,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-50.3
+49.9
 </td>
 <td style="text-align:right;">
-2.0
+2.1
 </td>
 <td style="text-align:right;">
-46.3
+45.9
 </td>
 <td style="text-align:right;">
-54.4
+53.9
 </td>
 <td style="text-align:right;">
-90.4
+90.5
 </td>
 </tr>
 <tr>
@@ -1004,16 +1004,16 @@ ALL
 Boyds
 </td>
 <td style="text-align:right;">
-63.0
+62.8
 </td>
 <td style="text-align:right;">
 2.8
 </td>
 <td style="text-align:right;">
-57.3
+57.1
 </td>
 <td style="text-align:right;">
-68.3
+68.1
 </td>
 <td style="text-align:right;">
 NA
@@ -1024,16 +1024,16 @@ NA
 Gridley
 </td>
 <td style="text-align:right;">
-37.7
+37.1
 </td>
 <td style="text-align:right;">
 2.8
 </td>
 <td style="text-align:right;">
-32.4
+31.8
 </td>
 <td style="text-align:right;">
-43.3
+42.7
 </td>
 <td style="text-align:right;">
 NA
@@ -1232,16 +1232,16 @@ SE
 Survival from release to Tower Bridge (minimum estimate since fish may have taken Yolo Bypass)
 </td>
 <td style="text-align:right;">
-51.2
+50.7
 </td>
 <td style="text-align:right;">
-1.3
+2.0
 </td>
 <td style="text-align:right;">
-48.6
+46.7
 </td>
 <td style="text-align:right;">
-53.8
+54.7
 </td>
 </tr>
 <tr>
@@ -1255,7 +1255,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+98.8
 </td>
 <td style="text-align:right;">
 100.0
@@ -1266,16 +1266,16 @@ Survival from TowerBridge to I80-50_Br
 % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
 </td>
 <td style="text-align:right;">
-78.7
+79.5
 </td>
 <td style="text-align:right;">
 2.3
 </td>
 <td style="text-align:right;">
-73.8
+74.6
 </td>
 <td style="text-align:right;">
-83.0
+83.7
 </td>
 </tr>
 <tr>
@@ -1283,16 +1283,16 @@ Survival from TowerBridge to I80-50_Br
 Detection probability at TowerBridge
 </td>
 <td style="text-align:right;">
-88.8
+89.0
 </td>
 <td style="text-align:right;">
 1.8
 </td>
 <td style="text-align:right;">
-84.8
+84.9
 </td>
 <td style="text-align:right;">
-91.9
+92.1
 </td>
 </tr>
 <tr>
@@ -1300,16 +1300,16 @@ Detection probability at TowerBridge
 Detection probability at I80-50_Br
 </td>
 <td style="text-align:right;">
-94.7
+93.3
 </td>
 <td style="text-align:right;">
-1.3
+1.5
 </td>
 <td style="text-align:right;">
-91.5
+89.8
 </td>
 <td style="text-align:right;">
-96.7
+95.6
 </td>
 </tr>
 <tr>
@@ -1317,16 +1317,16 @@ Detection probability at I80-50_Br
 Detection probability at Blw_Georgiana
 </td>
 <td style="text-align:right;">
-98.5
+98.0
 </td>
 <td style="text-align:right;">
-0.9
+1.0
 </td>
 <td style="text-align:right;">
-95.4
+94.7
 </td>
 <td style="text-align:right;">
-99.5
+99.2
 </td>
 </tr>
 <tr>
@@ -1340,7 +1340,7 @@ Detection probability at Georgiana Slough
 0.0
 </td>
 <td style="text-align:right;">
-95.6
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1354,13 +1354,13 @@ Routing probability into Georgiana Slough (Conditional on fish arriving to junct
 17.8
 </td>
 <td style="text-align:right;">
-1.9
+2.5
 </td>
 <td style="text-align:right;">
-14.4
+13.4
 </td>
 <td style="text-align:right;">
-21.7
+23.1
 </td>
 </tr>
 </tbody>
@@ -1695,16 +1695,16 @@ TowerBridge
 2019-04-23 11:04:15
 </td>
 <td style="text-align:left;">
-2019-04-25 19:30:20
+2019-04-25 19:43:00
 </td>
 <td style="text-align:left;">
 2019-05-17 20:51:39
 </td>
 <td style="text-align:right;">
-273
+271
 </td>
 <td style="text-align:right;">
-45.50
+45.17
 </td>
 <td style="text-align:right;">
 172.000
@@ -1718,16 +1718,16 @@ I80-50_Br
 2019-04-23 11:33:19
 </td>
 <td style="text-align:left;">
-2019-04-25 23:14:15
+2019-04-25 19:39:22
 </td>
 <td style="text-align:left;">
-2019-05-17 21:24:46
+2019-05-17 21:25:57
 </td>
 <td style="text-align:right;">
-291
+284
 </td>
 <td style="text-align:right;">
-48.50
+47.33
 </td>
 <td style="text-align:right;">
 170.748
@@ -1738,10 +1738,10 @@ I80-50_Br
 Georgiana_Slough1
 </td>
 <td style="text-align:left;">
-2019-04-24 04:07:54
+2019-04-24 04:08:39
 </td>
 <td style="text-align:left;">
-2019-04-26 09:47:02
+2019-04-26 09:47:32
 </td>
 <td style="text-align:left;">
 2019-05-08 03:39:01
@@ -1761,19 +1761,19 @@ Georgiana_Slough1
 Sac_BlwGeorgiana
 </td>
 <td style="text-align:left;">
-2019-04-24 01:13:01
+2019-04-24 01:14:31
 </td>
 <td style="text-align:left;">
-2019-04-26 12:32:48
+2019-04-26 12:39:32
 </td>
 <td style="text-align:left;">
 2019-05-18 13:12:46
 </td>
 <td style="text-align:right;">
-196
+195
 </td>
 <td style="text-align:right;">
-32.67
+32.50
 </td>
 <td style="text-align:right;">
 119.058
@@ -1787,10 +1787,10 @@ Georgiana_Slough2
 2019-04-24 04:17:22
 </td>
 <td style="text-align:left;">
-2019-04-26 09:57:24
+2019-04-26 09:57:47
 </td>
 <td style="text-align:left;">
-2019-05-08 03:52:28
+2019-05-08 03:52:52
 </td>
 <td style="text-align:right;">
 43
@@ -1810,16 +1810,16 @@ Sac_BlwGeorgiana2
 2019-04-24 01:24:41
 </td>
 <td style="text-align:left;">
-2019-04-26 12:17:05
+2019-04-26 10:19:36
 </td>
 <td style="text-align:left;">
-2019-05-18 13:24:21
+2019-05-18 13:25:50
 </td>
 <td style="text-align:right;">
-199
+198
 </td>
 <td style="text-align:right;">
-33.17
+33.00
 </td>
 <td style="text-align:right;">
 118.398
@@ -1833,7 +1833,7 @@ Benicia_east
 2019-04-25 14:19:57
 </td>
 <td style="text-align:left;">
-2019-04-29 09:26:45
+2019-04-29 09:27:29
 </td>
 <td style="text-align:left;">
 2019-05-16 04:44:49
@@ -1853,10 +1853,10 @@ Benicia_east
 Benicia_west
 </td>
 <td style="text-align:left;">
-2019-04-25 14:33:28
+2019-04-25 14:42:53
 </td>
 <td style="text-align:left;">
-2019-04-29 09:55:49
+2019-04-29 09:56:28
 </td>
 <td style="text-align:left;">
 2019-05-16 04:46:21

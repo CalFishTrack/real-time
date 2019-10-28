@@ -442,10 +442,10 @@ div.tocify {
   <a href="pageDEPLOY.html">Autonomous Receivers</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download real-time data</a>
+  <a href="pageRealtime_download.html">Download data</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">SHINY app</a>
+  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -694,7 +694,7 @@ FreemontFord
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-10-09 10:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-10-28 11:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <p><br/> <br/></p>
 <center>
 <div id="detections-at-benicia-bridge" class="section level4">
@@ -704,7 +704,7 @@ FreemontFord
 
 setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-detects_study &lt;- read.csv(&quot;detects_SCARF_San_Joaquin_Spring_run_2019.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_SCARF_San_Joaquin_Spring_run_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -1113,7 +1113,7 @@ SJ_Hills_Ferry
 2019-03-08 06:20:58
 </td>
 <td style="text-align:left;">
-2019-03-10 07:05:14
+2019-03-10 07:05:32
 </td>
 <td style="text-align:left;">
 2019-03-13 22:30:56
@@ -1136,16 +1136,16 @@ I80-50_Br
 2019-05-18 09:25:18
 </td>
 <td style="text-align:left;">
-2019-05-24 11:26:37
+2019-05-18 09:25:18
 </td>
 <td style="text-align:left;">
-2019-05-30 13:27:56
+2019-05-18 09:25:18
 </td>
 <td style="text-align:right;">
-2
+1
 </td>
 <td style="text-align:right;">
-0.29
+0.14
 </td>
 <td style="text-align:right;">
 170.748
@@ -1159,7 +1159,7 @@ Old River
 2019-03-30 23:48:44
 </td>
 <td style="text-align:left;">
-2019-04-11 21:34:56
+2019-04-11 21:36:30
 </td>
 <td style="text-align:left;">
 2019-04-19 12:27:35
@@ -1205,7 +1205,7 @@ CVP_Tank3
 2019-03-24 17:55:48
 </td>
 <td style="text-align:left;">
-2019-04-09 19:20:51
+2019-04-09 19:21:27
 </td>
 <td style="text-align:left;">
 2019-04-20 19:17:28
@@ -1225,13 +1225,13 @@ CVP_Tank3
 CVP_UpStream_TrashRack
 </td>
 <td style="text-align:left;">
-2019-03-15 01:55:12
+2019-03-15 01:59:05
 </td>
 <td style="text-align:left;">
-2019-04-07 23:00:49
+2019-04-07 23:02:37
 </td>
 <td style="text-align:left;">
-2019-04-20 18:17:01
+2019-04-20 18:21:28
 </td>
 <td style="text-align:right;">
 37
@@ -1251,10 +1251,10 @@ Clifton_Court_RadGates
 2019-03-14 00:09:00
 </td>
 <td style="text-align:left;">
-2019-03-29 18:29:42
+2019-03-29 18:32:42
 </td>
 <td style="text-align:left;">
-2019-04-19 18:18:39
+2019-04-19 18:21:40
 </td>
 <td style="text-align:right;">
 36
@@ -1271,10 +1271,10 @@ Clifton_Court_RadGates
 Clifton_Court_SWP
 </td>
 <td style="text-align:left;">
-2019-03-14 07:31:28
+2019-03-14 07:35:22
 </td>
 <td style="text-align:left;">
-2019-03-28 06:50:13
+2019-03-28 06:51:19
 </td>
 <td style="text-align:left;">
 2019-04-16 10:41:31
@@ -1297,7 +1297,7 @@ Benicia_east
 2019-03-20 19:25:33
 </td>
 <td style="text-align:left;">
-2019-04-10 23:10:42
+2019-04-10 23:11:01
 </td>
 <td style="text-align:left;">
 2019-04-27 15:39:16
@@ -1320,7 +1320,7 @@ Benicia_west
 2019-03-20 19:31:57
 </td>
 <td style="text-align:left;">
-2019-04-10 23:15:43
+2019-04-10 23:16:05
 </td>
 <td style="text-align:left;">
 2019-04-27 15:42:43

@@ -93,7 +93,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 #library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("detects_Mok_Fall_2018.csv", stringsAsFactors = F)
+detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Mok_Fall_2018.csv", stringsAsFactors = F)
 
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
@@ -181,7 +181,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 library(data.table)
 
-test <- fread("detects_Mok_Fall_2018.csv", stringsAsFactors = FALSE)
+test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Mok_Fall_2018.csv", stringsAsFactors = FALSE)
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)

@@ -442,10 +442,10 @@ div.tocify {
   <a href="pageDEPLOY.html">Autonomous Receivers</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download real-time data</a>
+  <a href="pageRealtime_download.html">Download data</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">SHINY app</a>
+  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -695,7 +695,7 @@ YB_ToeDrain_I5
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-10-09 10:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-10-28 11:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <p><br/> <br/></p>
 <center>
 <div id="detections-at-benicia-bridge" class="section level4">
@@ -705,7 +705,7 @@ YB_ToeDrain_I5
 
 setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-detects_study &lt;- read.csv(&quot;detects_UCDYBAgRear.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_UCDYBAgRear.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -1106,36 +1106,13 @@ rkm
 <tbody>
 <tr>
 <td style="text-align:left;">
-ButteBrRT
-</td>
-<td style="text-align:left;">
-2019-07-31 08:11:02
-</td>
-<td style="text-align:left;">
-2019-07-31 08:11:02
-</td>
-<td style="text-align:left;">
-2019-07-31 08:11:02
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.14
-</td>
-<td style="text-align:right;">
-344.108
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 TowerBridge
 </td>
 <td style="text-align:left;">
 2019-04-26 23:26:42
 </td>
 <td style="text-align:left;">
-2019-04-27 19:01:58
+2019-04-27 19:02:15
 </td>
 <td style="text-align:left;">
 2019-05-16 22:29:53
@@ -1158,16 +1135,16 @@ I80-50_Br
 2019-04-26 23:58:33
 </td>
 <td style="text-align:left;">
-2019-04-28 04:30:10
+2019-04-28 06:41:48
 </td>
 <td style="text-align:left;">
 2019-06-16 12:16:18
 </td>
 <td style="text-align:right;">
-190
+189
 </td>
 <td style="text-align:right;">
-26.21
+26.07
 </td>
 <td style="text-align:right;">
 170.748
@@ -1178,13 +1155,13 @@ I80-50_Br
 Georgiana_Slough1
 </td>
 <td style="text-align:left;">
-2019-04-27 15:11:44
+2019-04-27 15:13:10
 </td>
 <td style="text-align:left;">
-2019-04-30 22:00:41
+2019-04-30 22:06:56
 </td>
 <td style="text-align:left;">
-2019-05-12 21:11:49
+2019-05-12 21:12:44
 </td>
 <td style="text-align:right;">
 21
@@ -1204,16 +1181,16 @@ Sac_BlwGeorgiana
 2019-04-27 11:33:46
 </td>
 <td style="text-align:left;">
-2019-04-30 13:36:33
+2019-04-30 14:20:21
 </td>
 <td style="text-align:left;">
 2019-05-21 05:16:58
 </td>
 <td style="text-align:right;">
-88
+86
 </td>
 <td style="text-align:right;">
-12.14
+11.86
 </td>
 <td style="text-align:right;">
 119.058
@@ -1224,19 +1201,19 @@ Sac_BlwGeorgiana
 Georgiana_Slough2
 </td>
 <td style="text-align:left;">
-2019-04-27 16:18:56
+2019-04-27 16:20:37
 </td>
 <td style="text-align:left;">
-2019-05-02 02:03:34
+2019-04-30 22:41:58
 </td>
 <td style="text-align:left;">
-2019-05-26 00:44:35
+2019-05-12 21:24:42
 </td>
 <td style="text-align:right;">
-22
+21
 </td>
 <td style="text-align:right;">
-3.03
+2.90
 </td>
 <td style="text-align:right;">
 118.758
@@ -1250,10 +1227,10 @@ Sac_BlwGeorgiana2
 2019-04-27 11:41:53
 </td>
 <td style="text-align:left;">
-2019-04-30 14:14:23
+2019-04-30 14:14:41
 </td>
 <td style="text-align:left;">
-2019-05-21 04:51:50
+2019-05-21 04:52:00
 </td>
 <td style="text-align:right;">
 92
@@ -1270,10 +1247,10 @@ Sac_BlwGeorgiana2
 Benicia_east
 </td>
 <td style="text-align:left;">
-2019-04-29 02:51:51
+2019-04-29 02:53:12
 </td>
 <td style="text-align:left;">
-2019-05-04 18:34:05
+2019-05-04 18:38:42
 </td>
 <td style="text-align:left;">
 2019-05-14 17:27:08
@@ -1296,7 +1273,7 @@ Benicia_west
 2019-04-29 02:57:28
 </td>
 <td style="text-align:left;">
-2019-05-04 18:24:19
+2019-05-04 18:24:54
 </td>
 <td style="text-align:left;">
 2019-05-14 17:38:08
