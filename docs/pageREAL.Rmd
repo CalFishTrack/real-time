@@ -6,9 +6,8 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
-  #prettydoc::html_pretty:
-  #  theme: cayman
-  #  toc: true
+    includes:
+      in_header: GA_Script.html
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -976,13 +975,26 @@ points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$locat
 
 <br/>
 
-1. Multipath detection removal: All detections that occur within one second of the original tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original detection.
+Note: The detection filters used for filtering out false detections described below are fairly strict. The reasoning is that for the purposes of estimating survival, incorrectly keeping false detections can bias survival high, while incorrectly dropping real detections can bias detection probability low. In the latter case, under most circumstances, the survival estimate will remain mostly unchanged, although error will likely be higher. We have refined the detection filters to minimize the number of false detections that are included, as well as the number of real detections that get dropped, but in situations of ambiguity, we have taken the stricter approach and dropped those detections for the reason stated above.
 
-2. "3 detections within 10 minutes rule": In order to remove false detections, only detections of "valid fish visits" are kept in the database. A valid fish visit is when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections.
+Filtering protocol:
 
-3. Assign Tag Code to a fish: For detections to be assigned to an actual released fish, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag.
+1. “Multipath detection removal”: All detections that occur within one second after an initial tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original tag transmission.
 
-4. Once valid fish visits have been determined and assigned to a specific fish, any visit that has less than 5 detections AND a detection density of less than 4 / (16.6 * PRI) (e.g., for a 10 sec PRI, at least 1.45 detections per minute of time) are removed.
+
+2. "3 detections within 10 minutes rule": As a first cut to remove obviously false detections, only detections of "valid fish visits" are kept in the database. A valid fish visit is when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections. These valid detections are kept in the general database, but stricter criteria need to be met for them to be associated with a released fish (see below).
+
+
+3. “Is there a fish at large with that TagCode?”: For detections of a TagCode to be assigned to an actual released fish with that same TagCode, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag. For example, if a fish is released on 1/1/2019, and it has a 60 day battery life, detections of that fish’s TagCode must fall between 1/1/2019 and 4/1/2019 to be associated to that fish.
+
+
+4. “Detection density filter”: Once valid fish visits have been determined and assigned to a specific fish, any 3 consecutive tag detections at an individual receiver must occur in a time window shorter than (Pulse Rate Interval (PRI) *1.3*12)+ 1 seconds. For example, for a 10 sec PRI, if a detection does not have at least 2 other detections within 157 seconds of it, it is removed. 
+
+
+5. “PRI filter”: the time interval from the previous detection and the time interval to the next detection on an individual receiver must both be within 11% of the tag’s PRI for the detection to be valid. If the detection is the first of a receiver visit, then the time intervals to the subsequent two detections are used. If the detection is the last of a receiver visit, the time intervals from the previous two detections are used. 
+
+
+6. “4-hit filter per general receiver location”: Once all the previous filters have been applied, many of which are being applied to detections on a per receiver basis, the final cut is that there must be 4 or more total detections per general location (which compiles data from multiple individual receivers).
 
 
 <br/>
