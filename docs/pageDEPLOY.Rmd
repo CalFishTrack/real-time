@@ -48,14 +48,14 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 deploy <- read.csv("Autonomous_deployments.csv")
 
-leaflet(data = deploy[deploy$EndTime == "active",]) %>%
+leaflet(data = deploy[deploy$EndTime == "Active",]) %>%
     # setView(-72.14600, 43.82977, zoom = 8) %>% 
     addProviderTiles("Esri.WorldStreetMap", group = "Map") %>%
     addProviderTiles("Esri.WorldImagery", group = "Satellite") %>% 
     addProviderTiles("Esri.WorldShadedRelief", group = "Relief") %>%
     # Marker data are from the sites data frame. We need the ~ symbols
     # to indicate the columns of the data frame.
-    addMarkers(~Longitude, ~Latitude, label = ~General.Location, group = "Receiver Sites", popup = ~Receiver_location) %>% 
+    addMarkers(~Longitude, ~Latitude, label = ~General.Location, group = "Receiver Sites", popup = ~Receiver.Location) %>% 
     # addAwesomeMarkers(~lon_dd, ~lat_dd, label = ~locality, group = "Sites", icon=icons) %>%
     addScaleBar(position = "bottomleft") %>%
     addLayersControl(
@@ -86,7 +86,7 @@ deploy$RiverKM <- round(deploy$RiverKM, 1)
 datatable(deploy)
 
 tot_deploy <- nrow(deploy)
-tot_active <- nrow(deploy[deploy$End == "active",])
+tot_active <- nrow(deploy[deploy$End == "Active",])
 
 ```
 

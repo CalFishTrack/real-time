@@ -326,8 +326,8 @@ if (nrow(ATS_files) > 0) {
     detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
     detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
     detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-    ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
-    detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+    ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
+    detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
     
     #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
     
@@ -428,8 +428,8 @@ if (nrow(TECKNO_files) > 0) {
   detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
   detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
   detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-  ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
-  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+  ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
+  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
   
   ## Now append these to existing datasets
   detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
@@ -509,8 +509,8 @@ if (nrow(UCD_files) > 0) {
   detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
   detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
   detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-  ## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath)
-  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.00028 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+  ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
+  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
   
   ## Now append these to existing datasets
   detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
@@ -570,8 +570,8 @@ detects$time_from_previous <- as.numeric(difftime(detects$DateTime_PST, shift(de
 ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
 detects[which(detects$recv != shift(detects$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
 detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-## Now remove the second detection every time the detection lag difftime is less than 1 sec (multipath and funny behavior)
-detects <- detects[detects$time_from_previous > 1 | is.na(detects$time_from_previous) == TRUE ,]
+## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath and funny behavior)
+detects <- detects[detects$time_from_previous > 0.3 | is.na(detects$time_from_previous) == TRUE ,]
 detects$time_from_previous <- NULL
 
 ## Now remove detections that don't meet the filtering criteria
@@ -703,70 +703,96 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)*1.5
     temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]
   }
-  ## Currently, all data has filter of 3 detections within 10 minutes. But since last 15 minutes of every recv detection history is also kept, we might as well rerun the filter to remove these detections
-  if(nrow(temp_detects) > 0){
-    ## Now create two columns with time in hours between the previous and next detection, for each detection
-    ## Now reorder the data since the above steps may have jumbled things
-    temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
-    ## Now estimate the time in secs between the previous and next detection, for each detection.
-    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
-    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
-    ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
-    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
-    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-    
-    
-    
-    ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after).
-    temp_detects$before_and_after_valid <- 0
-    temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < (300) & temp_detects$time_from_previous < (300),"before_and_after_valid"] <- 1
-    
-    ## now determine unique gen loc visits based on the before_after_valid criteria. Two zeros in a row means a new visit
-    temp_detects$prev_before_after_valid <- shift(temp_detects$before_and_after_valid, fill = NA, type = "lag")
-    
-    ## Create a counter that says whether to tick visit_num up by one
-    temp_detects$visit_step <- 0
-    temp_detects[which(temp_detects$before_and_after_valid == 0 & temp_detects$prev_before_after_valid == 0),"visit_step"] <- 1
-    
-    ## just do cumulative sum of the visit step to get visit num
-    temp_detects$visit_num <- cumsum(temp_detects$visit_step)
-    ## Now repeat estimation of time to next and time from previous, but setting visit_num changes to NA now
-    temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
-    ## Now estimate the time in secs between the previous and next detection, for each detection.
-    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
-    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
-    ## Now make NA the time diff values when it's between 2 different visits or tagcodes
-    temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lag")), "time_from_previous"] <- NA
-    temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lead")), "time_to_next"] <- NA
-    
-    
-    ## now estimate the time elapsed between first and last detection of a visit in secs
-    min_max_diff <- aggregate(list(minmaxdiff = temp_detects$DateTime_PST), by = list(temp_detects$TagCode, temp_detects$visit_num), function(x){as.numeric(difftime(max(x), min(x), units = "secs"))})
-    
-    ## Also include number of detections per visit
-    min_max_diff <- merge(min_max_diff,aggregate(list(count = temp_detects$DateTime_PST), by = list(temp_detects$TagCode, temp_detects$visit_num), length))
-    min_max_diff$ping_density <- min_max_diff$count / min_max_diff$minmaxdiff
-    ## remove less than 3 pings per visits (these are detections from last 15 minutes that weren't removed in the original 10min window filter)
-    min_max_diff <- min_max_diff[min_max_diff$count>2,]
-    temp_detects <- temp_detects[temp_detects$visit_num %in% min_max_diff$Group.2,]
-  }
-  if(nrow(temp_detects) > 0){
-    ## Now remove any visit that has a tag density of less than 4 pings per PRI*16.6 AND less than 5 detections total
-    temp_detects <- temp_detects[!temp_detects$visit_num %in% min_max_diff[min_max_diff$ping_density < (4/(temp_detects$PRI_nominal*16.6)) & min_max_diff$count < 5, "Group.2"],]
-  }
+  # ## Currently, all data has filter of 3 detections within 10 minutes. But since last 15 minutes of every recv detection history is also kept, we might as well rerun the filter to remove these detections
+  # if(nrow(temp_detects) > 0){
+  #   ## Now create two columns with time in hours between the previous and next detection, for each detection
+  #   ## Now reorder the data since the above steps may have jumbled things
+  #   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
+  #   ## Now estimate the time in secs between the previous and next detection, for each detection.
+  #   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
+  #   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+  #   ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
+  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+  #   
+  #   
+  #   
+  #   ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after).
+  #   temp_detects$before_and_after_valid <- 0
+  #   temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < (300) & temp_detects$time_from_previous < (300),"before_and_after_valid"] <- 1
+  #   
+  #   ## now determine unique gen loc visits based on the before_after_valid criteria. Two zeros in a row means a new visit
+  #   temp_detects$prev_before_after_valid <- shift(temp_detects$before_and_after_valid, fill = NA, type = "lag")
+  #   
+  #   ## Create a counter that says whether to tick visit_num up by one
+  #   temp_detects$visit_step <- 0
+  #   temp_detects[which(temp_detects$before_and_after_valid == 0 & temp_detects$prev_before_after_valid == 0),"visit_step"] <- 1
+  #   
+  #   ## just do cumulative sum of the visit step to get visit num
+  #   temp_detects$visit_num <- cumsum(temp_detects$visit_step)
+  #   ## Now repeat estimation of time to next and time from previous, but setting visit_num changes to NA now
+  #   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
+  #   ## Now estimate the time in secs between the previous and next detection, for each detection.
+  #   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
+  #   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+  #   ## Now make NA the time diff values when it's between 2 different visits or tagcodes
+  #   temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  #   temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lead")), "time_to_next"] <- NA
+  #   
+  #   
+  #   ## now estimate the time elapsed between first and last detection of a visit in secs
+  #   min_max_diff <- aggregate(list(minmaxdiff = temp_detects$DateTime_PST), by = list(temp_detects$TagCode, temp_detects$visit_num), function(x){as.numeric(difftime(max(x), min(x), units = "secs"))})
+  #   
+  #   ## Also include number of detections per visit
+  #   min_max_diff <- merge(min_max_diff,aggregate(list(count = temp_detects$DateTime_PST), by = list(temp_detects$TagCode, temp_detects$visit_num), length))
+  #   min_max_diff$ping_density <- min_max_diff$count / min_max_diff$minmaxdiff
+  #   ## remove less than 3 pings per visits (these are detections from last 15 minutes that weren't removed in the original 10min window filter)
+  #   min_max_diff <- min_max_diff[min_max_diff$count>2,]
+  #   temp_detects <- temp_detects[temp_detects$visit_num %in% min_max_diff$Group.2,]
+  # }
+  # if(nrow(temp_detects) > 0){
+  #   ## Now remove any visit that has a tag density of less than 4 pings per PRI*16.6 AND less than 5 detections total
+  #   temp_detects <- temp_detects[!temp_detects$visit_num %in% min_max_diff[min_max_diff$ping_density < (4/(temp_detects$PRI_nominal*16.6)) & min_max_diff$count < 5, "Group.2"],]
+  # }
   
-  #### NEW PRI code
   if(nrow(temp_detects) > 0){
     ## Now create two columns with time in hours between the previous and next detection, for each detection
     ## Now reorder the data since the above steps may have jumbled things
     temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$recv, temp_detects$DateTime_PST),]
     ## Now estimate the time in secs between the previous and next detection, for each detection.
-    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, type = "lead"), temp_detects$DateTime_Orig, units = "secs"))
-    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_Orig, shift(temp_detects$DateTime_Orig, fill = NA, type = "lag"),  units = "secs"))
-    temp_detects$next_interval <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, n = 2, type = "lead"), shift(temp_detects$DateTime_Orig, fill = NA, n = 1, type = "lead"), units = "secs"))
-    temp_detects$prev_interval <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, n = 1, type = "lag"), shift(temp_detects$DateTime_Orig, fill = NA, n = 2, type = "lag"), units = "secs"))
+    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
+    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+    temp_detects$next_interval <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, n = 2, type = "lead"), shift(temp_detects$DateTime_PST, fill = NA, n = 1, type = "lead"), units = "secs"))
+    temp_detects$prev_interval <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, n = 1, type = "lag"), shift(temp_detects$DateTime_PST, fill = NA, n = 2, type = "lag"), units = "secs"))
+    
+    ## Now make NA the time diff values when it's between 2 different recv or tagcodes
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, n = 2, fill = NA, type = "lead")), "next_interval"] <- NA
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lead")), "next_interval"] <- NA
+    temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, n = 2, fill = NA, type = "lag")), "prev_interval"] <- NA
+    temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lag")), "prev_interval"] <- NA
+    # Is current detection within PRI*1.3*12+1 seconds from the previous two, the one before and one after, and the following two?
+    temp_detects$part_of_valid_3 <- rowSums(cbind(temp_detects$time_to_next + temp_detects$next_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1,
+                                        temp_detects$time_to_next + temp_detects$time_from_previous < (temp_detects$PRI_nominal * 1.3 * 12) +1,
+                                        temp_detects$time_from_previous + temp_detects$prev_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1), na.rm = T)
+    ## Remove detects that are not part of at least one train of 3 valid detections
+    temp_detects <- temp_detects[temp_detects$part_of_valid_3 >0,]
+  }
+  
+  if(nrow(temp_detects) > 0){
+    ## Now recalculate diff times
+    ## reorder the data since the above steps may have jumbled things
+    temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$recv, temp_detects$DateTime_PST),]
+    ## Now estimate the time in secs between the previous and next detection, for each detection.
+    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
+    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+    temp_detects$next_interval <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, n = 2, type = "lead"), shift(temp_detects$DateTime_PST, fill = NA, n = 1, type = "lead"), units = "secs"))
+    temp_detects$prev_interval <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, n = 1, type = "lag"), shift(temp_detects$DateTime_PST, fill = NA, n = 2, type = "lag"), units = "secs"))
     
     ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
     temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
@@ -777,54 +803,56 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lead")), "next_interval"] <- NA
     temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, n = 2, fill = NA, type = "lag")), "prev_interval"] <- NA
     temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lag")), "prev_interval"] <- NA
-    # Is current detection within PRI*1.3*12+1 seconds from of the one after next?
-    temp_detects$part_of_valid_3 <- rowSums(cbind(temp_detects$time_to_next + temp_detects$next_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1,
-                                        temp_detects$time_to_next + temp_detects$time_from_previous < (temp_detects$PRI_nominal * 1.3 * 12) +1,
-                                        temp_detects$time_from_previous + temp_detects$prev_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1), na.rm = T)
-    
-    temp_detects <- temp_detects[temp_detects$part_of_valid_3 >0,]
     
     ## Create a counter that says whether to tick visit_num up by one. These need to be when a recv or TagCode changes, OR when a fish revisits a receiver
     temp_detects$visit_step <- 0
     temp_detects[is.na(temp_detects$time_from_previous),"visit_step"] <- 1  #scenario 1. I've kept this here even though scenario 2 actually captures these as well
     temp_detects$first_of_three_good <- ((temp_detects$time_to_next + temp_detects$next_interval) < (temp_detects$PRI_nominal * 1.3 * 12) +1) ## setting up scenario 2
     temp_detects[temp_detects$part_of_valid_3 == 1 & is.na(temp_detects$first_of_three_good) == F & temp_detects$first_of_three_good == T,"visit_step"] <- 1  #scenario 2
-    
+  
     ## just do cumulative sum of the visit step to get visit num
     temp_detects$visit_num <- cumsum(temp_detects$visit_step)
   
-    ## Now reorder the data by receiver to look at PRIs. That's because PRIs can only be accurately calculated using detection time on an individual receiver
-    ## Also, to calculate PRI, we'll need to recalculate time to next and time from previous once we've reordered
+    ## Now to calculate PRI, we'll need to recalculate time to next and time from previous once we've reordered by visit_num
     temp_detects <- temp_detects[order(temp_detects$visit_num, temp_detects$DateTime_PST),]
     ## Now estimate the time in secs between the previous and next detection, for each detection.
-    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, type = "lead"), temp_detects$DateTime_Orig, units = "secs"))
-    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_Orig, shift(temp_detects$DateTime_Orig, fill = NA, type = "lag"),  units = "secs"))
-    temp_detects$time_to_2ndnext <- as.numeric(difftime(shift(temp_detects$DateTime_Orig, fill = NA, n = 2, type = "lead"), temp_detects$DateTime_Orig, units = "secs"))
-    temp_detects$time_from_2ndprevious <- as.numeric(difftime(temp_detects$DateTime_Orig, shift(temp_detects$DateTime_Orig, fill = NA, n=2, type = "lag"),  units = "secs"))
+    temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
+    temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
+    temp_detects$time_to_2ndnext <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, n = 2, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
+    temp_detects$time_from_2ndprevious <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, n=2, type = "lag"),  units = "secs"))
     ## Now make NA the time diff values when it's between 2 different visit_nums
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lag")), "time_from_previous"] <- NA
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lead")), "time_to_next"] <- NA
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, n = 2, fill = NA, type = "lag")), "time_from_2ndprevious"] <- NA
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, n = 2, fill = NA, type = "lead")), "time_to_2ndnext"] <- NA
   
-    estPRI <- function(span = span, PRI = PRI){(span/PRI) / round(span/PRI, digits = 0) * PRI}
+    ## function for estimating most likely PRI based on gap between detections
+    estPRI <- function(span = span, PRI = PRI){
+      ifelse((span > PRI & is.na(span) == F),(span/PRI) / round(span/PRI, digits = 0) * PRI,span)
+    }
   
-    ## If a middle detection from a ping train, look at before and after
-    temp_detects$two_good_PRIS <- apply(apply(temp_detects[,c("time_from_previous", "time_to_next")], MARGIN = 2, function(x){abs(temp_detects$PRI_nominal - estPRI(span = x, PRI = temp_detects$PRI_nominal)) < temp_detects$PRI_nominal*0.11}), MARGIN = 1, FUN = sum)
-    ## If first detection from a ping train, look at 2 next subsequent
-    temp_detects[is.na(temp_detects$time_from_previous), "two_good_PRIS"] <- apply(apply(temp_detects[is.na(temp_detects$time_from_previous),c("time_to_2ndnext", "time_to_next")], MARGIN = 2, function(x){abs(temp_detects[is.na(temp_detects$time_from_previous),"PRI_nominal"] - estPRI(span = x, PRI = temp_detects[is.na(temp_detects$time_from_previous),"PRI_nominal"])) < temp_detects[is.na(temp_detects$time_from_previous),"PRI_nominal"]*0.11}), MARGIN = 1, FUN = sum)
-    ## If last detection from a ping train, look at 2 previous
-    temp_detects[is.na(temp_detects$time_to_next), "two_good_PRIS"] <- apply(apply(temp_detects[is.na(temp_detects$time_to_next),c("time_from_previous", "time_from_2ndprevious")], MARGIN = 2, function(x){abs(temp_detects[is.na(temp_detects$time_to_next),"PRI_nominal"] - estPRI(span = x, PRI = temp_detects[is.na(temp_detects$time_to_next),"PRI_nominal"])) < temp_detects[is.na(temp_detects$time_to_next),"PRI_nominal"]*0.11}), MARGIN = 1, FUN = sum)
-    
-    temp_detects <- temp_detects[which(temp_detects$two_good_PRIS == 2),]
+    ## If a middle detection from a ping train, look at PRI to before and after
+    temp_detects$PRI.1 <- estPRI(span = temp_detects$time_from_previous, PRI = temp_detects$PRI_nominal)
+    temp_detects$PRI.2 <- estPRI(span = temp_detects$time_to_next, PRI = temp_detects$PRI_nominal)
+    ## If first detection from a ping train, look at 2 next subsequent PRIs
+    temp_detects[is.na(temp_detects$PRI.1)==T,"PRI.1"] <- estPRI(span = temp_detects[is.na(temp_detects$PRI.1)==T,"time_to_2ndnext"], PRI = temp_detects[is.na(temp_detects$PRI.1)==T,"PRI_nominal"])
+    ## If last detection from a ping train, look at 2 previous PRIs
+    temp_detects[is.na(temp_detects$PRI.2)==T,"PRI.2"] <- estPRI(span = temp_detects[is.na(temp_detects$PRI.2)==T,"time_from_2ndprevious"], PRI = temp_detects[is.na(temp_detects$PRI.2)==T,"PRI_nominal"])
+    ## Are the 2 PRIs good (within 20% of nominal)?
+    temp_detects$two_good_PRIS <- apply(apply(temp_detects[,c("PRI.1", "PRI.2")], MARGIN = 2, function(x){abs(temp_detects$PRI_nominal - x) < temp_detects$PRI_nominal*0.20}), MARGIN = 1, FUN = sum)
+    ## SD of 2 PRIs less than 0.025?
+    temp_detects$PRI.sd <- apply(temp_detects[,c("PRI.1", "PRI.2")], MARGIN = 1, FUN = sd) < 0.025
+    temp_detects <- temp_detects[which(temp_detects$two_good_PRIS > 0 & temp_detects$PRI.sd == T),]
   }
   
-  ## Now remove a recv visit with less than 3 detections, now that we've removed some false detects
+  ## Now remove less than 3 detects per visit
   if(nrow(temp_detects) > 0){  
-    detects_per_visit_num <- aggregate(temp_detects$DateTime_Orig, by = list(visit_num = temp_detects$visit_num), FUN = length)
+    detects_per_visit_num <- aggregate(temp_detects$DateTime_PST, by = list(visit_num = temp_detects$visit_num), FUN = length)
     
     temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 2, "visit_num"],]
   }
+
+
   
   ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
   temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "Temp", "general_location", "latitude", "longitude", "rkm")]
@@ -975,26 +1003,26 @@ points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$locat
 
 <br/>
 
-Note: The detection filters used for filtering out false detections described below are fairly strict. The reasoning is that for the purposes of estimating survival, incorrectly keeping false detections can bias survival high, while incorrectly dropping real detections can bias detection probability low. In the latter case, under most circumstances, the survival estimate will remain mostly unchanged, although error will likely be higher. We have refined the detection filters to minimize the number of false detections that are included, as well as the number of real detections that get dropped, but in situations of ambiguity, we have taken the stricter approach and dropped those detections for the reason stated above.
+Note: The detection filters used for filtering out false detections described below are fairly strict. The reasoning is that for the purposes of estimating survival, incorrectly keeping false detections can bias survival high, while incorrectly dropping real detections can bias detection probability low. In the latter case, under most circumstances, the survival estimate will remain mostly unchanged, although error will likely be higher. We have refined the detection filters to minimize the number of false detections that are included, as well as minimize the number of real detections that get dropped, but in situations of high uncertainty, we have taken the stricter approach and designed the filter to drop those detections for the reason stated above.
 
 Filtering protocol:
 
-1. “Multipath detection removal”: All detections that occur within one second after an initial tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original tag transmission.
+1. “Multipath detection removal”: All detections that occur within 0.3 sec after an initial tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original tag transmission.
 
 
-2. "3 detections within 10 minutes rule": As a first cut to remove obviously false detections, only detections of "valid fish visits" are kept in the database. A valid fish visit is when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections. These valid detections are kept in the general database, but stricter criteria need to be met for them to be associated with a released fish (see below).
+2. "3 detections within 10 minutes rule": As a first cut to remove obviously false detections, only detections of "potentially valid fish detections" are kept in the database. Potentially valid fish detections are when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections. These potentially valid detections are kept in the general database, but stricter criteria need to be met for them to be associated with a released fish (see below).
 
 
 3. “Is there a fish at large with that TagCode?”: For detections of a TagCode to be assigned to an actual released fish with that same TagCode, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag. For example, if a fish is released on 1/1/2019, and it has a 60 day battery life, detections of that fish’s TagCode must fall between 1/1/2019 and 4/1/2019 to be associated to that fish.
 
 
-4. “Detection density filter”: Once valid fish visits have been determined and assigned to a specific fish, any 3 consecutive tag detections at an individual receiver must occur in a time window shorter than (Pulse Rate Interval (PRI) *1.3*12)+ 1 seconds. For example, for a 10 sec PRI, if a detection does not have at least 2 other detections within 157 seconds of it, it is removed. 
+4. “Detection density filter”: Once potentially valid fish detections have been determined and assigned to a specific fish, any 3 consecutive tag detections at an individual receiver must occur in a time window shorter than (Pulse Rate Interval (PRI) *1.3*12)+ 1 seconds.  For example, for a 10 sec PRI, if a detection does not have at least 2 other detections within 157 seconds of it, it is removed. The total consecutive detections that fulfill this condition are considered a potentially valid fish visit.
 
 
-5. “PRI filter”: the time interval from the previous detection and the time interval to the next detection on an individual receiver must both be within 11% of the tag’s PRI for the detection to be valid. If the detection is the first of a receiver visit, then the time intervals to the subsequent two detections are used. If the detection is the last of a receiver visit, the time intervals from the previous two detections are used. 
+5. “PRI filter”: the PRI from the previous detection and the PRI to the next detection on an individual receiver is estimated for each detection of a potentially valid fish visit. At least one of the PRIs must be within 20% of the tag’s programmed PRI AND the standard deviation of the two PRIs must be smaller than 0.025. If these two conditions are not both met, the detection is dropped. If the detection is the first of a receiver visit, then the PRIs to the subsequent two detections are used. If the detection is the last of a receiver visit, the PRIs from the previous two detections are used. 
 
 
-6. “4-hit filter per general receiver location”: Once all the previous filters have been applied, many of which are being applied to detections on a per receiver basis, the final cut is that there must be 4 or more total detections per general location (which compiles data from multiple individual receivers).
+6. “3-hit filter”: Once all the previous filters have been applied, if there are less than 3 detections total for a potentially valid fish visit, those visits are dropped. All remaining fish detections are kept and considered valid.
 
 
 <br/>

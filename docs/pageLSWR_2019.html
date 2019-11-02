@@ -442,10 +442,10 @@ div.tocify {
   <a href="pageDEPLOY.html">Autonomous Receivers</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.subset">Download real-time data</a>
+  <a href="pageRealtime_download.html">Download data</a>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">SHINY app</a>
+  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -672,7 +672,7 @@ Caldwell Park_Rel
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-10-09 10:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-11-01 15:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -683,7 +683,7 @@ Caldwell Park_Rel
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- read.csv(&quot;detects_Winter_H_2019.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Winter_H_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -771,7 +771,7 @@ if (nrow(detects_butte) == 0){
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- read.csv(&quot;detects_Winter_H_2019.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Winter_H_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -1049,19 +1049,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-25.4
+25.7
 </td>
 <td style="text-align:right;">
-1.9
+2
 </td>
 <td style="text-align:right;">
 22
 </td>
 <td style="text-align:right;">
-29.3
+29.8
 </td>
 <td style="text-align:right;">
-67.7
+62.2
 </td>
 </tr>
 <tr>
@@ -1069,16 +1069,16 @@ ALL
 Week 1
 </td>
 <td style="text-align:right;">
-25.4
+25.7
 </td>
 <td style="text-align:right;">
-1.9
+2
 </td>
 <td style="text-align:right;">
 22
 </td>
 <td style="text-align:right;">
-29.3
+29.8
 </td>
 <td style="text-align:right;">
 NA
@@ -1272,16 +1272,16 @@ SE
 Survival from release to Butte City
 </td>
 <td style="text-align:right;">
-64.8
+65.9
 </td>
 <td style="text-align:right;">
-4.4
+4.8
 </td>
 <td style="text-align:right;">
-55.7
+56.1
 </td>
 <td style="text-align:right;">
-72.8
+74.5
 </td>
 </tr>
 <tr>
@@ -1289,16 +1289,16 @@ Survival from release to Butte City
 Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)
 </td>
 <td style="text-align:right;">
-43.7
+43.0
 </td>
 <td style="text-align:right;">
-3.7
+3.8
 </td>
 <td style="text-align:right;">
-36.7
+35.7
 </td>
 <td style="text-align:right;">
-51.0
+50.6
 </td>
 </tr>
 <tr>
@@ -1312,7 +1312,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-94.6
+0.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1323,16 +1323,16 @@ Survival from TowerBridge to I80-50_Br
 % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
 </td>
 <td style="text-align:right;">
-69.5
+69.6
 </td>
 <td style="text-align:right;">
-3.7
+3.8
 </td>
 <td style="text-align:right;">
-61.8
+61.6
 </td>
 <td style="text-align:right;">
-76.2
+76.6
 </td>
 </tr>
 <tr>
@@ -1340,16 +1340,16 @@ Survival from TowerBridge to I80-50_Br
 Detection probability at Butte City
 </td>
 <td style="text-align:right;">
-46.3
+43.4
 </td>
 <td style="text-align:right;">
 3.7
 </td>
 <td style="text-align:right;">
-39.1
+36.3
 </td>
 <td style="text-align:right;">
-53.7
+50.9
 </td>
 </tr>
 <tr>
@@ -1357,16 +1357,16 @@ Detection probability at Butte City
 Detection probability at TowerBridge
 </td>
 <td style="text-align:right;">
-60.9
+56.5
 </td>
 <td style="text-align:right;">
-3.7
+3.8
 </td>
 <td style="text-align:right;">
-53.3
+48.9
 </td>
 <td style="text-align:right;">
-67.9
+63.8
 </td>
 </tr>
 <tr>
@@ -1374,16 +1374,16 @@ Detection probability at TowerBridge
 Detection probability at I80-50_Br
 </td>
 <td style="text-align:right;">
-69.0
+64.6
 </td>
 <td style="text-align:right;">
-3.6
+3.7
 </td>
 <td style="text-align:right;">
-61.5
+57.0
 </td>
 <td style="text-align:right;">
-75.6
+71.6
 </td>
 </tr>
 <tr>
@@ -1391,16 +1391,16 @@ Detection probability at I80-50_Br
 Detection probability at Blw_Georgiana
 </td>
 <td style="text-align:right;">
-80.6
+74.0
 </td>
 <td style="text-align:right;">
-4.0
+4.5
 </td>
 <td style="text-align:right;">
-71.6
+64.3
 </td>
 <td style="text-align:right;">
-87.3
+81.8
 </td>
 </tr>
 <tr>
@@ -1578,19 +1578,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-26.2
+25.7
 </td>
 <td style="text-align:right;">
 1.7
 </td>
 <td style="text-align:right;">
-23
+22.5
 </td>
 <td style="text-align:right;">
-29.7
+29.3
 </td>
 <td style="text-align:right;">
-95.7
+94.4
 </td>
 </tr>
 <tr>
@@ -1598,19 +1598,19 @@ ALL
 Week 1
 </td>
 <td style="text-align:right;">
-26.2
+25.7
 </td>
 <td style="text-align:right;">
 1.7
 </td>
 <td style="text-align:right;">
-23
+22.5
 </td>
 <td style="text-align:right;">
-29.7
+29.3
 </td>
 <td style="text-align:right;">
-95.7
+94.4
 </td>
 </tr>
 </tbody>
@@ -1749,16 +1749,16 @@ ButteBrRT
 2019-02-16 21:30:15
 </td>
 <td style="text-align:left;">
-2019-02-23 08:05:29
+2019-02-23 05:23:45
 </td>
 <td style="text-align:left;">
 2019-04-15 07:18:22
 </td>
 <td style="text-align:right;">
-195
+186
 </td>
 <td style="text-align:right;">
-30.00
+28.62
 </td>
 <td style="text-align:right;">
 344.108
@@ -1772,16 +1772,16 @@ TowerBridge
 2019-02-20 23:57:58
 </td>
 <td style="text-align:left;">
-2019-03-14 22:35:13
+2019-03-13 18:29:28
 </td>
 <td style="text-align:left;">
-2019-04-17 07:25:01
+2019-04-17 07:26:51
 </td>
 <td style="text-align:right;">
-112
+104
 </td>
 <td style="text-align:right;">
-17.23
+16.00
 </td>
 <td style="text-align:right;">
 172.000
@@ -1795,16 +1795,16 @@ I80-50_Br
 2019-02-20 03:41:36
 </td>
 <td style="text-align:left;">
-2019-03-16 10:30:06
+2019-03-16 04:22:23
 </td>
 <td style="text-align:left;">
-2019-05-13 14:08:55
+2019-05-05 10:48:38
 </td>
 <td style="text-align:right;">
-127
+119
 </td>
 <td style="text-align:right;">
-19.54
+18.31
 </td>
 <td style="text-align:right;">
 170.748
@@ -1818,7 +1818,7 @@ Georgiana_Slough1
 2019-02-20 22:25:02
 </td>
 <td style="text-align:left;">
-2019-03-15 15:32:46
+2019-03-15 15:33:08
 </td>
 <td style="text-align:left;">
 2019-04-03 23:48:25
@@ -1841,16 +1841,16 @@ Sac_BlwGeorgiana
 2019-02-20 15:39:37
 </td>
 <td style="text-align:left;">
-2019-03-18 08:20:09
+2019-03-18 06:14:50
 </td>
 <td style="text-align:left;">
-2019-04-17 19:07:18
+2019-04-17 19:07:40
 </td>
 <td style="text-align:right;">
-87
+80
 </td>
 <td style="text-align:right;">
-13.38
+12.31
 </td>
 <td style="text-align:right;">
 119.058
@@ -1864,7 +1864,7 @@ Georgiana_Slough2
 2019-02-20 22:33:47
 </td>
 <td style="text-align:left;">
-2019-03-14 21:45:49
+2019-03-14 21:45:54
 </td>
 <td style="text-align:left;">
 2019-04-03 23:57:27
@@ -1887,16 +1887,16 @@ Sac_BlwGeorgiana2
 2019-02-20 15:48:15
 </td>
 <td style="text-align:left;">
-2019-03-17 01:38:00
+2019-03-16 19:18:10
 </td>
 <td style="text-align:left;">
 2019-04-17 19:18:54
 </td>
 <td style="text-align:right;">
-98
+96
 </td>
 <td style="text-align:right;">
-15.08
+14.77
 </td>
 <td style="text-align:right;">
 118.398
@@ -1910,16 +1910,16 @@ Benicia_east
 2019-02-24 11:27:51
 </td>
 <td style="text-align:left;">
-2019-03-24 08:25:09
+2019-03-24 06:41:59
 </td>
 <td style="text-align:left;">
 2019-04-22 21:43:15
 </td>
 <td style="text-align:right;">
-163
+158
 </td>
 <td style="text-align:right;">
-25.08
+24.31
 </td>
 <td style="text-align:right;">
 52.240
@@ -1933,16 +1933,16 @@ Benicia_west
 2019-02-24 11:33:04
 </td>
 <td style="text-align:left;">
-2019-03-24 10:54:01
+2019-03-24 15:28:12
 </td>
 <td style="text-align:left;">
-2019-04-23 08:51:47
+2019-04-23 08:52:46
 </td>
 <td style="text-align:right;">
-163
+161
 </td>
 <td style="text-align:right;">
-25.08
+24.77
 </td>
 <td style="text-align:right;">
 52.040
@@ -1988,16 +1988,16 @@ ButteBrRT
 2019-02-16 21:30:15
 </td>
 <td style="text-align:left;">
-2019-02-23 08:05:29
+2019-02-23 05:23:45
 </td>
 <td style="text-align:left;">
 2019-04-15 07:18:22
 </td>
 <td style="text-align:right;">
-195
+186
 </td>
 <td style="text-align:right;">
-30.00
+28.62
 </td>
 <td style="text-align:right;">
 344.108
@@ -2011,16 +2011,16 @@ TowerBridge
 2019-02-20 23:57:58
 </td>
 <td style="text-align:left;">
-2019-03-14 22:35:13
+2019-03-13 18:29:28
 </td>
 <td style="text-align:left;">
-2019-04-17 07:25:01
+2019-04-17 07:26:51
 </td>
 <td style="text-align:right;">
-112
+104
 </td>
 <td style="text-align:right;">
-17.23
+16.00
 </td>
 <td style="text-align:right;">
 172.000
@@ -2034,16 +2034,16 @@ I80-50_Br
 2019-02-20 03:41:36
 </td>
 <td style="text-align:left;">
-2019-03-16 10:30:06
+2019-03-16 04:22:23
 </td>
 <td style="text-align:left;">
-2019-05-13 14:08:55
+2019-05-05 10:48:38
 </td>
 <td style="text-align:right;">
-127
+119
 </td>
 <td style="text-align:right;">
-19.54
+18.31
 </td>
 <td style="text-align:right;">
 170.748
@@ -2057,7 +2057,7 @@ Georgiana_Slough1
 2019-02-20 22:25:02
 </td>
 <td style="text-align:left;">
-2019-03-15 15:32:46
+2019-03-15 15:33:08
 </td>
 <td style="text-align:left;">
 2019-04-03 23:48:25
@@ -2080,16 +2080,16 @@ Sac_BlwGeorgiana
 2019-02-20 15:39:37
 </td>
 <td style="text-align:left;">
-2019-03-18 08:20:09
+2019-03-18 06:14:50
 </td>
 <td style="text-align:left;">
-2019-04-17 19:07:18
+2019-04-17 19:07:40
 </td>
 <td style="text-align:right;">
-87
+80
 </td>
 <td style="text-align:right;">
-13.38
+12.31
 </td>
 <td style="text-align:right;">
 119.058
@@ -2103,7 +2103,7 @@ Georgiana_Slough2
 2019-02-20 22:33:47
 </td>
 <td style="text-align:left;">
-2019-03-14 21:45:49
+2019-03-14 21:45:54
 </td>
 <td style="text-align:left;">
 2019-04-03 23:57:27
@@ -2126,16 +2126,16 @@ Sac_BlwGeorgiana2
 2019-02-20 15:48:15
 </td>
 <td style="text-align:left;">
-2019-03-17 01:38:00
+2019-03-16 19:18:10
 </td>
 <td style="text-align:left;">
 2019-04-17 19:18:54
 </td>
 <td style="text-align:right;">
-98
+96
 </td>
 <td style="text-align:right;">
-15.08
+14.77
 </td>
 <td style="text-align:right;">
 118.398
@@ -2149,16 +2149,16 @@ Benicia_east
 2019-02-24 11:27:51
 </td>
 <td style="text-align:left;">
-2019-03-24 08:25:09
+2019-03-24 06:41:59
 </td>
 <td style="text-align:left;">
 2019-04-22 21:43:15
 </td>
 <td style="text-align:right;">
-163
+158
 </td>
 <td style="text-align:right;">
-25.08
+24.31
 </td>
 <td style="text-align:right;">
 52.240
@@ -2172,16 +2172,16 @@ Benicia_west
 2019-02-24 11:33:04
 </td>
 <td style="text-align:left;">
-2019-03-24 10:54:01
+2019-03-24 15:28:12
 </td>
 <td style="text-align:left;">
-2019-04-23 08:51:47
+2019-04-23 08:52:46
 </td>
 <td style="text-align:right;">
-163
+161
 </td>
 <td style="text-align:right;">
-25.08
+24.77
 </td>
 <td style="text-align:right;">
 52.040
