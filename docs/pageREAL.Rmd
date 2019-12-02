@@ -457,7 +457,8 @@ if (nrow(UCD_files) > 0) {
       downloads_new3 <- rbindlist(list(downloads_new3, data.frame(list(filename = UCD_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
     }
   }
-  
+}
+if (nrow(downloads_new3) > 0) {
   downloads_new3$end <- as.POSIXct(downloads_new3$hour, tz = "GMT", format = "%Y%m%d%H%M")
   downloads_new3$start <- downloads_new3$end -(2*60*60)
   
