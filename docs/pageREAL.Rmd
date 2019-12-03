@@ -457,68 +457,68 @@ if (nrow(UCD_files) > 0) {
       downloads_new3 <- rbindlist(list(downloads_new3, data.frame(list(filename = UCD_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
     }
   }
-}
-if (nrow(downloads_new3) > 0) {
-  downloads_new3$end <- as.POSIXct(downloads_new3$hour, tz = "GMT", format = "%Y%m%d%H%M")
-  downloads_new3$start <- downloads_new3$end -(2*60*60)
+
+  if (nrow(downloads_new3) > 0) {
+    downloads_new3$end <- as.POSIXct(downloads_new3$hour, tz = "GMT", format = "%Y%m%d%H%M")
+    downloads_new3$start <- downloads_new3$end -(2*60*60)
+    
+    
+    
+    ## Now change all times to PST to match ATS receivers
+    attributes(downloads_new3$start)$tzone <- "Etc/GMT+8"
+    attributes(downloads_new3$end)$tzone <- "Etc/GMT+8"
+    
+    downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new3))
+    
+    detects_temp <- data.frame()
+    
+    for (i in 1:nrow(UCD_files)) {
+      res <- try(read.csv(UCD_files[i,], header = F), silent = T) 
+      if (inherits(res, "try-error")) {
+        corrupted <- strsplit(UCD_files[i,], "/")
+        corrupted2 <- unlist(lapply(corrupted, tail, 1))
+        corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,]))
+        ## Also make corrupted downloads more palateable
+        next
+      } else {
+        detects_temp <- rbindlist(list(detects_temp, res))
+      }
   
-  
-  
-  ## Now change all times to PST to match ATS receivers
-  attributes(downloads_new3$start)$tzone <- "Etc/GMT+8"
-  attributes(downloads_new3$end)$tzone <- "Etc/GMT+8"
-  
-  downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new3))
-  
-  detects_temp <- data.frame()
-  
-  for (i in 1:nrow(UCD_files)) {
-    res <- try(read.csv(UCD_files[i,], header = F), silent = T) 
-    if (inherits(res, "try-error")) {
-      corrupted <- strsplit(UCD_files[i,], "/")
-      corrupted2 <- unlist(lapply(corrupted, tail, 1))
-      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,]))
-      ## Also make corrupted downloads more palateable
-      next
-    } else {
-      detects_temp <- rbindlist(list(detects_temp, res))
     }
-
+  
+    
+    colnames(detects_temp) <- c("recv", "DateTime_Orig", "TagCode")
+    ## Make a POSIX class, note that UCD detections are in GMT, will need to convert to local time
+    detects_temp$DateTime_PST <- as.POSIXct(detects_temp$DateTime_Orig, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
+    attributes(detects_temp$DateTime_PST)$tzone <- "Etc/GMT+8"
+    
+    ## Add column for temperature
+    detects_temp$Temp <- NA
+    
+    ## Here, put only non-beacon detections in detection file
+    detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D", "F6AC", "00CA", "00C9"),]
+    ## And put beacon detections into seperate file
+    detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "F6AC", "006D", "00CA", "00C9"),]
+    
+    ## Now remove multipath detections from detects_beacon_new
+    ## First reorder the data since the above steps may have jumbled things
+    detects_beacon_new <- detects_beacon_new[order(detects_beacon_new$recv, detects_beacon_new$TagCode, detects_beacon_new$DateTime_PST),]
+    detects_beacon_new$time_to_next <- as.numeric(difftime(shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lead"), detects_beacon_new$DateTime_PST, units = "hours"))
+    detects_beacon_new$time_from_previous <- as.numeric(difftime(detects_beacon_new$DateTime_PST, shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+    ## Now make NA the time diff values when it's between 2 different recvs or tagcodes
+    detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
+    detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+    detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+    ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
+    detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+    
+    ## Now append these to existing datasets
+    detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+    detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+    
   }
-
-  
-  colnames(detects_temp) <- c("recv", "DateTime_Orig", "TagCode")
-  ## Make a POSIX class, note that UCD detections are in GMT, will need to convert to local time
-  detects_temp$DateTime_PST <- as.POSIXct(detects_temp$DateTime_Orig, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
-  attributes(detects_temp$DateTime_PST)$tzone <- "Etc/GMT+8"
-  
-  ## Add column for temperature
-  detects_temp$Temp <- NA
-  
-  ## Here, put only non-beacon detections in detection file
-  detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D", "F6AC", "00CA", "00C9"),]
-  ## And put beacon detections into seperate file
-  detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "F6AC", "006D", "00CA", "00C9"),]
-  
-  ## Now remove multipath detections from detects_beacon_new
-  ## First reorder the data since the above steps may have jumbled things
-  detects_beacon_new <- detects_beacon_new[order(detects_beacon_new$recv, detects_beacon_new$TagCode, detects_beacon_new$DateTime_PST),]
-  detects_beacon_new$time_to_next <- as.numeric(difftime(shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lead"), detects_beacon_new$DateTime_PST, units = "hours"))
-  detects_beacon_new$time_from_previous <- as.numeric(difftime(detects_beacon_new$DateTime_PST, shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
-  ## Now make NA the time diff values when it's between 2 different recvs or tagcodes
-  detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
-  detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-  ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
-  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
-  
-  ## Now append these to existing datasets
-  detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
-  detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
-  
 }
-
 
 
 ## Now remove duplicate detections that may have occured when an hourly file was inadvertantly uploaded twice
