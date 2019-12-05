@@ -977,11 +977,9 @@ if (nrow(downloads_new_all) > 0) {
 
 <br/>
 
-## Operational time for each receiver over entire study period
+## Operational time for each real-time receiver since 1/1/2019
 
 <br/>
-
-Please note, receivers 17136, 17139, 17140, and 17142 did not have operational beacon tags until 6/19/2018
 
 ```{r plot alltime receiver beacon detections, echo=FALSE, warning=FALSE, message=FALSE, fig.height = 10, fig.width = 10}
 
@@ -990,8 +988,9 @@ beacon_by_day <- merge(beacon_by_day, unique(gen_locs[,c("location", "rkm")]), b
 beacon_by_day <- beacon_by_day[order(beacon_by_day$rkm, decreasing = F),]
 beacon_by_day$location <- factor(beacon_by_day$location, unique(beacon_by_day$location))
 
+beacon_by_day <- beacon_by_day[beacon_by_day$day > as.Date("2018-12-31"),]
 par(mar=c(5.1,2.1,2.1,7.1))
-plot(beacon_by_day$day, beacon_by_day$location, yaxt = "n", xlab = "Total time receiver has been deployed and operational over whole study", pch = 15)
+plot(beacon_by_day$day, beacon_by_day$location, yaxt = "n", xlab = "Total time receiver has been deployed and operational since 1/1/2019", pch = 15)
 axis(4, labels = unique(beacon_by_day$location), at = 1:length(unique(beacon_by_day$location)), las = 2, cex.axis = 0.7)
 points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$location), FUN = min, na.rm = T)$x), unique(beacon_by_day$location), col = "red", pch = 15)
 
@@ -1028,7 +1027,7 @@ Filtering protocol:
 
 <br/>
 
-## Percent Down Time and Overall Detection Efficiency from Beacon Tags (when operational)
+## All-time Detection Efficiency from Beacon Tags (when operational)
 
 <br/>
 
@@ -1046,7 +1045,7 @@ gen_loc_stats <- merge(gen_loc_stats, efficiency, by = "location", all.x= T)
 
 gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 
-kable(gen_loc_stats[,c("location",  "recv_start", "percent_downtime", "last_week_efficiency", "all_time_efficiency", "last_download")], align = "c", row.names = F)
+kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_time_efficiency", "last_download")], align = "c", row.names = F)
 
 
 ```
@@ -1054,7 +1053,7 @@ kable(gen_loc_stats[,c("location",  "recv_start", "percent_downtime", "last_week
 <br/>
 
 
-## Detection Efficiency from Beacon Tags over last 30 days
+## Daily Detection Efficiency from Beacon Tags over last 30 days
 
 <br/>
 
