@@ -29,13 +29,13 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
-## 2018-2019 Season (PROVISIONAL DATA)
+## 2019-2020 Season (PROVISIONAL DATA)
 
 <br/>
 
 ## Project Status
 
-PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
+
 
 Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_CNFH_late-fall-run.pdf?raw=true)
 
@@ -48,7 +48,7 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "ColemanLateFall_2019",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "ColemanLateFall_2020",]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -56,12 +56,12 @@ if (nrow(study_tagcodes) == 0){
 }else{
   cat("Project has begun, see tagging details below:")
 
-  study_tagcodes$Release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release"] <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release"] <- "Week 2"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release"] <- "Week 3"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-24") & study_tagcodes$RelDT < as.POSIXct("2018-06-01"), "Release"] <- "Week 4"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-06-01") & study_tagcodes$RelDT < as.POSIXct("2018-06-07"), "Release"] <- "Week 5"
+  study_tagcodes$Release <- "Release"
+ # study_tagcodes[study_tagcodes$RelDT < as.POSIXct("2018-05-12"), "Release"] <- "Week 1"
+ # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-12") & study_tagcodes$RelDT < as.POSIXct("2018-05-20"), "Release"] <- "Week 2"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-20") & study_tagcodes$RelDT < as.POSIXct("2018-05-24"), "Release"] <- "Week 3"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-05-24") & study_tagcodes$RelDT < as.POSIXct("2018-06-01"), "Release"] <- "Week 4"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2018-06-01") & study_tagcodes$RelDT < as.POSIXct("2018-06-07"), "Release"] <- "Week 5"
   
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
@@ -127,7 +127,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_ColemanLateFall_2019.csv", stringsAsFactors = F)
+detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_ColemanLateFall_2020.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
