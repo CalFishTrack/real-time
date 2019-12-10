@@ -5,31 +5,11 @@ navbar:
   left:
   - text: Home
     href: index.html
-  - text: Study Population Detections
+  - text: 2020 Water Year Study Detections
     menu:
     - text: Wild green sturgeon
       href: pageSRGS_2020.html
-    - text: Butte Creek wild spring-run salmon
-      href: pageBCSR_2019.html
-    - text: Battle Creek jump-start winter-run
-      href: pageBCJSWR_2019.html
-    - text: Hatchery San Joaquin spring-run
-      href: pageSJSR_2019.html
-    - text: Hatchery Feather River spring-run
-      href: pageFHSR_2019.html
-    - text: Hatchery fall-run net-pen paired release
-      href: pageSLPRFR_2019.html
-    - text: Hatchery fall-run Yolo bypass release
-      href: pageYoloFR_2019.html
-    - text: Hatchery fall-run Chinook salmon May Release
-      href: pageCNFH_FMR_2019.html
-    - text: 2019 Deer Creek wild steelhead
-      href: pageSHDC_Spring_2019.html
-    - text: 2019 Mill Creek wild steelhead
-      href: pageSHMC_Spring_2019.html
-    - text: 2019 SEASON SUMMARY
-      href: pageSEASON.html
-    - text: 2020 Hatchery late-fall-run salmon
+    - text: Hatchery late-fall-run salmon
       href: pageCHLF_2020.html
   - text: Real-time Receivers
     href: pageREAL.html
@@ -41,32 +21,56 @@ navbar:
     href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
   - text: Archive Study Pages
     menu:
-    - text: 2018 Hatchery late-fall-run salmon
-      href: pageCHLF.html
-    - text: 2018 Hatchery winter-run salmon
-      href: pageLSWR.html
-    - text: 2018 Butte Creek wild spring-run salmon
-      href: pageBCSR.html
-    - text: 2018 Mill/Deer Creek wild spring-run salmon
-      href: pageMDSR.html
-    - text: 2018 Sacramento River wild Chinook salmon
-      href: pageSRSR.html
-    - text: 2018 Mokelumne hatchery fall-run salmon
-      href: pageMHFR.html
-    - text: 2018 Nimbus hatchery fall-run salmon
-      href: pageNHFR.html
-    - text: 2018 Wild green sturgeon
-      href: pageSRGS.html
-    - text: 2019 Hatchery late-fall-run salmon
-      href: pageCHLF_2019.html
-    - text: 2019 Hatchery winter-run salmon
-      href: pageLSWR_2019.html
-    - text: 2019 Deer Creek wild spring-run salmon
-      href: pageSRDC_2019.html
-    - text: Fall 2018 Deer Creek wild steelhead
-      href: pageSHDC_2019.html
-    - text: 2019 Wild green sturgeon
-      href: pageSRGS_2019.html
+    - text: 2018 Water Year
+      menu:
+      - text: Hatchery late-fall-run salmon
+        href: pageCHLF.html
+      - text: Hatchery winter-run salmon
+        href: pageLSWR.html
+      - text: Butte Creek wild spring-run salmon
+        href: pageBCSR.html
+      - text: Mill/Deer Creek wild spring-run salmon
+        href: pageMDSR.html
+      - text: Sacramento River wild Chinook salmon
+        href: pageSRSR.html
+      - text: Mokelumne hatchery fall-run salmon
+        href: pageMHFR.html
+      - text: Nimbus hatchery fall-run salmon
+        href: pageNHFR.html
+      - text: Wild green sturgeon
+        href: pageSRGS.html
+    - text: 2019 Water Year
+      menu:
+      - text: Hatchery late-fall-run salmon
+        href: pageCHLF_2019.html
+      - text: Hatchery winter-run salmon
+        href: pageLSWR_2019.html
+      - text: Deer Creek wild spring-run salmon
+        href: pageSRDC_2019.html
+      - text: Fall Deer Creek wild steelhead
+        href: pageSHDC_2019.html
+      - text: Wild green sturgeon
+        href: pageSRGS_2019.html
+      - text: Butte Creek wild spring-run salmon
+        href: pageBCSR_2019.html
+      - text: Battle Creek jump-start winter-run
+        href: pageBCJSWR_2019.html
+      - text: Hatchery San Joaquin spring-run
+        href: pageSJSR_2019.html
+      - text: Hatchery Feather River spring-run
+        href: pageFHSR_2019.html
+      - text: Hatchery fall-run net-pen paired release
+        href: pageSLPRFR_2019.html
+      - text: Hatchery fall-run Yolo bypass release
+        href: pageYoloFR_2019.html
+      - text: Hatchery fall-run Chinook salmon May Release
+        href: pageCNFH_FMR_2019.html
+      - text: Spring Deer Creek wild steelhead
+        href: pageSHDC_Spring_2019.html
+      - text: Mill Creek wild steelhead
+        href: pageSHMC_Spring_2019.html
+      - text: 2019 SEASON SUMMARY
+        href: pageSEASON.html
 output:
   html_document:
     lib_dir: site_libs

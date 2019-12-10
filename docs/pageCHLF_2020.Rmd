@@ -48,7 +48,7 @@ htmltools::img(src = knitr::image_uri("../data/TurkeyBeach.jpg"))#,
 
 <br/>
 
-## 2018-2019 Season (PROVISIONAL DATA)
+## 2019-2020 Season (PROVISIONAL DATA)
 
 <br/>
 
