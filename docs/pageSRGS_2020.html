@@ -442,6 +442,9 @@ div.tocify {
     <li>
       <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
     </li>
+    <li>
+      <a href="pageCHLF_2020.html">2020 Hatchery late-fall-run salmon</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -887,7 +890,7 @@ Altube Island
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-12-10 08:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-12-10 09:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -977,7 +980,7 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## [1] &quot;No detections yet&quot;</code></pre>
+<p><img src="pageSRGS_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
 </div>
@@ -1396,7 +1399,7 @@ if (nrow(detects_study) == 0){
             kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
   }
 }</code></pre>
-<p>[1] “No detections yet”</p>
+<p>[1] “Too few detections: routing probability cannot be estimated”</p>
 <p><br/> <br/></p>
 <center>
 </div>
@@ -1603,7 +1606,116 @@ if (nrow(detects_study) == 0){
     }
   }
 }</code></pre>
-<p>[1] “No detections yet”</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<caption>
+Detections for all releases combined
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+general_location
+</th>
+<th style="text-align:left;">
+First_arrival
+</th>
+<th style="text-align:left;">
+Mean_arrival
+</th>
+<th style="text-align:left;">
+Last_arrival
+</th>
+<th style="text-align:right;">
+Fish_count
+</th>
+<th style="text-align:right;">
+Percent_arrived
+</th>
+<th style="text-align:right;">
+rkm
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ButteBrRT
+</td>
+<td style="text-align:left;">
+2019-12-08 12:41:19
+</td>
+<td style="text-align:left;">
+2019-12-08 15:01:44
+</td>
+<td style="text-align:left;">
+2019-12-08 18:59:09
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+344.108
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<caption>
+Detections for ALL release groups
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+general_location
+</th>
+<th style="text-align:left;">
+First_arrival
+</th>
+<th style="text-align:left;">
+Mean_arrival
+</th>
+<th style="text-align:left;">
+Last_arrival
+</th>
+<th style="text-align:right;">
+Fish_count
+</th>
+<th style="text-align:right;">
+Percent_arrived
+</th>
+<th style="text-align:right;">
+rkm
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ButteBrRT
+</td>
+<td style="text-align:left;">
+2019-12-08 12:41:19
+</td>
+<td style="text-align:left;">
+2019-12-08 15:01:44
+</td>
+<td style="text-align:left;">
+2019-12-08 18:59:09
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+344.108
+</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>rm(list = ls())
 cleanup(ask = F)</code></pre>
 </div>

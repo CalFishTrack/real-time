@@ -29,6 +29,8 @@ navbar:
       href: pageSHMC_Spring_2019.html
     - text: 2019 SEASON SUMMARY
       href: pageSEASON.html
+    - text: 2020 Hatchery late-fall-run salmon
+      href: pageCHLF_2020.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers

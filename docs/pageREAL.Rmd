@@ -122,7 +122,8 @@ ATS_all_files <- as.data.frame(list(x=dir(pattern = ".csv", path = dirs, full.na
 ATS_files <- as.data.frame(list(x=ATS_all_files[!ATS_all_files$x %in% ATS_processed_files$x,]), stringsAsFactors = F)
 ## Remove bad files that don't contain real data from list for processing
 ## Bad_files may also be files that have timezone issues that are almost untractable
-ATS_files <- as.data.frame(list(x=ATS_files[-grep(paste(bad_files$filename, collapse = "|"), ATS_files$x),]), stringsAsFactors = F)
+ATS_files <- subset(ATS_files, !grepl(paste(bad_files$filename, collapse = "|"), ATS_files$x))
+#ATS_files <- as.data.frame(list(x=ATS_files[!which(grep(paste(bad_files$filename, collapse = "|"), ATS_files$x)),]), stringsAsFactors = F)
 ## Load CSt timezone file list
 CST_files <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/receiver_files_with_CST_timezones.csv", colClasses = "character")
 
