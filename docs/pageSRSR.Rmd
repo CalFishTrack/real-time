@@ -36,7 +36,8 @@ htmltools::img(src = knitr::image_uri("../data/RBDD.jpg"))#,
 
 <br/>
 
-## 2017-2018 Season
+## 2017-2018 Season (PROVISIONAL DATA)
+<br/>
 
 
 Chinook salmon stock assignments not currently available, but likely a combination of fall and spring-run fish

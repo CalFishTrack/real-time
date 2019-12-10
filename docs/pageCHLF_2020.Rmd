@@ -75,7 +75,7 @@ if (nrow(study_tagcodes) == 0){
 
 
   study_tagcodes$Release <- "Week 1"
-  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-17"), "Release"] <- "Week 2"
+  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-17"), "Release"] <- "Week 2"
 
   
   

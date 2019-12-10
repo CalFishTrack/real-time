@@ -26,6 +26,9 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 # *Hatchery-origin late-fall run Chinook salmon*
 
+<br/>
+
+## 2017-2018 Season (PROVISIONAL DATA)
 
 <br/>
 

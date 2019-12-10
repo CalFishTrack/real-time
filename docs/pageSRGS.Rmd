@@ -41,6 +41,9 @@ htmltools::img(src = knitr::image_uri("../data/Juvenile_Green_Sturgeon_crop.jpg"
 
 <br/>
 
+## 2017-2018 Season (PROVISIONAL DATA)
+<br/>
+
 ## Project Status
 
 PROJECT IS COMPLETE, ALL TAGS ARE NO LONGER ACTIVE
