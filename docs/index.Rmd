@@ -26,6 +26,12 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
+    **New Updates**
+    testing 
+    1. New page for Late-fall Chinook, released 12/5/2019
+    2. New page for Green Sturgeon, released starting 10/7/2019
+    
+<br/>
 
 ## Background
 
