@@ -686,7 +686,7 @@ BattleCk_CNFH
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2019-12-14 23:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2019-12-15</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -929,7 +929,7 @@ if (nrow(detects_benicia)&gt;0) {
 }else{
   print(&quot;No detections at Benicia yet&quot;)
 }</code></pre>
-<pre><code>## [1] &quot;No detections at Benicia yet&quot;</code></pre>
+<p><img src="pageCHLF_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" width="960" /></p>
 <p><br/> <br/></p>
 </center>
 </div>
@@ -1058,16 +1058,16 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-55.7
+55.9
 </td>
 <td style="text-align:right;">
 2
 </td>
 <td style="text-align:right;">
-51.7
+51.9
 </td>
 <td style="text-align:right;">
-59.6
+59.8
 </td>
 <td style="text-align:right;">
 100
@@ -1078,16 +1078,16 @@ ALL
 Week 1
 </td>
 <td style="text-align:right;">
-55.7
+55.9
 </td>
 <td style="text-align:right;">
 2
 </td>
 <td style="text-align:right;">
-51.7
+51.9
 </td>
 <td style="text-align:right;">
-59.6
+59.8
 </td>
 <td style="text-align:right;">
 NA
@@ -1286,16 +1286,16 @@ SE
 Survival from release to Tower Bridge (minimum estimate since fish may have taken Yolo Bypass)
 </td>
 <td style="text-align:right;">
-55.7
+55.9
 </td>
 <td style="text-align:right;">
 2.0
 </td>
 <td style="text-align:right;">
-51.7
+51.9
 </td>
 <td style="text-align:right;">
-59.6
+59.8
 </td>
 </tr>
 <tr>
@@ -1303,13 +1303,13 @@ Survival from release to Tower Bridge (minimum estimate since fish may have take
 Survival from TowerBridge to I80-50_Br
 </td>
 <td style="text-align:right;">
-100.0
+99.7
 </td>
 <td style="text-align:right;">
-0.0
+0.3
 </td>
 <td style="text-align:right;">
-99.4
+97.9
 </td>
 <td style="text-align:right;">
 100.0
@@ -1360,7 +1360,7 @@ Detection probability at I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-99.4
+99.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1377,7 +1377,7 @@ Detection probability at Blw_Georgiana
 0.0
 </td>
 <td style="text-align:right;">
-98.7
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1529,7 +1529,73 @@ if (nrow(detects_benicia) == 0){
   write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
   
 }</code></pre>
-<p>[1] “No detections yet” <br/> <br/></p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+Release Group
+</th>
+<th style="text-align:right;">
+Survival (%)
+</th>
+<th style="text-align:right;">
+SE
+</th>
+<th style="text-align:right;">
+95% lower C.I.
+</th>
+<th style="text-align:right;">
+95% upper C.I.
+</th>
+<th style="text-align:right;">
+Detection efficiency (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ALL
+</td>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+2.6
+</td>
+<td style="text-align:right;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Week 1
+</td>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+2.6
+</td>
+<td style="text-align:right;">
+50
+</td>
+</tr>
+</tbody>
+</table>
+<p><br/> <br/></p>
 <center>
 </div>
 <div id="detections-statistics-at-all-realtime-receivers" class="section level4">
@@ -1663,16 +1729,16 @@ ButteBrRT
 2019-12-08 08:17:20
 </td>
 <td style="text-align:left;">
-2019-12-09 06:28:51
+2019-12-09 06:50:25
 </td>
 <td style="text-align:left;">
-2019-12-14 09:09:49
+2019-12-14 22:42:52
 </td>
 <td style="text-align:right;">
-378
+379
 </td>
 <td style="text-align:right;">
-62.69
+62.85
 </td>
 <td style="text-align:right;">
 344.108
@@ -1686,16 +1752,16 @@ TowerBridge
 2019-12-10 05:54:03
 </td>
 <td style="text-align:left;">
-2019-12-11 12:05:52
+2019-12-11 12:20:47
 </td>
 <td style="text-align:left;">
-2019-12-14 20:42:26
+2019-12-14 23:53:09
 </td>
 <td style="text-align:right;">
-336
+337
 </td>
 <td style="text-align:right;">
-55.72
+55.89
 </td>
 <td style="text-align:right;">
 172.000
@@ -1814,6 +1880,52 @@ Sac_BlwGeorgiana2
 </td>
 <td style="text-align:right;">
 118.398
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2019-12-14 19:39:48
+</td>
+<td style="text-align:left;">
+2019-12-14 20:53:24
+</td>
+<td style="text-align:left;">
+2019-12-14 22:07:00
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.33
+</td>
+<td style="text-align:right;">
+52.240
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_west
+</td>
+<td style="text-align:left;">
+2019-12-14 22:10:23
+</td>
+<td style="text-align:left;">
+2019-12-14 22:46:03
+</td>
+<td style="text-align:left;">
+2019-12-14 23:21:43
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.33
+</td>
+<td style="text-align:right;">
+52.040
 </td>
 </tr>
 </tbody>
@@ -1856,16 +1968,16 @@ ButteBrRT
 2019-12-08 08:17:20
 </td>
 <td style="text-align:left;">
-2019-12-09 06:28:51
+2019-12-09 06:50:25
 </td>
 <td style="text-align:left;">
-2019-12-14 09:09:49
+2019-12-14 22:42:52
 </td>
 <td style="text-align:right;">
-378
+379
 </td>
 <td style="text-align:right;">
-62.69
+62.85
 </td>
 <td style="text-align:right;">
 344.108
@@ -1879,16 +1991,16 @@ TowerBridge
 2019-12-10 05:54:03
 </td>
 <td style="text-align:left;">
-2019-12-11 12:05:52
+2019-12-11 12:20:47
 </td>
 <td style="text-align:left;">
-2019-12-14 20:42:26
+2019-12-14 23:53:09
 </td>
 <td style="text-align:right;">
-336
+337
 </td>
 <td style="text-align:right;">
-55.72
+55.89
 </td>
 <td style="text-align:right;">
 172.000
@@ -2007,6 +2119,52 @@ Sac_BlwGeorgiana2
 </td>
 <td style="text-align:right;">
 118.398
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2019-12-14 19:39:48
+</td>
+<td style="text-align:left;">
+2019-12-14 20:53:24
+</td>
+<td style="text-align:left;">
+2019-12-14 22:07:00
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.33
+</td>
+<td style="text-align:right;">
+52.240
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_west
+</td>
+<td style="text-align:left;">
+2019-12-14 22:10:23
+</td>
+<td style="text-align:left;">
+2019-12-14 22:46:03
+</td>
+<td style="text-align:left;">
+2019-12-14 23:21:43
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.33
+</td>
+<td style="text-align:right;">
+52.040
 </td>
 </tr>
 </tbody>
