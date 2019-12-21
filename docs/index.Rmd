@@ -26,10 +26,17 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
-    **New Updates**
-    testing 
-    1. New page for Late-fall Chinook, released 12/5/2019
-    2. New page for Green Sturgeon, released starting 10/7/2019
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+`r anicon::nia("New Updates", size = 2)`
+
+1. [New page for Late-fall Chinook, released 12/5/2019](https://calfishtrack.github.io/real-time/pageCHLF_2020.html)
+2. [New page for Green Sturgeon, released starting 10/7/2019](https://calfishtrack.github.io/real-time/pageSRGS_2020.html)
+
+</div>
     
 <br/>
 
@@ -81,26 +88,3 @@ For viewing fish survival and movement predictions based on current river condit
 None currently available.
 
 <br />
-
-## Study Area
-
-
-
-
-#### Map of receiver and release locations in the Central Valley
-
-```{r map 1, echo=FALSE}
-htmltools::img(src = knitr::image_uri("../data/JSATS_Full.png"))#, 
-               #alt = 'logo', 
-               #style = 'position:absolute; top:0px; right:0px; width:100px;')
-```
-
-<br />
-
-#### Closeup map of receiver locations in the Sacramento-San Joaquin Delta
-
-```{r map 2, echo=FALSE}
-htmltools::img(src = knitr::image_uri("../data/JSATS_Delta.png"))#, 
-               #alt = 'logo', 
-               #style = 'position:absolute; top:0px; right:0px; width:100px;')
-```

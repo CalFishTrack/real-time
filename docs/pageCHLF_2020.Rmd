@@ -518,7 +518,7 @@ if (nrow(detects_study) == 0){
 } else {
   
   ## Only do survival to Georg split for now
-  test2 <- detects_study[detects_study$general_location %in% c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
+  test2 <- detects_study[detects_study$general_location %in% c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
   
   ## We can only do multistate model if there is at least one detection in each route
   
@@ -527,12 +527,10 @@ if (nrow(detects_study) == 0){
     "Too few detections: routing probability cannot be estimated"
   }else{
     
-    georg <- read.csv("daily_georg_routing.csv", stringsAsFactors = F)
-    
     ## Make tagcode character
     study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
     ## Make a crosstab query with frequencies for all tag/location combination
-    test2$general_location <- factor(test2$general_location, levels = c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
+    test2$general_location <- factor(test2$general_location, levels = c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
     test2$TagCode <- factor(test2$TagCode, levels = study_tagcodes$TagID_Hex)
     mytable <- table(test2$TagCode, test2$general_location) # A will be rows, B will be columns
     
@@ -540,7 +538,7 @@ if (nrow(detects_study) == 0){
     mytable[mytable>0] <- "A"
     
     ## Order in order of rkm
-    mytable2 <- mytable[, c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2")]
+    mytable2 <- mytable[, c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2")]
     
     ## Now sort the crosstab rows alphabetically
     mytable2 <- mytable2[order(row.names(mytable2)),]
@@ -550,9 +548,9 @@ if (nrow(detects_study) == 0){
     mytable2[which(mytable2[, "Georgiana_Slough1"]=="A"), "Georgiana_Slough1"] <- "B"
     mytable2[which(mytable2[, "Georgiana_Slough2"]=="A"), "Georgiana_Slough2"] <- "B"
     
-    ## Make a crosstab query with frequencies for all weekly release groups
-    #test2$Release_week <- factor(test2$Release_week)
-    #mytable3 <- table(test2$TagCode, test2$Release_week) # A will be rows, B will be columns
+    ## Make a crosstab query with frequencies for all weekly Release groups
+    #test2$Release <- factor(test2$Release)
+    #mytable3 <- table(test2$TagCode, test2$Release) # A will be rows, B will be columns
     
     ## Change all frequencies bigger than 1 to 1. Here you could change your minimum cutoff to 2 detections, and then make another command that changes all detections=1 to 0
     #mytable3[mytable3>0] <- 1
@@ -568,9 +566,9 @@ if (nrow(detects_study) == 0){
     
     ## Paste together (concatenate) the data from each column of the crosstab into one string per row, add to tagging_meta.
     ## For this step, make sure both are sorted by FishID
-    study_tagcodes$inp_part1 <- apply(mytable2[,1:2],1,paste,collapse="")
-    study_tagcodes$inp_partA <- apply(mytable2[,3:4],1,paste,collapse="")
-    study_tagcodes$inp_partB <- apply(mytable2[,5:6],1,paste,collapse="")
+    study_tagcodes$inp_part1 <- apply(mytable2[,1:3],1,paste,collapse="")
+    study_tagcodes$inp_partA <- apply(mytable2[,4:5],1,paste,collapse="")
+    study_tagcodes$inp_partB <- apply(mytable2[,6:7],1,paste,collapse="")
     #study_tagcodes$inp_group <- apply(mytable4,1,paste,collapse=" ")
     
     ## We need to have a way of picking which route to assign to a fish if it was detected by both georg and blw-georg recvs
@@ -601,26 +599,26 @@ if (nrow(detects_study) == 0){
     ddl <- make.design.data(dp)
     
     #### p ####
-    # Can't be seen at 2B or 3B ( tower or I80)
+    # Can't be seen at 2B or 3B or 4B (butte, tower or I80)
     ddl$p$fix=NA
-    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3)]=0
+    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3,4)]=0
     
     #### Psi ####
     # Only 1 transition allowed:
     # from A to B at time interval 4 to 5
     
     ddl$Psi$fix=0
-    # A to B can only happen for interval 3
+    # A to B can only happen for interval 3-4
     ddl$Psi$fix[ddl$Psi$stratum=="A"&
-                  ddl$Psi$tostratum=="B" & ddl$Psi$time==3]=NA
+                  ddl$Psi$tostratum=="B" & ddl$Psi$time==4]=NA
     
     #### Phi a.k.a. S ####
     ddl$S$fix=NA
     # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
-    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4)]=1
+    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4,5)]=1
     
     # For route A, fixing it to 1 for 5 (between two blw_georg lines)
-    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==4]=1
+    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==5]=1
     ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn't share the same intercept
     
     p.timexstratum=list(formula=~-1+stratum:time)
@@ -641,28 +639,25 @@ if (nrow(detects_study) == 0){
     results_short <- results[rownames(results) %in% c("S sA g1 c1 a0 o1 t1",
                                                       "S sA g1 c1 a1 o2 t2",
                                                       "S sA g1 c1 a2 o3 t3",
+                                                      "S sA g1 c1 a3 o4 t4",
                                                       "p sA g1 c1 a1 o1 t2",
                                                       "p sA g1 c1 a2 o2 t3",
                                                       "p sA g1 c1 a3 o3 t4",
-                                                      "p sB g1 c1 a3 o3 t4",
-                                                      "Psi sA toB g1 c1 a2 o3 t3"
+                                                      "p sA g1 c1 a4 o4 t5",
+                                                      "p sB g1 c1 a4 o4 t5",
+                                                      "Psi sA toB g1 c1 a3 o4 t4"
                                                       ),]
     
     
     results_short <- round(results_short[,c("estimate", "se", "lcl", "ucl")] * 100,1)
     
-    results_short$Measure <- c("Survival from release to Tower Bridge (minimum estimate since fish may have taken Yolo Bypass)", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)",
+    results_short$Measure <- c("Survival from release to Butte City","Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)","Detection probability at Butte City",
                                "Detection probability at TowerBridge", "Detection probability at I80-50_Br", "Detection probability at Blw_Georgiana", "Detection probability at Georgiana Slough",
                                "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
     
     results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
-    
-    georg <- rbind(georg, data.frame(tail(results_short[,c("estimate", "se", "lcl", "ucl")],1), datetime = latest$x, StudyID = unique(study_tagcodes$StudyID)))
-    write.csv(georg, "daily_georg_routing.csv", row.names = F, quote = F)    
-    
-    
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
-    
+
     print(kable(results_short, row.names = F, "html") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   }
