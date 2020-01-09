@@ -36,7 +36,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#, 
+htmltools::img(src = knitr::image_uri("../data/DeerCk.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
@@ -44,7 +44,7 @@ htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#,
 <br/>
 <br/>
 
-# *Mill Creek wild steelhead*
+# *Deer Creek wild steelhead*
 
 <br/>
 
@@ -55,7 +55,7 @@ htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#,
 ## Project Status
 
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Mill_Creek_Steelhead_Smolt.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Deer_Creek_Steelhead_Smolt.pdf?raw=true)
 
 ```{r print table with fish release details}
 
@@ -66,7 +66,7 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "SHMC_F2020",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "SHDC_F2020",]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -151,7 +151,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_SHMC_F2020.csv", stringsAsFactors = F)
+detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_SHDC_F2020.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
