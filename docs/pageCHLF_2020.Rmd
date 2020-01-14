@@ -794,8 +794,39 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
+  gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+  
+  beacon_deployments <- read.csv("beacon_deployments.csv", stringsAsFactors = F)
+  beacon_deployments$start <- as.POSIXct(beacon_deployments$start, tz = "Etc/GMT+8")
+  beacon_deployments$stop <- as.POSIXct(beacon_deployments$stop, tz = "Etc/GMT+8")
+  beacon_deployments$recv <- as.character(beacon_deployments$recv)
+
+  beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
   
   arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+  
+  arrivals$day <- as.Date(arrivals$DateTime_PST)
+  
+  arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day <- as.Date(arrivals_per_day$day)
+  
+  beacon_by_day$beacon <- as.character(NA)
+
+  for (i in 1:nrow(beacon_deployments)){
+    beacon_by_day[which(beacon_deployments$recv[i] == beacon_by_day$recv & beacon_deployments$start[i] <= beacon_by_day$day & (beacon_deployments$stop[i] > beacon_by_day$day | is.na(beacon_deployments$stop[i]))),"beacon"] <- beacon_deployments$beacon[i]
+  }
+  ## Now remove days when there wasn't a full day of beacon detections yet
+  #beacon_by_day <- beacon_by_day[is.na(beacon_by_day$beacon)==F,]
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  beacon_by_day <- merge(beacon_by_day, gen_locs[,c("location", "general_location")], by = "location", all.x = T)
+  
+  beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$RelDT)),]
+  
+  beacon_by_day$day <- as.Date(beacon_by_day$day)
+  
+  arrivals_per_day <- merge(beacon_by_day, arrivals_per_day, all.x = T, by = c("general_location", "day"))
   
   tag_stats <- aggregate(list(First_arrival = arrivals$DateTime_PST), 
                          by= list(general_location = arrivals$general_location),
