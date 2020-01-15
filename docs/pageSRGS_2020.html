@@ -900,7 +900,7 @@ Altube Island
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2020-01-14 13:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2020-01-14 16:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -911,7 +911,7 @@ Altube Island
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2019.csv&quot;, stringsAsFactors = F)
+detects_study &lt;- fread(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -1597,7 +1597,7 @@ if (nrow(detects_benicia) == 0){
 if (nrow(detects_study) == 0){
   &quot;No detections yet&quot;
 } else {
-  
+
   arrivals &lt;- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
   
   tag_stats &lt;- aggregate(list(First_arrival = arrivals$DateTime_PST), 
@@ -1975,8 +1975,62 @@ Sac_BlwGeorgiana2
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
+figheight &lt;- max(c(1,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = &quot;days&quot;)) / 5))</code></pre>
+<br/> <br/>
+<center>
+</div>
+<div id="fish-arrivals-per-day" class="section level4">
+<h4>Fish arrivals per day</h4>
+</center>
+<p><br/></p>
+<div id="gray-tiles-receiver-location-was-operational-white-tiles-receiver-location-non-operational" class="section level5">
+<h5>Gray tiles = receiver location was operational, white tiles = receiver location non-operational</h5>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+if (nrow(detects_study) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  beacon_by_day &lt;- fread(&quot;beacon_by_day.csv&quot;, stringsAsFactors = F)
+  beacon_by_day$day &lt;- as.Date(beacon_by_day$day)
+  
+  arrivals$day &lt;- as.Date(arrivals$DateTime_PST)
+  
+  arrivals_per_day &lt;- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day &lt;- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day &lt;- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day &lt;- beacon_by_day[beacon_by_day$day &gt;= as.Date(min(study_tagcodes$RelDT)),]  
+  
+  beacon_by_day &lt;- merge(beacon_by_day, gen_locs[,c(&quot;location&quot;, &quot;general_location&quot;,&quot;rkm&quot;)], by = &quot;location&quot;, all.x = T)
+
+  arrivals_per_day &lt;- merge(beacon_by_day, arrivals_per_day, all.x = T, by = c(&quot;general_location&quot;, &quot;day&quot;))
+  
+  arrivals_per_day$day &lt;- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day &lt;- arrivals_per_day[!arrivals_per_day$general_location == &quot;Bench_test&quot;,]
+  arrivals_per_day &lt;- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+  
+  ## Change order of data to plot decreasing rkm
+  arrivals_per_day &lt;- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
+  arrivals_per_day$general_location &lt;- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
+  
+  
+  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  geom_tile(fill = &quot;lightgray&quot;, color = &quot;black&quot;) + 
+  geom_text(aes(label=New_arrivals)) +
+  labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
+  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+}</code></pre>
+<p><img src="pageSRGS_2020_files/figure-html/print%20tables%20of%20fish%20detections%20per%20day-1.png" width="480" /></p>
 <pre class="r"><code>rm(list = ls())
 cleanup(ask = F)</code></pre>
+</div>
 </div>
 </div>
 </div>

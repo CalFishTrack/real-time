@@ -14,7 +14,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(knitr)
 library(kableExtra)
+library(lubridate)
+library(data.table)
+library(ggplot2)
+#library(xtable)
+#library(prettydoc)
+library(scales)
 library(viridis)
+library(forcats)
 ```
 
 #  *Central Valley Enhanced*
@@ -125,7 +132,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2019.csv", stringsAsFactors = F)
+detects_study <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
@@ -775,7 +782,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
-  
+
   arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
   
   tag_stats <- aggregate(list(First_arrival = arrivals$DateTime_PST), 
@@ -858,6 +865,62 @@ if (nrow(detects_study) == 0){
       cat("\n\n\\pagebreak\n")
     }
   }
+}
+## Set fig height for next plot here, based on how long fish have been at large
+figheight <- max(c(1,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = "days")) / 5))
+
+```
+
+<br/>
+<br/>
+<center>
+#### Fish arrivals per day
+</center>
+
+<br/>
+
+##### Gray tiles = receiver location was operational, white tiles = receiver location non-operational 
+```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+if (nrow(detects_study) == 0){
+  "No detections yet"
+} else {
+  
+  beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
+  beacon_by_day$day <- as.Date(beacon_by_day$day)
+  
+  arrivals$day <- as.Date(arrivals$DateTime_PST)
+  
+  arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day <- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$RelDT)),]  
+  
+  beacon_by_day <- merge(beacon_by_day, gen_locs[,c("location", "general_location","rkm")], by = "location", all.x = T)
+
+  arrivals_per_day <- merge(beacon_by_day, arrivals_per_day, all.x = T, by = c("general_location", "day"))
+  
+  arrivals_per_day$day <- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day <- arrivals_per_day[!arrivals_per_day$general_location == "Bench_test",]
+  arrivals_per_day <- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+  
+  ## Change order of data to plot decreasing rkm
+  arrivals_per_day <- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
+  arrivals_per_day$general_location <- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
+  
+  
+  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  geom_tile(fill = "lightgray", color = "black") + 
+  geom_text(aes(label=New_arrivals)) +
+  labs(x="General Location", y = "Date") +
+  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
 }
 
 rm(list = ls())

@@ -60,6 +60,8 @@ beacon_deployments$stop <- as.POSIXct(beacon_deployments$stop, tz = "Etc/GMT+8")
 beacon_deployments$recv <- as.character(beacon_deployments$recv)
 
 beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
+## Remove the beacon assignment, since this gets recalculated at each run
+beacon_by_day$beacon <- NULL
 
 downloads <- read.csv("downloads.csv", stringsAsFactors = FALSE)
 downloads$end <- ymd_hms(downloads$end, tz = "Etc/GMT+8")
@@ -634,15 +636,15 @@ beacon_by_day$day <- as.Date(beacon_by_day$day)
 ## Now merge the two datasets together
 beacon_by_day <- rbindlist(list(beacon_by_day, beacon_by_day_new))
 
-## now write this new beacon_by_day file
-fwrite(beacon_by_day, "beacon_by_day.csv", row.names = F)
-
 ## In this step, associate the correct beacon to the correct recv at that given time, this allows for inseason changes
 beacon_by_day$beacon <- as.character(NA)
 
 for (i in 1:nrow(beacon_deployments)){
   beacon_by_day[which(beacon_deployments$recv[i] == beacon_by_day$recv & beacon_deployments$start[i] <= beacon_by_day$day & (beacon_deployments$stop[i] > beacon_by_day$day | is.na(beacon_deployments$stop[i]))),"beacon"] <- beacon_deployments$beacon[i]
 }
+## now write this new beacon_by_day file
+fwrite(beacon_by_day, "beacon_by_day.csv", row.names = F)
+
 ## Now remove days when there wasn't a full day of beacon detections yet
 #beacon_by_day <- beacon_by_day[is.na(beacon_by_day$beacon)==F,]
 ## Now subset to only look at data for the correct beacon for that day
