@@ -11,6 +11,10 @@ navbar:
       href: pageSRGS_2020.html
     - text: Hatchery late-fall-run salmon
       href: pageCHLF_2020.html
+    - text: Mill/Deer Creek wild salmon
+      href: pageMD_CH_W_F2020.html
+    - text: Mill/Deer Creek wild steelhead
+      href: pageMD_SH_W_F2020.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
