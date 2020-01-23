@@ -6,59 +6,41 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
-  #prettydoc::html_pretty:
-  #  theme: cayman
-  #  toc: true
+    includes:
+      in_header: GA_Script.html
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyr)
-library(knitr)
-library(kableExtra)
-library(lubridate)
-#library(xtable)
-#library(prettydoc)
-library(scales)
-library(viridis)
 
-
-```
 
 #  *Central Valley Enhanced*
 #  *Acoustic Tagging Project*
-```{r logos, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
-               alt = 'logo', 
-               style = 'position:absolute; top:10px; right:0px; width:200px;')
-```
+preserve9f3f1f8f0f9367a5
+
 
 <br/>
 <br/>
 
-```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#, 
-               #alt = 'logo', 
-               #style = 'position:absolute; top:0px; right:0px; width:100px;')
-```
-
+preserve07dc055b6b7ae93b
 <br/>
 <br/>
 
-# *Mill Creek wild steelhead*
+
+
+# **Sacramento River Green Sturgeon**
 
 <br/>
 
 ## 2019-2020 Season (PROVISIONAL DATA)
+
 
 <br/>
 
 ## Project Status
 
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Mill_Creek_Steelhead_Smolt.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Sac_River_Green_Sturgeon_2020.pdf?raw=true)
 
-```{r print table with fish release details}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
@@ -66,7 +48,7 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "SHMC_F2020",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Juv_Green_Sturgeon_2019",]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -74,69 +56,168 @@ if (nrow(study_tagcodes) == 0){
 }else{
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
+  study_tagcodes$Release <- "ALL"
 
-  study_tagcodes$Release <- "Week 1"
- # study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-12") & study_tagcodes$RelDT < as.POSIXct("2019-05-19"), "Release"] <- "Week 2"
-  #  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-19") & study_tagcodes$RelDT < as.POSIXct("2019-05-26"), "Release"] <- "Week 3"
-  #  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-26") & study_tagcodes$RelDT < as.POSIXct("2019-06-02"), "Release"] <- "Week 4"
-  #  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-06-02") & study_tagcodes$RelDT < as.POSIXct("2019-06-09"), "Release"] <- "Week 5"
-  
-  release_stats <- aggregate(list(First_release_time = study_tagcodes$RelDT),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = min)
-  release_stats <- merge(release_stats,
-                         aggregate(list(Last_release_time = study_tagcodes$RelDT),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = max),
-                         by = c("Release"))
-  
-                             
-  release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
-                                                         study_tagcodes$TagID_Hex),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = function(x) {length(unique(x))}),
-                         by = c("Release"))
-  
+  release_stats <- aggregate(list(Number_fish_released = study_tagcodes$TagID_Hex),
+                             by= list(Release_time = study_tagcodes$RelDT),
+                             FUN = function(x) {length(unique(x))}
+                             )
   release_stats <- merge(release_stats,
                          aggregate(list(Release_location = study_tagcodes$Rel_loc),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(Release_time = study_tagcodes$RelDT),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release"))
+                         by = c("Release_time"))
   release_stats <- merge(release_stats,
                          aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
-                             by= list(Release = study_tagcodes$Release),
+                             by= list(Release_time = study_tagcodes$RelDT),
                              FUN = function(x) {head(x,1)}),
-                         by = c("Release"))
+                         by = c("Release_time"))
   release_stats <- merge(release_stats,
-                         aggregate(list(Mean_length = study_tagcodes$Length),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = mean, na.rm = T),
-                         by = c("Release"))
+                         aggregate(list(Total_length = study_tagcodes$Length),
+                             by= list(Release_time = study_tagcodes$RelDT),
+                             FUN = mean),
+                         by = c("Release_time"))
   release_stats <- merge(release_stats,
-                         aggregate(list(Mean_weight = study_tagcodes$Weight),
-                             by= list(Release = study_tagcodes$Release),
-                             FUN = mean, na.rm = T),
-                         by = c("Release"))
+                         aggregate(list(Weight = study_tagcodes$Weight),
+                             by= list(Release_time = study_tagcodes$RelDT),
+                             FUN = mean),
+                         by = c("Release_time"))
   
-    release_stats2<-release_stats[,-3]
-  colnames(release_stats2)[2]<-"Release time"
+  release_stats[,c("Total_length", "Weight")] <- round(release_stats[,c("Total_length", "Weight")],1)
   
-  release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
-  
-  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
-  
-  release_stats$Last_release_time <- format(release_stats$Last_release_time, tz = "Etc/GMT+8")
-  
-  kable(release_stats, format = "html") %>%
+  kable(release_stats, "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
+
 }                       
+```
 
 ```
+## Project began on 2019-10-07 22:03:00, see tagging details below:
+```
+
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Release_time </th>
+   <th style="text-align:right;"> Number_fish_released </th>
+   <th style="text-align:left;"> Release_location </th>
+   <th style="text-align:right;"> Release_rkm </th>
+   <th style="text-align:right;"> Total_length </th>
+   <th style="text-align:right;"> Weight </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 2019-10-07 22:03:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Antelope Bridge </td>
+   <td style="text-align:right;"> 464.5 </td>
+   <td style="text-align:right;"> 215.0 </td>
+   <td style="text-align:right;"> 49.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-08 00:22:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Juvenile Glide </td>
+   <td style="text-align:right;"> 462.2 </td>
+   <td style="text-align:right;"> 223.0 </td>
+   <td style="text-align:right;"> 51.8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-10 21:29:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Bank Robber Slough </td>
+   <td style="text-align:right;"> 456.0 </td>
+   <td style="text-align:right;"> 162.0 </td>
+   <td style="text-align:right;"> 20.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-14 23:11:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Antelope Bridge </td>
+   <td style="text-align:right;"> 464.5 </td>
+   <td style="text-align:right;"> 162.0 </td>
+   <td style="text-align:right;"> 19.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-16 23:05:00 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> Bank Robber Slough </td>
+   <td style="text-align:right;"> 456.0 </td>
+   <td style="text-align:right;"> 211.5 </td>
+   <td style="text-align:right;"> 50.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-24 21:52:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Hunters Resort </td>
+   <td style="text-align:right;"> 450.3 </td>
+   <td style="text-align:right;"> 217.0 </td>
+   <td style="text-align:right;"> 66.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-24 23:31:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Antelope Bridge </td>
+   <td style="text-align:right;"> 464.5 </td>
+   <td style="text-align:right;"> 171.0 </td>
+   <td style="text-align:right;"> 30.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-28 21:26:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Bow River </td>
+   <td style="text-align:right;"> 458.0 </td>
+   <td style="text-align:right;"> 227.0 </td>
+   <td style="text-align:right;"> 62.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-10-29 22:47:00 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> Oat Creek </td>
+   <td style="text-align:right;"> 448.0 </td>
+   <td style="text-align:right;"> 242.0 </td>
+   <td style="text-align:right;"> 67.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-11-06 23:26:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Hunters Resort </td>
+   <td style="text-align:right;"> 450.3 </td>
+   <td style="text-align:right;"> 234.0 </td>
+   <td style="text-align:right;"> 72.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-11-07 22:25:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Altube Island </td>
+   <td style="text-align:right;"> 460.0 </td>
+   <td style="text-align:right;"> 177.0 </td>
+   <td style="text-align:right;"> 34.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-11-11 21:42:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Antelope Bridge </td>
+   <td style="text-align:right;"> 464.5 </td>
+   <td style="text-align:right;"> 201.0 </td>
+   <td style="text-align:right;"> 40.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2019-11-14 23:27:00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> Altube Island </td>
+   <td style="text-align:right;"> 460.0 </td>
+   <td style="text-align:right;"> 167.0 </td>
+   <td style="text-align:right;"> 26.4 </td>
+  </tr>
+</tbody>
+</table>
 <br/>
 
 ## Real-time Fish Detections
 
-***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
+***Data current as of <span style="color:red">2020-01-23 12:00:00</span>. All times in Pacific Standard Time.***
 
 
 <br/>
@@ -144,14 +225,14 @@ if (nrow(study_tagcodes) == 0){
 #### Detections at Butte City Bridge versus Sacramento River flows at Butte City
 </center>
 
-```{r print figure of fish detections at Butte, message = FALSE, fig.height = 6, fig.width = 10}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_SHMC_F2020.csv", stringsAsFactors = F)
+detects_study <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2019.csv", stringsAsFactors = F)
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
@@ -213,7 +294,8 @@ if (nrow(detects_butte) == 0){
   barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
-          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt ="n")#,
+  #border=NA
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
@@ -229,8 +311,9 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext("Flow (cfs) at Butte City", side=4, line=3, cex=1.5, col="blue")
 }
-
 ```
+
+<img src="pageSRGS_2020_files/figure-html/print figure of fish detections at Butte-1.png" width="960" />
 
 <br/>
 <br/>
@@ -239,8 +322,8 @@ if (nrow(detects_butte) == 0){
 #### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </center>
 
-```{r print figure of fish detections at Tower, message = FALSE, fig.height = 6, fig.width = 10}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(CDECRetrieve)
@@ -299,7 +382,8 @@ if (nrow(detects_tower) == 0){
   barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
           xlab = "", ylab = "Number of fish arrivals per day",
           ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
-          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n", border=NA)#,
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt ="n")#,
+  #border=NA
   #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
   #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
@@ -315,8 +399,9 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
 }
-
 ```
+
+<img src="pageSRGS_2020_files/figure-html/print figure of fish detections at Tower-1.png" width="960" />
 
 <br/>
 <br/>
@@ -325,8 +410,8 @@ if (nrow(detects_tower) == 0){
 #### Detections at Benicia Bridge
 </center>
 
-```{r print figure of fish detections at Benicia, message = FALSE, fig.height = 6, fig.width = 10}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
@@ -371,7 +456,7 @@ if (nrow(detects_benicia)>0) {
   barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
           xlab = "", ylab = "Number of fish arrivals per day", 
           ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
-          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n",xaxt = "n", border=NA)#,
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
           #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
           #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
   legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
@@ -391,7 +476,10 @@ if (nrow(detects_benicia)>0) {
 }else{
   print("No detections at Benicia yet")
 }
+```
 
+```
+## [1] "No detections at Benicia yet"
 ```
 
 
@@ -405,8 +493,8 @@ if (nrow(detects_benicia)>0) {
 
 <br/>
 
-```{r print table of survival to Tower, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(data.table)
@@ -497,7 +585,38 @@ if (nrow(detects_tower) == 0){
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   }
 }
-```    
+```
+
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Release </th>
+   <th style="text-align:right;"> Survival (%) </th>
+   <th style="text-align:right;"> SE </th>
+   <th style="text-align:right;"> 95% lower C.I. </th>
+   <th style="text-align:right;"> 95% upper C.I. </th>
+   <th style="text-align:right;"> Detection efficiency (%) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ALL </td>
+   <td style="text-align:right;"> 33.3 </td>
+   <td style="text-align:right;"> 12.2 </td>
+   <td style="text-align:right;"> 14.6 </td>
+   <td style="text-align:right;"> 59.4 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ALL </td>
+   <td style="text-align:right;"> 33.3 </td>
+   <td style="text-align:right;"> 12.2 </td>
+   <td style="text-align:right;"> 14.6 </td>
+   <td style="text-align:right;"> 59.4 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+</tbody>
+</table>
 
 <br/>
 <br/>
@@ -508,8 +627,8 @@ if (nrow(detects_tower) == 0){
 
 <br/>
 
-```{r print table of survival and routing, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 
@@ -669,6 +788,8 @@ if (nrow(detects_study) == 0){
 }
 ```
 
+[1] "Too few detections: routing probability cannot be estimated"
+
 <br/>
 <br/>
 
@@ -678,8 +799,8 @@ if (nrow(detects_study) == 0){
 
 <br/>
 
-```{r print table of survival to Benicia, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 if (nrow(detects_benicia) == 0){
@@ -784,9 +905,8 @@ if (nrow(detects_benicia) == 0){
   
 }
 ```
-  
 
-
+[1] "No detections yet"
 <br/>
 <br/>
 
@@ -796,14 +916,14 @@ if (nrow(detects_benicia) == 0){
 
 <br/>
 
-```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
-  
+
   arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
   
   tag_stats <- aggregate(list(First_arrival = arrivals$DateTime_PST), 
@@ -887,7 +1007,193 @@ if (nrow(detects_study) == 0){
     }
   }
 }
+```
 
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<caption>Detections for all releases combined</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> general_location </th>
+   <th style="text-align:left;"> First_arrival </th>
+   <th style="text-align:left;"> Mean_arrival </th>
+   <th style="text-align:left;"> Last_arrival </th>
+   <th style="text-align:right;"> Fish_count </th>
+   <th style="text-align:right;"> Percent_arrived </th>
+   <th style="text-align:right;"> rkm </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ButteBrRT </td>
+   <td style="text-align:left;"> 2019-12-08 12:41:19 </td>
+   <td style="text-align:left;"> 2019-12-10 04:22:18 </td>
+   <td style="text-align:left;"> 2019-12-14 20:24:01 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 26.67 </td>
+   <td style="text-align:right;"> 344.108 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TowerBridge </td>
+   <td style="text-align:left;"> 2019-12-10 10:29:44 </td>
+   <td style="text-align:left;"> 2019-12-14 03:56:05 </td>
+   <td style="text-align:left;"> 2019-12-26 19:49:49 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 33.33 </td>
+   <td style="text-align:right;"> 172.000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> I80-50_Br </td>
+   <td style="text-align:left;"> 2019-12-10 11:15:22 </td>
+   <td style="text-align:left;"> 2019-12-14 23:45:01 </td>
+   <td style="text-align:left;"> 2019-12-26 20:20:24 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 26.67 </td>
+   <td style="text-align:right;"> 170.748 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana </td>
+   <td style="text-align:left;"> 2019-12-12 04:05:35 </td>
+   <td style="text-align:left;"> 2019-12-13 03:09:56 </td>
+   <td style="text-align:left;"> 2019-12-14 01:46:32 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 20.00 </td>
+   <td style="text-align:right;"> 119.058 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana2 </td>
+   <td style="text-align:left;"> 2019-12-12 05:11:43 </td>
+   <td style="text-align:left;"> 2019-12-13 03:50:55 </td>
+   <td style="text-align:left;"> 2019-12-14 02:09:21 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 20.00 </td>
+   <td style="text-align:right;"> 118.398 </td>
+  </tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<caption>Detections for ALL release groups</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> general_location </th>
+   <th style="text-align:left;"> First_arrival </th>
+   <th style="text-align:left;"> Mean_arrival </th>
+   <th style="text-align:left;"> Last_arrival </th>
+   <th style="text-align:right;"> Fish_count </th>
+   <th style="text-align:right;"> Percent_arrived </th>
+   <th style="text-align:right;"> rkm </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ButteBrRT </td>
+   <td style="text-align:left;"> 2019-12-08 12:41:19 </td>
+   <td style="text-align:left;"> 2019-12-10 04:22:18 </td>
+   <td style="text-align:left;"> 2019-12-14 20:24:01 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 26.67 </td>
+   <td style="text-align:right;"> 344.108 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TowerBridge </td>
+   <td style="text-align:left;"> 2019-12-10 10:29:44 </td>
+   <td style="text-align:left;"> 2019-12-14 03:56:05 </td>
+   <td style="text-align:left;"> 2019-12-26 19:49:49 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 33.33 </td>
+   <td style="text-align:right;"> 172.000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> I80-50_Br </td>
+   <td style="text-align:left;"> 2019-12-10 11:15:22 </td>
+   <td style="text-align:left;"> 2019-12-14 23:45:01 </td>
+   <td style="text-align:left;"> 2019-12-26 20:20:24 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 26.67 </td>
+   <td style="text-align:right;"> 170.748 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana </td>
+   <td style="text-align:left;"> 2019-12-12 04:05:35 </td>
+   <td style="text-align:left;"> 2019-12-13 03:09:56 </td>
+   <td style="text-align:left;"> 2019-12-14 01:46:32 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 20.00 </td>
+   <td style="text-align:right;"> 119.058 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana2 </td>
+   <td style="text-align:left;"> 2019-12-12 05:11:43 </td>
+   <td style="text-align:left;"> 2019-12-13 03:50:55 </td>
+   <td style="text-align:left;"> 2019-12-14 02:09:21 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 20.00 </td>
+   <td style="text-align:right;"> 118.398 </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+## Set fig height for next plot here, based on how long fish have been at large
+figheight <- max(c(1,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = "days")) / 5))
+```
+
+<br/>
+<br/>
+<center>
+#### Fish arrivals per day
+</center>
+
+<br/>
+
+##### Gray tiles = receiver location was operational, white tiles = receiver location non-operational 
+
+```r
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+if (nrow(detects_study) == 0){
+  "No detections yet"
+} else {
+  
+  beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
+  beacon_by_day$day <- as.Date(beacon_by_day$day)
+  
+  arrivals$day <- as.Date(arrivals$DateTime_PST)
+  
+  arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day <- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$RelDT)),]  
+  
+  beacon_by_day <- merge(beacon_by_day, gen_locs[,c("location", "general_location","rkm")], by = "location", all.x = T)
+
+  arrivals_per_day <- merge(beacon_by_day, arrivals_per_day, all.x = T, by = c("general_location", "day"))
+  
+  arrivals_per_day$day <- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day <- arrivals_per_day[!arrivals_per_day$general_location == "Bench_test",]
+  arrivals_per_day <- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+  
+  ## Change order of data to plot decreasing rkm
+  arrivals_per_day <- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
+  arrivals_per_day$general_location <- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
+  
+  
+  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  geom_tile(fill = "lightgray", color = "black") + 
+  geom_text(aes(label=New_arrivals)) +
+  labs(x="General Location", y = "Date") +
+  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+}
+```
+
+<img src="pageSRGS_2020_files/figure-html/print tables of fish detections per day-1.png" width="480" />
+
+```r
 rm(list = ls())
 cleanup(ask = F)
 ```
