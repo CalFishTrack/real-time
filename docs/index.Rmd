@@ -33,8 +33,12 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 `r anicon::nia("New Updates", size = 2)`
 
-1. [New page for Late-fall Chinook, released 12/5/2019](https://calfishtrack.github.io/real-time/pageCHLF_2020.html)
-2. [New page for Green Sturgeon, released starting 10/7/2019](https://calfishtrack.github.io/real-time/pageSRGS_2020.html)
+1. [Instructions for downloading data have been updated 1/24/2020](https://calfishtrack.github.io/real-time/pageRealtime_download.html)
+2. [New webpage created for Mill and Deer Creek Chinook salmon 1/23/2020](https://calfishtrack.github.io/real-time/pageMD_CH_W_F2020.html)
+2. [New webpage created for Mill and Deer Creek steelhead 1/23/2020](https://calfishtrack.github.io/real-time/pageMD_SH_W_F2020.html)
+2. [New webpage for Late-fall Chinook, released 12/5/2019](https://calfishtrack.github.io/real-time/pageCHLF_2020.html)
+3. [New webpage for Green Sturgeon, released starting 10/7/2019](https://calfishtrack.github.io/real-time/pageSRGS_2020.html)
+
 
 </div>
     
