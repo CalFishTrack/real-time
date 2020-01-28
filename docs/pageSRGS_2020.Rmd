@@ -59,7 +59,7 @@ htmltools::img(src = knitr::image_uri("../data/Juvenile_Green_Sturgeon_crop.jpg"
 ## Project Status
 
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Sac_River_Green_Sturgeon_2020.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Sac_River_Green_Sturgeon_2020_post.pdf?raw=true)
 
 ```{r print table with fish release details}
 
