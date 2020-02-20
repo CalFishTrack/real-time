@@ -229,7 +229,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 #library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Mok_Fall_2018.csv", stringsAsFactors = F)
+detects_study <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = F)
 
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
@@ -603,18 +603,20 @@ library(RMark)
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Nimbus-Fall-2018.csv", stringsAsFactors = FALSE)
+test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE)
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "Nimbus-Fall-2018",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "RBDD-2018",]
 study_count <- nrow(study_tagcodes)
 
 test <- merge(test, tagcodes[,c("TagID_Hex", "RelDT")], by.x = "TagCode", by.y = "TagID_Hex")
 
-if (nrow(test) == 0){
+detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
+
+if (nrow(detects_benicia) == 0){
   "No detections yet"
 } else {
   test$DateTime_PST <- as.POSIXct(test$DateTime_PST, format = "%Y-%m-%d %H:%M:%S")
