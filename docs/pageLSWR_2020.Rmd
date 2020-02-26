@@ -46,7 +46,7 @@ htmltools::img(src = knitr::image_uri("../data/shasta.jpeg"))#,
 <br/>
 <br/>
 
-# **Hatchery-origin late-fall run Chinook salmon**
+# **Hatchery-origin winter-run Chinook salmon**
 
 <br/>
 
@@ -56,7 +56,7 @@ htmltools::img(src = knitr::image_uri("../data/shasta.jpeg"))#,
 
 ## Project Status
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_CNFH_late-fall-run_2020.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_LSNFH_Winter-run.pdf?raw=true)
 
 ```{r print table with fish release details}
 
@@ -67,7 +67,7 @@ tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("Tag
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
-study_tagcodes <- tagcodes[tagcodes$StudyID == "ColemanLateFall_2020",]
+study_tagcodes <- tagcodes[tagcodes$StudyID == "Winter_H_2020",]
  
 
 if (nrow(study_tagcodes) == 0){
@@ -151,7 +151,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_ColemanLateFall_2020.csv")
+detects_study <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Winter_H_2020.csv")
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){
