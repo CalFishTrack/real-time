@@ -672,6 +672,8 @@ for (i in 1:nrow(shed_times)){
 ## Now remove the shed detections, and then add back in the 100 first and last subset data
 detects <- detects[!(detects$move %in% shed_new$move),]
 detects <- rbind(detects, shed_detects)
+detects$mov_count <- NULL
+detects$move <- NULL
 
 ## Now export shed tag summaries
 write.csv(shed_new,file = "shed_tags.csv", row.names = F)
