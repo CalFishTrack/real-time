@@ -73,6 +73,8 @@ corrupted_downloads <- read.csv("corrupted_downloads.csv", stringsAsFactors = F)
 tagcodes <- fread("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
+shed <- read.csv(file = "shed_tags.csv", stringsAsFactors = F)
+
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
 detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
 
@@ -451,7 +453,7 @@ if (nrow(UCD_files) > 0) {
     if (inherits(test, "try-error")) {
       next
     } else {
-
+      
       hour <- substr(UCD_files[i,], nchar(UCD_files[i,])-21, nchar(UCD_files[i,])-10)
       recv <- substr(UCD_files[i,], nchar(UCD_files[i,])-28, nchar(UCD_files[i,])-23)
       ## Get volts, sometimes in row 1 or 2
@@ -460,7 +462,7 @@ if (nrow(UCD_files) > 0) {
       downloads_new3 <- rbindlist(list(downloads_new3, data.frame(list(filename = UCD_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
     }
   }
-
+  
   if (nrow(downloads_new3) > 0) {
     downloads_new3$end <- as.POSIXct(downloads_new3$hour, tz = "GMT", format = "%Y%m%d%H%M")
     downloads_new3$start <- downloads_new3$end -(2*60*60)
@@ -486,9 +488,9 @@ if (nrow(UCD_files) > 0) {
       } else {
         detects_temp <- rbindlist(list(detects_temp, res))
       }
-  
+      
     }
-  
+    
     
     colnames(detects_temp) <- c("recv", "DateTime_Orig", "TagCode")
     ## Make a POSIX class, note that UCD detections are in GMT, will need to convert to local time
@@ -592,9 +594,10 @@ detects[which(detects$general_location != shift(detects$general_location, fill =
 detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
 detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
 
-## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
+## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 6 minute span (this seems like a good cutoff) (within 3 minutes before and 3 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
+## Using 179 seconds rather than 180 seconds for 3min filter to get rid of a particularly pervasive false detection
 detects$before_and_after_valid <- 0
-detects[is.na(detects$time_to_next) == F & is.na(detects$time_from_previous) == F & detects$time_to_next < 0.08333333 & detects$time_from_previous < 0.08333333,"before_and_after_valid"] <- 1
+detects[is.na(detects$time_to_next) == F & is.na(detects$time_from_previous) == F & detects$time_to_next < 0.04944444 & detects$time_from_previous < 0.04944444,"before_and_after_valid"] <- 1
 ## In case a valid fish detection occurs right before the hour mark, we need to make sure to keep these, otherwise they might get dropped before the remaining detections come in the next hour
 last_detects <- aggregate(list(last = detects$DateTime_PST), by = list(location = detects$location), FUN = max)
 last_detects$last <-  last_detects$last - 15*60
@@ -604,16 +607,78 @@ detects <- detects[order(detects$TagCode, detects$general_location, detects$Date
 ## Now pull out only these detections that are part of at least 3 consecutive detections that are no more than 5 minutes apart
 ## Also keep detections that occured within the last 15 minutes of each recv so that valid tag visits aren't dropped before all the detections come in
 detects <- detects[which(shift(detects$before_and_after_valid, fill = NA, type = "lag") == 1 |
-                                     shift(detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
-                                     detects$before_and_after_valid == 1 |
-                                     detects$DateTime_PST > detects$last),]
+                           shift(detects$before_and_after_valid, fill = NA, type = "lead") == 1 |
+                           detects$before_and_after_valid == 1 |
+                           detects$DateTime_PST > detects$last),]
 ## Remove extra columns
 detects$last <- NULL
 detects$time_to_next <- NULL
 detects$time_from_previous <- NULL
 detects$before_and_after_valid <- NULL
 
-## Now summarize beacon detects by day
+
+#### Now remove shed tags ####
+## first summarize by movement to find shed tags
+detects <- detects[order(detects$TagCode, detects$DateTime_PST),]
+detects$mov_count <- 0 
+## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
+detects[which(detects$general_location != shift(detects$general_location, fill = NA, type = "lag")), "mov_count"] <- 1
+## except, if between two nearby lines. Sometimes a shed tag will get detected on two lines if near both
+allowed_moves <- c("Georgiana_Slough1-Georgiana_Slough2",
+                   "Georgiana_Slough2-Georgiana_Slough1",
+                   "Sac_BlwGeorgiana-Sac_BlwGeorgiana2",
+                   "Sac_BlwGeorgiana2-Sac_BlwGeorgiana",
+                   "Benicia_east-Benicia_west",
+                   "Benicia_west-Benicia_east")
+detects[which(paste(detects$general_location,shift(detects$general_location, fill = NA, type = "lag"), sep = "-") %in% allowed_moves), "mov_count"] <- 0
+## Also make NA when between different tagcodes
+detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "mov_count"] <- 1
+## Create movement index
+detects$move <- cumsum(detects$mov_count)
+## Now summarize by unique movement, find min, max, count of detections
+detects_summary <- aggregate(list(min = detects$DateTime_PST), by = list(move = detects$move), FUN = min)
+detects_summary <- merge(detects_summary, aggregate(list(max = detects$DateTime_PST), by = list(move = detects$move), FUN = max))
+detects_summary <- merge(detects_summary, aggregate(list(n = detects$DateTime_PST), by = list(move = detects$move), FUN = length))
+detects_summary$diff <- as.numeric(difftime(detects_summary$max, detects_summary$min, units = "days"))
+
+## Bring back in relevant data from main detects table (TagCode and Genloc)
+move_unique <- unique(detects[,c("move", "TagCode", "general_location")])
+detects_summary <- merge(detects_summary, move_unique)
+
+## Now pull out GenLoc visits that are longer than 30 days and have more than 20000 detections
+## However, also include visits that are longer than 30 days and have been determined to be a shed tag in past runs of the script
+## The majority of detections for past identified shed tags would have been pulled out, so they likely wouldn't meet 20000 condition
+## However, we want to include these fish in case there are new shed detections for those fish. Those will need to be removed too
+shed_new <- detects_summary[(detects_summary$diff > 30 & detects_summary$n > 20000) | (detects_summary$diff > 30 & detects_summary$TagCode %in% unique(shed$TagCode)) ,]
+## Here merge the new sheds with the old sheds so that we can get the old tally of detections removed
+## Also so we can identify the new move ID for old, already removed shed detections
+shed_new <- merge(shed_new, shed[,c("TagCode", "general_location", "n")], by = c("TagCode", "general_location"), all = T)
+## Here, find the new total given past removed detections and new removed detections
+## first, remove 200 detections from old shed detection counts to account for those we kept
+shed_new[is.na(shed_new$n.x)==F,"n.y"] <- shed_new[is.na(shed_new$n.x)==F,"n.y"]-200
+shed_new$n <- apply(shed_new[,c("n.x", "n.y")], 1, sum, na.rm = T)
+shed_new$n.x <- NULL
+shed_new$n.y <- NULL
+
+## now run a loop and pull out first and last 100 detections (200 total) that occur between the min and max of shed movements
+shed_times <- unique(shed_new[,c("TagCode", "min", "max")])
+shed_detects <- NULL
+detects <- detects[order(detects$TagCode, detects$DateTime_PST),]
+for (i in 1:nrow(shed_times)){
+  shed_detects <- rbind(shed_detects, head(detects[detects$TagCode == shed_times[i,"TagCode"] & detects$DateTime_PST >= shed_times[i,"min"] & detects$DateTime_PST <= shed_times[i,"max"],],n = 100))
+  shed_detects <- rbind(shed_detects, tail(detects[detects$TagCode == shed_times[i,"TagCode"] & detects$DateTime_PST >= shed_times[i,"min"] & detects$DateTime_PST <= shed_times[i,"max"],],n = 100))
+}
+
+## Now remove the shed detections, and then add back in the 100 first and last subset data
+detects <- detects[!(detects$move %in% shed_new$move),]
+detects <- rbind(detects, shed_detects)
+
+## Now export shed tag summaries
+write.csv(shed_new,file = "shed_tags.csv", row.names = F)
+
+
+#### Now summarize beacon detects by day ####
+
 #beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
 detects_beacon$day <- format(detects_beacon$DateTime_PST, format = "%Y-%m-%d")
 beacon_by_day_new <- detects_beacon[,list(count = length(DateTime_PST)), by = list(recv,location,TagCode,day)]
@@ -782,8 +847,8 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$recv != shift(temp_detects$recv, fill = NA, n = 2, type = "lag")), "prev_interval"] <- NA
     # Is current detection within PRI*1.3*12+1 seconds from the previous two, the one before and one after, and the following two?
     temp_detects$part_of_valid_3 <- rowSums(cbind(temp_detects$time_to_next + temp_detects$next_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1,
-                                        temp_detects$time_to_next + temp_detects$time_from_previous < (temp_detects$PRI_nominal * 1.3 * 12) +1,
-                                        temp_detects$time_from_previous + temp_detects$prev_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1), na.rm = T)
+                                                  temp_detects$time_to_next + temp_detects$time_from_previous < (temp_detects$PRI_nominal * 1.3 * 12) +1,
+                                                  temp_detects$time_from_previous + temp_detects$prev_interval < (temp_detects$PRI_nominal * 1.3 * 12) +1), na.rm = T)
     ## Remove detects that are not part of at least one train of 3 valid detections
     temp_detects <- temp_detects[temp_detects$part_of_valid_3 >0,]
   }
@@ -813,10 +878,10 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[is.na(temp_detects$time_from_previous),"visit_step"] <- 1  #scenario 1. I've kept this here even though scenario 2 actually captures these as well
     temp_detects$first_of_three_good <- ((temp_detects$time_to_next + temp_detects$next_interval) < (temp_detects$PRI_nominal * 1.3 * 12) +1) ## setting up scenario 2
     temp_detects[temp_detects$part_of_valid_3 == 1 & is.na(temp_detects$first_of_three_good) == F & temp_detects$first_of_three_good == T,"visit_step"] <- 1  #scenario 2
-  
+    
     ## just do cumulative sum of the visit step to get visit num
     temp_detects$visit_num <- cumsum(temp_detects$visit_step)
-  
+    
     ## Now to calculate PRI, we'll need to recalculate time to next and time from previous once we've reordered by visit_num
     temp_detects <- temp_detects[order(temp_detects$visit_num, temp_detects$DateTime_PST),]
     ## Now estimate the time in secs between the previous and next detection, for each detection.
@@ -829,12 +894,12 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lead")), "time_to_next"] <- NA
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, n = 2, fill = NA, type = "lag")), "time_from_2ndprevious"] <- NA
     temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, n = 2, fill = NA, type = "lead")), "time_to_2ndnext"] <- NA
-  
+    
     ## function for estimating most likely PRI based on gap between detections
     estPRI <- function(span = span, PRI = PRI){
       ifelse((span > PRI & is.na(span) == F),(span/PRI) / round(span/PRI, digits = 0) * PRI,span)
     }
-  
+    
     ## If a middle detection from a ping train, look at PRI to before and after
     temp_detects$PRI.1 <- estPRI(span = temp_detects$time_from_previous, PRI = temp_detects$PRI_nominal)
     temp_detects$PRI.2 <- estPRI(span = temp_detects$time_to_next, PRI = temp_detects$PRI_nominal)
@@ -855,18 +920,18 @@ for (k in unique(tagcodes$StudyID)){
     
     temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 2, "visit_num"],]
   }
-
-
+  
+  
   
   ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
   temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "Temp", "general_location", "latitude", "longitude", "rkm")]
   
   ## Add this data to study_detections file, only if there is something to add
   if(nrow(temp_detects) > 0){
-      study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
+    study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
   }
   temp_detects$DateTime_PST <- format(temp_detects$DateTime_PST, "%Y-%m-%d %H:%M:%S")
-  fwrite(temp_detects, paste("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  fwrite(temp_detects, paste(getwd(),"/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
 }
 
 
@@ -1013,7 +1078,7 @@ Filtering protocol:
 1. “Multipath detection removal”: All detections that occur within 0.3 sec after an initial tag detection on the same receiver, that share the same Tag Code, will be removed from the data. These detections are "multipath detections" and are created by echos from the original tag transmission.
 
 
-2. "3 detections within 10 minutes rule": As a first cut to remove obviously false detections, only detections of "potentially valid fish detections" are kept in the database. Potentially valid fish detections are when at least 3 consecutive detections of a tag code occur at a general location site with no more than 5 minute gaps in between the three detections. These potentially valid detections are kept in the general database, but stricter criteria need to be met for them to be associated with a released fish (see below).
+2. "3 detections within 6 minutes rule": As a first cut to remove obviously false detections, only detections of "potentially valid fish detections" are kept in the database. Potentially valid fish detections are when at least 3 consecutive detections of a tag code occur at a general location site with no more than 3 minute gaps in between the three detections. These potentially valid detections are kept in the general database, but stricter criteria need to be met for them to be associated with a released fish (see below).
 
 
 3. “Is there a fish at large with that TagCode?”: For detections of a TagCode to be assigned to an actual released fish with that same TagCode, the detections need to fall between the release time of that fish, and the release time + 150% of the estimated tag life for that fish's tag. For example, if a fish is released on 1/1/2019, and it has a 60 day battery life, detections of that fish’s TagCode must fall between 1/1/2019 and 4/1/2019 to be associated to that fish.
@@ -1026,6 +1091,9 @@ Filtering protocol:
 
 
 6. “3-hit filter”: Once all the previous filters have been applied, if there are less than 3 detections total for a potentially valid fish visit, those visits are dropped. All remaining fish detections are kept and considered valid.
+
+
+Additionally, a shed tag algorithm is used to remove detections for any tag that is detected continuously at one general location site for more than 30 days, and that was detected at that site a minimum of 20,000 times. The first 100 and last 100 detections of the general location site are kept for survival analyses, but the remaining detections are dropped.
 
 
 <br/>

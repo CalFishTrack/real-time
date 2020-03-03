@@ -10,38 +10,16 @@ output:
   #  theme: cayman
   #  toc: true
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyr)
-library(knitr)
-library(kableExtra)
-library(lubridate)
-library(data.table)
-library(ggplot2)
-#library(xtable)
-#library(prettydoc)
-library(scales)
-library(viridis)
-library(forcats)
 
-```
 
 #  *Central Valley Enhanced*
 #  *Acoustic Tagging Project*
-```{r logos, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
-               alt = 'logo', 
-               style = 'position:absolute; top:10px; right:0px; width:200px;')
-```
+preserve6c4114247f0f6150
 
 <br/>
 <br/>
 
-```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/TurkeyBeach.jpg"))#, 
-               #alt = 'logo', 
-               #style = 'position:absolute; top:0px; right:0px; width:100px;')
-```
+preserve8c5e781a0a7e7f27
 
 <br/>
 <br/>
@@ -60,8 +38,8 @@ htmltools::img(src = knitr::image_uri("../data/TurkeyBeach.jpg"))#,
 
 Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_CNFH_late-fall-run_2020.pdf?raw=true)
 
-```{r print table with fish release details}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
@@ -132,15 +110,45 @@ if (nrow(study_tagcodes) == 0){
   kable(release_stats, format = "html") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left")
 }                       
+```
 
 ```
+## Project began on 2019-12-05 07:20:00, see tagging details below:
+```
+
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Release </th>
+   <th style="text-align:left;"> First_release_time </th>
+   <th style="text-align:left;"> Last_release_time </th>
+   <th style="text-align:right;"> Number_fish_released </th>
+   <th style="text-align:left;"> Release_location </th>
+   <th style="text-align:right;"> Release_rkm </th>
+   <th style="text-align:right;"> Mean_length </th>
+   <th style="text-align:right;"> Mean_weight </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Week 1 </td>
+   <td style="text-align:left;"> 2019-12-05 07:20:00 </td>
+   <td style="text-align:left;"> 2019-12-05 12:20:00 </td>
+   <td style="text-align:right;"> 603 </td>
+   <td style="text-align:left;"> BattleCk_CNFH </td>
+   <td style="text-align:right;"> 517.344 </td>
+   <td style="text-align:right;"> 149.2 </td>
+   <td style="text-align:right;"> 40.3 </td>
+  </tr>
+</tbody>
+</table>
 
 ***
 <br/>
 
 ## Real-time Fish Detections
 
-***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
+***Data current as of <span style="color:red">2020-03-02 18:00:00</span>. All times in Pacific Standard Time.***
 
 
 <br/>
@@ -148,8 +156,8 @@ if (nrow(study_tagcodes) == 0){
 #### Detections at Butte City Bridge versus Sacramento River flows at Butte City
 </center>
 
-```{r print figure of fish detections at Butte, message = FALSE, fig.height = 6, fig.width = 10}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(CDECRetrieve)
@@ -234,8 +242,9 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext("Flow (cfs) at Butte City", side=4, line=3, cex=1.5, col="blue")
 }
-
 ```
+
+<img src="pageCHLF_2020_files/figure-html/print figure of fish detections at Butte-1.png" width="960" />
 
 <br/>
 <br/>
@@ -244,8 +253,8 @@ if (nrow(detects_butte) == 0){
 #### Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </center>
 
-```{r print figure of fish detections at Tower, message = FALSE, fig.height = 6, fig.width = 10}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(CDECRetrieve)
@@ -321,8 +330,9 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext("Flow (cfs) at Wilkins Slough", side=4, line=3, cex=1.5, col="blue")
 }
-
 ```
+
+<img src="pageCHLF_2020_files/figure-html/print figure of fish detections at Tower-1.png" width="960" />
 
 <br/>
 <br/>
@@ -331,8 +341,8 @@ if (nrow(detects_tower) == 0){
 #### Detections at Benicia Bridge
 </center>
 
-```{r print figure of fish detections at Benicia, message = FALSE, fig.height = 6, fig.width = 10}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
@@ -397,8 +407,9 @@ if (nrow(detects_benicia)>0) {
 }else{
   print("No detections at Benicia yet")
 }
-
 ```
+
+<img src="pageCHLF_2020_files/figure-html/print figure of fish detections at Benicia-1.png" width="960" />
 
 
 <br/>
@@ -411,8 +422,8 @@ if (nrow(detects_benicia)>0) {
 
 <br/>
 
-```{r print table of survival to Tower, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 library(data.table)
@@ -503,7 +514,38 @@ if (nrow(detects_tower) == 0){
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, position = "left"))
   }
 }
-```    
+```
+
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Release </th>
+   <th style="text-align:right;"> Survival (%) </th>
+   <th style="text-align:right;"> SE </th>
+   <th style="text-align:right;"> 95% lower C.I. </th>
+   <th style="text-align:right;"> 95% upper C.I. </th>
+   <th style="text-align:right;"> Detection efficiency (%) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ALL </td>
+   <td style="text-align:right;"> 60.4 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 56.4 </td>
+   <td style="text-align:right;"> 64.2 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Week 1 </td>
+   <td style="text-align:right;"> 60.4 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 56.4 </td>
+   <td style="text-align:right;"> 64.2 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+</tbody>
+</table>
 
 <br/>
 <br/>
@@ -514,8 +556,8 @@ if (nrow(detects_tower) == 0){
 
 <br/>
 
-```{r print table of survival and routing, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 
@@ -670,6 +712,90 @@ if (nrow(detects_study) == 0){
 }
 ```
 
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Measure </th>
+   <th style="text-align:right;"> Estimate </th>
+   <th style="text-align:right;"> SE </th>
+   <th style="text-align:right;"> 95% lower C.I. </th>
+   <th style="text-align:right;"> 95% upper C.I. </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Survival from release to Butte City </td>
+   <td style="text-align:right;"> 75.5 </td>
+   <td style="text-align:right;"> 1.9 </td>
+   <td style="text-align:right;"> 71.6 </td>
+   <td style="text-align:right;"> 79.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass) </td>
+   <td style="text-align:right;"> 80.4 </td>
+   <td style="text-align:right;"> 2.0 </td>
+   <td style="text-align:right;"> 76.2 </td>
+   <td style="text-align:right;"> 84.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Survival from TowerBridge to I80-50_Br </td>
+   <td style="text-align:right;"> 100.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 99.5 </td>
+   <td style="text-align:right;"> 100.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam) </td>
+   <td style="text-align:right;"> 60.9 </td>
+   <td style="text-align:right;"> 2.6 </td>
+   <td style="text-align:right;"> 55.8 </td>
+   <td style="text-align:right;"> 65.8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Detection probability at Butte City </td>
+   <td style="text-align:right;"> 86.3 </td>
+   <td style="text-align:right;"> 1.8 </td>
+   <td style="text-align:right;"> 82.4 </td>
+   <td style="text-align:right;"> 89.5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Detection probability at TowerBridge </td>
+   <td style="text-align:right;"> 99.5 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 97.8 </td>
+   <td style="text-align:right;"> 99.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Detection probability at I80-50_Br </td>
+   <td style="text-align:right;"> 99.5 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 97.8 </td>
+   <td style="text-align:right;"> 99.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Detection probability at Blw_Georgiana </td>
+   <td style="text-align:right;"> 100.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 100.0 </td>
+   <td style="text-align:right;"> 100.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Detection probability at Georgiana Slough </td>
+   <td style="text-align:right;"> 100.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 96.2 </td>
+   <td style="text-align:right;"> 100.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Routing probability into Georgiana Slough (Conditional on fish arriving to junction) </td>
+   <td style="text-align:right;"> 23.8 </td>
+   <td style="text-align:right;"> 2.9 </td>
+   <td style="text-align:right;"> 18.6 </td>
+   <td style="text-align:right;"> 29.8 </td>
+  </tr>
+</tbody>
+</table>
+
 <br/>
 <br/>
 
@@ -679,8 +805,8 @@ if (nrow(detects_study) == 0){
 
 <br/>
 
-```{r print table of survival to Benicia, message = FALSE, results= "asis", warning=FALSE}
 
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 if (nrow(detects_benicia) == 0){
@@ -785,6 +911,37 @@ if (nrow(detects_benicia) == 0){
   
 }
 ```
+
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Release Group </th>
+   <th style="text-align:right;"> Survival (%) </th>
+   <th style="text-align:right;"> SE </th>
+   <th style="text-align:right;"> 95% lower C.I. </th>
+   <th style="text-align:right;"> 95% upper C.I. </th>
+   <th style="text-align:right;"> Detection efficiency (%) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ALL </td>
+   <td style="text-align:right;"> 17.1 </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> 14.3 </td>
+   <td style="text-align:right;"> 20.3 </td>
+   <td style="text-align:right;"> 99 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Week 1 </td>
+   <td style="text-align:right;"> 17.1 </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> 14.3 </td>
+   <td style="text-align:right;"> 20.3 </td>
+   <td style="text-align:right;"> 99 </td>
+  </tr>
+</tbody>
+</table>
 <br/>
 <br/>
 
@@ -794,7 +951,8 @@ if (nrow(detects_benicia) == 0){
 
 <br/>
 
-```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
+
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 if (nrow(detects_study) == 0){
@@ -884,10 +1042,224 @@ if (nrow(detects_study) == 0){
     }
   }
 }
+```
 
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<caption>Detections for all releases combined</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> general_location </th>
+   <th style="text-align:left;"> First_arrival </th>
+   <th style="text-align:left;"> Mean_arrival </th>
+   <th style="text-align:left;"> Last_arrival </th>
+   <th style="text-align:right;"> Fish_count </th>
+   <th style="text-align:right;"> Percent_arrived </th>
+   <th style="text-align:right;"> rkm </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ButteBrRT </td>
+   <td style="text-align:left;"> 2019-12-08 08:17:20 </td>
+   <td style="text-align:left;"> 2019-12-09 17:42:30 </td>
+   <td style="text-align:left;"> 2020-01-18 08:40:21 </td>
+   <td style="text-align:right;"> 393 </td>
+   <td style="text-align:right;"> 65.17 </td>
+   <td style="text-align:right;"> 344.108 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TowerBridge </td>
+   <td style="text-align:left;"> 2019-12-10 05:54:03 </td>
+   <td style="text-align:left;"> 2019-12-12 09:22:54 </td>
+   <td style="text-align:left;"> 2020-02-16 08:52:01 </td>
+   <td style="text-align:right;"> 364 </td>
+   <td style="text-align:right;"> 60.36 </td>
+   <td style="text-align:right;"> 172.000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> I80-50_Br </td>
+   <td style="text-align:left;"> 2019-12-10 06:25:55 </td>
+   <td style="text-align:left;"> 2019-12-12 09:59:52 </td>
+   <td style="text-align:left;"> 2020-02-16 12:19:51 </td>
+   <td style="text-align:right;"> 364 </td>
+   <td style="text-align:right;"> 60.36 </td>
+   <td style="text-align:right;"> 170.748 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MiddleRiver </td>
+   <td style="text-align:left;"> 2020-01-01 20:32:34 </td>
+   <td style="text-align:left;"> 2020-01-01 20:32:34 </td>
+   <td style="text-align:left;"> 2020-01-01 20:32:34 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.17 </td>
+   <td style="text-align:right;"> 150.000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgiana_Slough1 </td>
+   <td style="text-align:left;"> 2019-12-11 12:32:33 </td>
+   <td style="text-align:left;"> 2019-12-15 02:00:45 </td>
+   <td style="text-align:left;"> 2020-01-28 22:24:39 </td>
+   <td style="text-align:right;"> 55 </td>
+   <td style="text-align:right;"> 9.12 </td>
+   <td style="text-align:right;"> 119.208 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana </td>
+   <td style="text-align:left;"> 2019-12-11 11:45:06 </td>
+   <td style="text-align:left;"> 2019-12-13 23:46:08 </td>
+   <td style="text-align:left;"> 2020-01-29 22:06:53 </td>
+   <td style="text-align:right;"> 172 </td>
+   <td style="text-align:right;"> 28.52 </td>
+   <td style="text-align:right;"> 119.058 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgiana_Slough2 </td>
+   <td style="text-align:left;"> 2019-12-11 12:43:08 </td>
+   <td style="text-align:left;"> 2019-12-13 08:34:31 </td>
+   <td style="text-align:left;"> 2019-12-29 02:27:41 </td>
+   <td style="text-align:right;"> 51 </td>
+   <td style="text-align:right;"> 8.46 </td>
+   <td style="text-align:right;"> 118.758 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana2 </td>
+   <td style="text-align:left;"> 2019-12-11 12:40:49 </td>
+   <td style="text-align:left;"> 2019-12-14 00:34:03 </td>
+   <td style="text-align:left;"> 2020-01-29 22:25:03 </td>
+   <td style="text-align:right;"> 170 </td>
+   <td style="text-align:right;"> 28.19 </td>
+   <td style="text-align:right;"> 118.398 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Benicia_east </td>
+   <td style="text-align:left;"> 2019-12-14 19:39:48 </td>
+   <td style="text-align:left;"> 2019-12-21 02:51:48 </td>
+   <td style="text-align:left;"> 2020-02-04 14:09:57 </td>
+   <td style="text-align:right;"> 102 </td>
+   <td style="text-align:right;"> 16.92 </td>
+   <td style="text-align:right;"> 52.240 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Benicia_west </td>
+   <td style="text-align:left;"> 2019-12-14 19:42:19 </td>
+   <td style="text-align:left;"> 2019-12-21 04:27:32 </td>
+   <td style="text-align:left;"> 2020-02-04 14:12:19 </td>
+   <td style="text-align:right;"> 101 </td>
+   <td style="text-align:right;"> 16.75 </td>
+   <td style="text-align:right;"> 52.040 </td>
+  </tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<caption>Detections for Week 1 release groups</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> general_location </th>
+   <th style="text-align:left;"> First_arrival </th>
+   <th style="text-align:left;"> Mean_arrival </th>
+   <th style="text-align:left;"> Last_arrival </th>
+   <th style="text-align:right;"> Fish_count </th>
+   <th style="text-align:right;"> Percent_arrived </th>
+   <th style="text-align:right;"> rkm </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ButteBrRT </td>
+   <td style="text-align:left;"> 2019-12-08 08:17:20 </td>
+   <td style="text-align:left;"> 2019-12-09 17:42:30 </td>
+   <td style="text-align:left;"> 2020-01-18 08:40:21 </td>
+   <td style="text-align:right;"> 393 </td>
+   <td style="text-align:right;"> 65.17 </td>
+   <td style="text-align:right;"> 344.108 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TowerBridge </td>
+   <td style="text-align:left;"> 2019-12-10 05:54:03 </td>
+   <td style="text-align:left;"> 2019-12-12 09:22:54 </td>
+   <td style="text-align:left;"> 2020-02-16 08:52:01 </td>
+   <td style="text-align:right;"> 364 </td>
+   <td style="text-align:right;"> 60.36 </td>
+   <td style="text-align:right;"> 172.000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> I80-50_Br </td>
+   <td style="text-align:left;"> 2019-12-10 06:25:55 </td>
+   <td style="text-align:left;"> 2019-12-12 09:59:52 </td>
+   <td style="text-align:left;"> 2020-02-16 12:19:51 </td>
+   <td style="text-align:right;"> 364 </td>
+   <td style="text-align:right;"> 60.36 </td>
+   <td style="text-align:right;"> 170.748 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MiddleRiver </td>
+   <td style="text-align:left;"> 2020-01-01 20:32:34 </td>
+   <td style="text-align:left;"> 2020-01-01 20:32:34 </td>
+   <td style="text-align:left;"> 2020-01-01 20:32:34 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.17 </td>
+   <td style="text-align:right;"> 150.000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgiana_Slough1 </td>
+   <td style="text-align:left;"> 2019-12-11 12:32:33 </td>
+   <td style="text-align:left;"> 2019-12-15 02:00:45 </td>
+   <td style="text-align:left;"> 2020-01-28 22:24:39 </td>
+   <td style="text-align:right;"> 55 </td>
+   <td style="text-align:right;"> 9.12 </td>
+   <td style="text-align:right;"> 119.208 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana </td>
+   <td style="text-align:left;"> 2019-12-11 11:45:06 </td>
+   <td style="text-align:left;"> 2019-12-13 23:46:08 </td>
+   <td style="text-align:left;"> 2020-01-29 22:06:53 </td>
+   <td style="text-align:right;"> 172 </td>
+   <td style="text-align:right;"> 28.52 </td>
+   <td style="text-align:right;"> 119.058 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgiana_Slough2 </td>
+   <td style="text-align:left;"> 2019-12-11 12:43:08 </td>
+   <td style="text-align:left;"> 2019-12-13 08:34:31 </td>
+   <td style="text-align:left;"> 2019-12-29 02:27:41 </td>
+   <td style="text-align:right;"> 51 </td>
+   <td style="text-align:right;"> 8.46 </td>
+   <td style="text-align:right;"> 118.758 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sac_BlwGeorgiana2 </td>
+   <td style="text-align:left;"> 2019-12-11 12:40:49 </td>
+   <td style="text-align:left;"> 2019-12-14 00:34:03 </td>
+   <td style="text-align:left;"> 2020-01-29 22:25:03 </td>
+   <td style="text-align:right;"> 170 </td>
+   <td style="text-align:right;"> 28.19 </td>
+   <td style="text-align:right;"> 118.398 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Benicia_east </td>
+   <td style="text-align:left;"> 2019-12-14 19:39:48 </td>
+   <td style="text-align:left;"> 2019-12-21 02:51:48 </td>
+   <td style="text-align:left;"> 2020-02-04 14:09:57 </td>
+   <td style="text-align:right;"> 102 </td>
+   <td style="text-align:right;"> 16.92 </td>
+   <td style="text-align:right;"> 52.240 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Benicia_west </td>
+   <td style="text-align:left;"> 2019-12-14 19:42:19 </td>
+   <td style="text-align:left;"> 2019-12-21 04:27:32 </td>
+   <td style="text-align:left;"> 2020-02-04 14:12:19 </td>
+   <td style="text-align:right;"> 101 </td>
+   <td style="text-align:right;"> 16.75 </td>
+   <td style="text-align:right;"> 52.040 </td>
+  </tr>
+</tbody>
+</table>
+
+```r
 ## Set fig height for next plot here, based on how long fish have been at large
 figheight <- max(c(1,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = "days")) / 5))
-
 ```
 
 <br/>
@@ -899,7 +1271,8 @@ figheight <- max(c(1,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), 
 <br/>
 
 ##### Gray tiles = receiver location was operational, white tiles = receiver location non-operational 
-```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5}
+
+```r
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 if (nrow(detects_study) == 0){
@@ -941,7 +1314,11 @@ if (nrow(detects_study) == 0){
   labs(x="General Location", y = "Date") +
   theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
 }
+```
 
+<img src="pageCHLF_2020_files/figure-html/print tables of fish detections per day-1.png" width="480" />
+
+```r
 rm(list = ls())
 cleanup(ask = F)
 ```
