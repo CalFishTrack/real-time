@@ -1172,7 +1172,7 @@ ggplot() +
 library(ggplot2)
 
 volt.files <- data.frame(path =dir(pattern = "*.txt", path = "C:/Users/field/Documents/Voltage_emails", full.names = T), stringsAsFactors = F)
-volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 41, stop = 55), format = "%Y%m%d-%H%M%S")
+volt.files$Datetime <- as.POSIXct(substr(volt.files$path, 41, stop = 55), format = "%Y%m%d-%H%M%S", tz = "Etc/GMT+8" )
 
 ## Only use last 2 weeks of volt files
 volt.files_2weeks <- volt.files[volt.files$Datetime > (Sys.time() - 60*60*24*14),]
