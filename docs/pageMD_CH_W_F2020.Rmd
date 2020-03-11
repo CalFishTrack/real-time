@@ -137,8 +137,7 @@ if (nrow(study_tagcodes) == 0){
 
 ## Real-time Fish Detections
 
-***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
-
+***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
 
 <br/>
 <center>

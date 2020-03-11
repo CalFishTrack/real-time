@@ -981,7 +981,7 @@ UCD_processed_files$x <- as.character(UCD_processed_files$x)
 fwrite(UCD_processed_files, "UCD_processed_files.csv", row.names = F, quote = T) 
 
 ```
-***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
+***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
 
 <br/>
 
