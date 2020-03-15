@@ -933,7 +933,8 @@ for (k in unique(tagcodes$StudyID)){
     study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
   }
   temp_detects$DateTime_PST <- format(temp_detects$DateTime_PST, "%Y-%m-%d %H:%M:%S")
-  fwrite(temp_detects, paste(getwd(),"/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F)
+  temp_detects$TagCode <- as.character(temp_detects$TagCode)
+  fwrite(temp_detects, paste(getwd(),"/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F, quote = T)
 }
 
 
