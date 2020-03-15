@@ -882,7 +882,7 @@ if (nrow(detects_study) == 0){
 }
 
 ## Set fig height for next plot here, based on how long fish have been at large
-figheight <- max(c(1,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = "days")) / 5))
+figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = "days")) / 5))
 
 ```
 
