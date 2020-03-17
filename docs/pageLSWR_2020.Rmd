@@ -6,6 +6,8 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
+    includes:
+      in_header: GA_Script.html
   #prettydoc::html_pretty:
   #  theme: cayman
   #  toc: true
