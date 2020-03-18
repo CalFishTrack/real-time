@@ -553,6 +553,14 @@ div.tocify {
 </div>
 
 
+<style>
+p.caption {
+  font-size: 1.5em;
+}
+caption {
+      font-size: 1.5em;
+}
+</style>
 <div id="central-valley-enhanced" class="section level1">
 <h1><em>Central Valley Enhanced</em></h1>
 </div>
@@ -565,13 +573,14 @@ div.tocify {
 </div>
 <div id="hatchery-origin-winter-run-chinook-salmon" class="section level1">
 <h1><strong>Hatchery-origin winter-run Chinook salmon</strong></h1>
-<p><br/></p>
 <div id="season-provisional-data" class="section level2">
 <h2>2019-2020 Season (PROVISIONAL DATA)</h2>
 <p><br/></p>
+<hr />
 </div>
 <div id="project-status" class="section level2">
-<h2>Project Status</h2>
+<h2><em>1. Project Status</em></h2>
+<hr />
 <p>Telemetry Study Template for this study can be found <a href="https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_LSNFH_Winter-run.pdf?raw=true">here</a></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
@@ -641,10 +650,10 @@ if (nrow(study_tagcodes) == 0){
   release_stats$Last_release_time &lt;- format(release_stats$Last_release_time, tz = &quot;Etc/GMT+8&quot;)
   
   kable(release_stats, format = &quot;html&quot;) %&gt;%
-          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;)
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 }                       </code></pre>
 <pre><code>## Project began on 2020-03-10 19:10:00, see tagging details below:</code></pre>
-<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -703,21 +712,18 @@ Caldwell_Park_Rel
 </tbody>
 </table>
 <p><br/></p>
+<hr />
 </div>
 <div id="real-time-fish-detections" class="section level2">
-<h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-17 21:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
-<br/>
-<center>
-<div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
-<h4>Detections at Butte City Bridge versus Sacramento River flows at Butte City</h4>
-</center>
+<h2><em>2. Real-time Fish Detections</em></h2>
+<hr />
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-17 23:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- fread(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Winter_H_2020.csv&quot;, colClasses=c(TagCode=&quot;character&quot;))
+detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_Winter_H_2020.csv&quot;, sep = &quot;&quot;))
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -731,7 +737,8 @@ detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteB
 #wlk_flow &lt;- read.csv(&quot;wlk.csv&quot;)
 
 if (nrow(detects_butte) == 0){
-  &quot;No detections yet&quot;
+  plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
+  text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 } else {
   
   detects_butte &lt;- merge(detects_butte,aggregate(list(first_detect = detects_butte$DateTime_PST), by = list(TagCode= detects_butte$TagCode), FUN = min))
@@ -740,12 +747,12 @@ if (nrow(detects_butte) == 0){
   
   starttime &lt;- as.Date(min(detects_butte$RelDT), &quot;Etc/GMT+8&quot;)
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime &lt;- min(as.Date(c(Sys.time())), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
   
 
   BTC_flow &lt;- cdec_query(&quot;BTC&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
 
-  BTC_flow$datetime &lt;- as.Date(BTC_flow$datetime)
+  BTC_flow$datetime &lt;- as.Date(format(BTC_flow$datetime, &quot;%Y-%m-%d&quot;))
   BTC_flow_day &lt;- aggregate(list(parameter_value = BTC_flow$parameter_value),
                             by = list(Day = BTC_flow$datetime),
                             FUN = mean, na.rm = T)
@@ -796,13 +803,12 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<p><img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" width="960" /></p>
-<p><br/> <br/></p>
-<center>
+<div class="figure">
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #9ecff7; padding:10px" />
+<p class="caption">
+2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City
+</p>
 </div>
-<div id="detections-at-tower-bridge-downtown-sacramento-versus-sacramento-river-flows-at-wilkins-slough" class="section level4">
-<h4>Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough</h4>
-</center>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -813,7 +819,8 @@ detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerB
 #wlk_flow &lt;- read.csv(&quot;wlk.csv&quot;)
 
 if (nrow(detects_tower) == 0){
-  &quot;No detections yet&quot;
+  plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
+  text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 } else {
   
   detects_tower &lt;- merge(detects_tower,aggregate(list(first_detect = detects_tower$DateTime_PST), by = list(TagCode= detects_tower$TagCode), FUN = min))
@@ -878,13 +885,12 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## [1] &quot;No detections yet&quot;</code></pre>
-<p><br/> <br/></p>
-<center>
+<div class="figure">
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #9ecff7; padding:10px" />
+<p class="caption">
+2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
+</p>
 </div>
-<div id="detections-at-benicia-bridge" class="section level4">
-<h4>Detections at Benicia Bridge</h4>
-</center>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_benicia &lt;- detects_study[detects_study$general_location %in% c(&quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
@@ -947,18 +953,21 @@ if (nrow(detects_benicia)&gt;0) {
 #mtext(&quot;Flow (cfs) at Colusa Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 
 }else{
-  print(&quot;No detections at Benicia yet&quot;)
+  plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
+  text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
-<pre><code>## [1] &quot;No detections at Benicia yet&quot;</code></pre>
-<p><br/> <br/></p>
-</center>
+<div class="figure">
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #9ecff7; padding:10px" />
+<p class="caption">
+2.3 Detections at Benicia Bridge
+</p>
 </div>
-<div id="minimum-survival-to-tower-bridge-using-cjs-survival-model" class="section level4">
-<h4>Minimum survival to Tower Bridge (using CJS survival model)</h4>
-<div id="if-yolo-bypass-weirs-are-overtopping-during-migration-fish-may-have-taken-that-route-and-therefore-this-is-a-minimum-estimate-of-survival" class="section level5">
-<h5>If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival</h5>
-</center>
 <p><br/></p>
+<hr />
+</div>
+<div id="survival-and-routing-probability" class="section level2">
+<h2><em>3. Survival and Routing Probability</em></h2>
+<hr />
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(data.table)
@@ -969,7 +978,11 @@ gen_locs &lt;- read.csv(&quot;realtime_locs.csv&quot;, stringsAsFactors = F)
 study_count &lt;- nrow(study_tagcodes)
 
 if (nrow(detects_tower) == 0){
-  &quot;No detections yet&quot;
+    WR.surv &lt;- data.frame(&quot;Release&quot;=NA, &quot;Survival (%)&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
+     colnames(WR.surv) &lt;- c(&quot;Release&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+    
+    print(kable(WR.surv, row.names = F, &quot;html&quot;, caption = &quot;3.1 Minimum survival to Tower Bridge (using CJS survival model). If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
 } else {
   
   ## Only do survival to Sac for now
@@ -1045,24 +1058,67 @@ if (nrow(detects_tower) == 0){
     
     colnames(WR.surv) &lt;- c(&quot;Release&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
     
-    print(kable(WR.surv, row.names = F, &quot;html&quot;) %&gt;%
-            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+    print(kable(WR.surv, row.names = F, &quot;html&quot;, caption = &quot;3.1 Minimum survival to Tower Bridge (using CJS survival model). If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
   }
 }</code></pre>
-<p>[1] “No detections yet”</p>
-<p><br/> <br/></p>
-</center>
-</div>
-</div>
-<div id="reach-specific-survival-and-probability-of-entering-georgiana-slough" class="section level4">
-<h4>Reach-specific survival and probability of entering Georgiana Slough</h4>
-</center>
-<p><br/></p>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+3.1 Minimum survival to Tower Bridge (using CJS survival model). If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Release
+</th>
+<th style="text-align:left;">
+Survival (%)
+</th>
+<th style="text-align:left;">
+SE
+</th>
+<th style="text-align:left;">
+95% lower C.I.
+</th>
+<th style="text-align:left;">
+95% upper C.I.
+</th>
+<th style="text-align:left;">
+Detection efficiency (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NO DETECTIONS YET
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 
 if (nrow(detects_study) == 0){
-  &quot;No detections yet&quot;
+    results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
+    colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+    print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.2 Reach-specific survival and probability of entering Georgiana Slough&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
 } else {
   
   ## Only do survival to Georg split for now
@@ -1072,7 +1128,10 @@ if (nrow(detects_study) == 0){
   
   if(nrow(test2[test2$general_location %in% c(&quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;),]) == 0 |
      nrow(test2[test2$general_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;),]) == 0){
-    &quot;Too few detections: routing probability cannot be estimated&quot;
+    results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
+    colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+    print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.2 Reach-specific survival and probability of entering Georgiana Slough&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
   }else{
     
     ## Make tagcode character
@@ -1198,7 +1257,17 @@ if (nrow(detects_study) == 0){
     
     
     results_short &lt;- round(results_short[,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
-    
+      
+    ## Now find estimate and CIs for AtoA route at junction
+    Psilist=get.real(S.timexstratum.p.timexstratum.Psi.timexstratum,&quot;Psi&quot;,vcv=TRUE)  
+    Psivalues=Psilist$estimates
+
+    routes &lt;- TransitionMatrix(Psivalues[Psivalues$time==4 &amp; Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
+  
+  
+  
+  
+  
     results_short$Measure &lt;- c(&quot;Survival from release to Butte City&quot;,&quot;Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)&quot;, &quot;Survival from TowerBridge to I80-50_Br&quot;, &quot;% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)&quot;,&quot;Detection probability at Butte City&quot;,
                                &quot;Detection probability at TowerBridge&quot;, &quot;Detection probability at I80-50_Br&quot;, &quot;Detection probability at Blw_Georgiana&quot;, &quot;Detection probability at Georgiana Slough&quot;,
                                &quot;Routing probability into Georgiana Slough (Conditional on fish arriving to junction)&quot;)
@@ -1206,22 +1275,83 @@ if (nrow(detects_study) == 0){
     results_short &lt;- results_short[,c(&quot;Measure&quot;, &quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)]
     colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
 
-    print(kable(results_short, row.names = F, &quot;html&quot;) %&gt;%
-            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+    print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.2 Reach-specific survival and probability of entering Georgiana Slough&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
   }
 }</code></pre>
-<p>[1] “Too few detections: routing probability cannot be estimated”</p>
-<p><br/> <br/></p>
-<center>
-</div>
-<div id="minimum-survival-to-benicia-bridge-east-span-using-cjs-survival-model" class="section level4">
-<h4>Minimum survival to Benicia Bridge East Span (using CJS survival model)</h4>
-</center>
-<p><br/></p>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+3.2 Reach-specific survival and probability of entering Georgiana Slough
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Measure
+</th>
+<th style="text-align:left;">
+Estimate
+</th>
+<th style="text-align:left;">
+SE
+</th>
+<th style="text-align:left;">
+95% lower C.I.
+</th>
+<th style="text-align:left;">
+95% upper C.I.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NO DETECTIONS YET
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>library(png)
+
+#Replace the directory and file information with your info
+georg &lt;- readPNG(&quot;../data/georg.png&quot;)
+
+par(mar=c(2,0,0,0))
+#Set up the plot area
+plot(1:2, type=&#39;n&#39;, xlab=&quot;&quot;, ylab=&quot;&quot;, xaxt = &quot;n&quot;, yaxt = &quot;n&quot;)
+
+#Get the plot information so the image will fill the plot box, and draw it
+lim &lt;- par()
+rasterImage(georg, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
+  
+if(nrow(test2[test2$general_location %in% c(&quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;),]) == 0 |
+   nrow(test2[test2$general_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;),]) == 0){
+    legend(x = 1.55,y = 1.6,legend =  &quot;Too few detections&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;) 
+    legend(x = 1.55,y = 1.45,legend =  &quot;Too few detections&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;) 
+}else{  
+  legend(x = 1.55,y = 1.6,legend =  paste(round(routes$TransitionMat[&quot;A&quot;,&quot;A&quot;],3)*100,&quot;% (&quot;,round(routes$lcl.TransitionMat[&quot;A&quot;,&quot;A&quot;],3)*100,&quot;-&quot;,round(routes$ucl.TransitionMat[&quot;A&quot;,&quot;A&quot;],3)*100,&quot;)&quot;, sep =&quot;&quot;),col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;)
+  legend(1.55,1.45, legend =  paste(round(routes$TransitionMat[&quot;A&quot;,&quot;B&quot;],3)*100,&quot;% (&quot;,round(routes$lcl.TransitionMat[&quot;A&quot;,&quot;B&quot;],3)*100,&quot;-&quot;,round(routes$ucl.TransitionMat[&quot;A&quot;,&quot;B&quot;],3)*100,&quot;)&quot;, sep =&quot;&quot;), box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;)
+}  
+  mtext(text = &quot;3.3 Routing Probabilities at Georgiana Slough Junction&quot;, cex = 1.3, side = 1, line = 0.2, adj = 0)</code></pre>
+<p><img src="pageLSWR_2020_files/figure-html/figure%20of%20routing%20with%20pic-1.png" width="729.6" style="display: block; margin: auto auto auto 0;" /></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 if (nrow(detects_benicia) == 0){
-  &quot;No detections yet&quot;
+  WR.surv1 &lt;- data.frame(&quot;Release Group&quot;=NA, &quot;Survival (%)&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))  
 } else {
   
   benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F)
@@ -1299,8 +1429,8 @@ if (nrow(detects_benicia) == 0){
   WR.surv1 &lt;- WR.surv
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
 
-  print(kable(WR.surv1, row.names = F, &quot;html&quot;) %&gt;%
-          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))    
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))    
   
   ## Find mean release time per release group, and ALL
   reltimes &lt;- aggregate(list(RelDT = study_tagcodes$RelDT), by = list(Release = study_tagcodes$Release), FUN = mean)
@@ -1321,13 +1451,61 @@ if (nrow(detects_benicia) == 0){
   write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
   
 }</code></pre>
-<p>[1] “No detections yet” <br/> <br/></p>
-<center>
-</div>
-<div id="detections-statistics-at-all-realtime-receivers" class="section level4">
-<h4>Detections statistics at all realtime receivers</h4>
-</center>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Release Group
+</th>
+<th style="text-align:left;">
+Survival (%)
+</th>
+<th style="text-align:left;">
+SE
+</th>
+<th style="text-align:left;">
+95% lower C.I.
+</th>
+<th style="text-align:left;">
+95% upper C.I.
+</th>
+<th style="text-align:left;">
+Detection efficiency (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NO DETECTIONS YET
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
 <p><br/></p>
+<hr />
+</div>
+<div id="detections-statistics-at-all-realtime-receivers" class="section level2">
+<h2><em>4. Detections statistics at all realtime receivers</em></h2>
+<hr />
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 if (nrow(detects_study) == 0){
@@ -1363,9 +1541,9 @@ if (nrow(detects_study) == 0){
   tag_stats[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)] &lt;- format(tag_stats[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)], tz = &quot;Etc/GMT+8&quot;)
 
   print(kable(tag_stats, row.names = F, 
-              caption = &quot;Detections for all releases combined&quot;,
+              caption = &quot;4.1 Detections for all releases combined&quot;,
               &quot;html&quot;) %&gt;%
-          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
   
   for (j in sort(unique(study_tagcodes$Release))) {
     
@@ -1405,10 +1583,10 @@ if (nrow(detects_study) == 0){
       tag_stats1[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)] &lt;- format(tag_stats1[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)], tz = &quot;Etc/GMT+8&quot;)
       
       final_stats &lt;- kable(tag_stats1, row.names = F, 
-            caption = paste(&quot;Detections for&quot;,j,&quot;release groups&quot;, sep = &quot; &quot;),
+            caption = paste(&quot;4.2 Detections for&quot;,j,&quot;release groups&quot;, sep = &quot; &quot;),
             &quot;html&quot;)
       
-      print(kable_styling(final_stats, bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;), full_width = F, position = &quot;left&quot;))
+      print(kable_styling(final_stats, bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
       
     } else {
       cat(&quot;\n\n\\pagebreak\n&quot;)
@@ -1417,9 +1595,9 @@ if (nrow(detects_study) == 0){
     }
   }
 }</code></pre>
-<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <caption>
-Detections for all releases combined
+4.1 Detections for all releases combined
 </caption>
 <thead>
 <tr>
@@ -1472,9 +1650,9 @@ ButteBrRT
 </tr>
 </tbody>
 </table>
-<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <caption>
-Detections for Week 1 release groups
+4.2 Detections for Week 1 release groups
 </caption>
 <thead>
 <tr>
@@ -1529,15 +1707,9 @@ ButteBrRT
 </table>
 <pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
 figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = &quot;days&quot;)) / 5))</code></pre>
-<br/> <br/>
-<center>
-</div>
-<div id="fish-arrivals-per-day" class="section level4">
-<h4>Fish arrivals per day</h4>
-</center>
 <p><br/></p>
-<div id="gray-tiles-receiver-location-was-operational-white-tiles-receiver-location-non-operational" class="section level5">
-<h5>Gray tiles = receiver location was operational, white tiles = receiver location non-operational</h5>
+<div id="fish-arrivals-per-day" class="section level3">
+<h3>4.3 Fish arrivals per day</h3>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 if (nrow(detects_study) == 0){
@@ -1579,10 +1751,14 @@ if (nrow(detects_study) == 0){
   labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
   theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
 }</code></pre>
-<p><img src="pageLSWR_2020_files/figure-html/print%20tables%20of%20fish%20detections%20per%20day-1.png" width="480" /></p>
+<div class="figure">
+<img src="pageLSWR_2020_files/figure-html/print%20tables%20of%20fish%20detections%20per%20day-1.png" alt="Gray tiles = receiver location was operational, white tiles = receiver location non-operational" width="480" />
+<p class="caption">
+Gray tiles = receiver location was operational, white tiles = receiver location non-operational
+</p>
+</div>
 <pre class="r"><code>rm(list = ls())
 cleanup(ask = F)</code></pre>
-</div>
 </div>
 </div>
 </div>
