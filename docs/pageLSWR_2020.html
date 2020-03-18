@@ -717,7 +717,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-18 07:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-18 08:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -997,7 +997,11 @@ if (nrow(detects_tower) == 0){
   gen_loc_sites &lt;- ncol(inp)-1
   
   if(gen_loc_sites &lt;2){
-    &quot;Detections at only one location so far, survival cannot yet be estimated&quot;
+    WR.surv &lt;- data.frame(&quot;Release&quot;=NA, &quot;Survival (%)&quot;=&quot;NOT ENOUGH DETECTIONS&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
+     colnames(WR.surv) &lt;- c(&quot;Release&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+    
+    print(kable(WR.surv, row.names = F, &quot;html&quot;, caption = &quot;3.1 Minimum survival to Tower Bridge (using CJS survival model). If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
   }else{
   
     inp &lt;- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
@@ -1696,13 +1700,13 @@ TowerBridge
 I80-50_Br
 </td>
 <td style="text-align:left;">
-2020-03-18 05:29:44
+2020-03-18 05:25:52
 </td>
 <td style="text-align:left;">
-2020-03-18 05:29:44
+2020-03-18 05:25:52
 </td>
 <td style="text-align:left;">
-2020-03-18 05:29:44
+2020-03-18 05:25:52
 </td>
 <td style="text-align:right;">
 1
@@ -1797,13 +1801,13 @@ TowerBridge
 I80-50_Br
 </td>
 <td style="text-align:left;">
-2020-03-18 05:29:44
+2020-03-18 05:25:52
 </td>
 <td style="text-align:left;">
-2020-03-18 05:29:44
+2020-03-18 05:25:52
 </td>
 <td style="text-align:left;">
-2020-03-18 05:29:44
+2020-03-18 05:25:52
 </td>
 <td style="text-align:right;">
 1

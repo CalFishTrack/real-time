@@ -429,7 +429,11 @@ if (nrow(detects_tower) == 0){
   gen_loc_sites <- ncol(inp)-1
   
   if(gen_loc_sites <2){
-    "Detections at only one location so far, survival cannot yet be estimated"
+    WR.surv <- data.frame("Release"=NA, "Survival (%)"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
+     colnames(WR.surv) <- c("Release", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+    
+    print(kable(WR.surv, row.names = F, "html", caption = "3.1 Minimum survival to Tower Bridge (using CJS survival model). If Yolo Bypass Weirs are overtopping during migration, fish may have taken that route, and therefore this is a minimum estimate of survival") %>%
+            kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
   }else{
   
     inp <- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
