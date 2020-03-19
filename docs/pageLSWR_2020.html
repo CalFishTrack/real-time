@@ -717,7 +717,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-19 06:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-19 08:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -804,11 +804,12 @@ if (nrow(detects_butte) == 0){
   mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
 <div class="figure">
-<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #9ecff7; padding:10px" />
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
 2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City
 </p>
 </div>
+<p><br/></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -886,11 +887,12 @@ if (nrow(detects_tower) == 0){
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
 <div class="figure">
-<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #9ecff7; padding:10px" />
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
 2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough
 </p>
 </div>
+<p><br/></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_benicia &lt;- detects_study[detects_study$general_location %in% c(&quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
@@ -957,7 +959,7 @@ if (nrow(detects_benicia)&gt;0) {
   text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
 <div class="figure">
-<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #9ecff7; padding:10px" />
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
 2.3 Detections at Benicia Bridge
 </p>
@@ -1657,16 +1659,16 @@ ButteBrRT
 2020-03-14 15:15:18
 </td>
 <td style="text-align:left;">
-2020-03-17 09:29:59
+2020-03-17 16:56:44
 </td>
 <td style="text-align:left;">
-2020-03-19 04:49:35
+2020-03-19 06:26:58
 </td>
 <td style="text-align:right;">
-10
+12
 </td>
 <td style="text-align:right;">
-2.72
+3.27
 </td>
 <td style="text-align:right;">
 344.108
@@ -1758,16 +1760,16 @@ ButteBrRT
 2020-03-14 15:15:18
 </td>
 <td style="text-align:left;">
-2020-03-17 09:29:59
+2020-03-17 16:56:44
 </td>
 <td style="text-align:left;">
-2020-03-19 04:49:35
+2020-03-19 06:26:58
 </td>
 <td style="text-align:right;">
-10
+12
 </td>
 <td style="text-align:right;">
-2.72
+3.27
 </td>
 <td style="text-align:right;">
 344.108
