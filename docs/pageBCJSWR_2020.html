@@ -720,23 +720,16 @@ NF Battle Creek
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-23 22:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-24 07:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_BC_Jumpstart_2020.csv&quot;, sep = &quot;&quot;))</code></pre>
-<pre><code>## Warning in (if (.Platform$OS.type == &quot;unix&quot;) system else shell)
-## (paste0(&quot;(&quot;, : &#39;(C:\Users\field\Desktop\Real-time data
-## massaging\products\Study_detection_files\detects_BC_Jumpstart_2020.csv) &gt;
-## C:\Users\field\AppData\Local\Temp\RtmpU7y4e2\file2d1815362982&#39; execution
-## failed with error code 1</code></pre>
-<pre><code>## Warning in fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),
-## &quot;Desktop&quot;, fsep = &quot;\\&quot;), : File &#39;C:
-## \Users\field\AppData\Local\Temp\RtmpU7y4e2\file2d1815362982&#39; has size 0.
-## Returning a NULL data.table.</code></pre>
-<pre class="r"><code>if(nrow(detects_study)&gt;0){
+detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_BC_Jumpstart_2020.csv&quot;, sep = &quot;&quot;))
+
+
+if(nrow(detects_study)&gt;0){
   detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
   detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
 }

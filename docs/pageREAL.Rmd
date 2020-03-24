@@ -760,13 +760,13 @@ detects <- detects[order(detects$general_location, detects$TagCode, detects$Date
 study_detections <- NULL
 
 for (k in unique(tagcodes$StudyID)){
-  studycodes <- tagcodes[tagcodes$StudyID == k, "TagID_Hex"]
+  studycodes <- tagcodes[tagcodes$StudyID == k,]
   ## First, select only detections of correct tagcodes per study
   temp_detects <- as.data.frame(detects[detects$TagCode %in% studycodes$TagID_Hex,])
   ## Now remove detections that occurred on 4/1/19 at 17135
   temp_detects <- temp_detects[!(temp_detects$recv == "17135" & as.Date(temp_detects$DateTime_PST) == "2019-04-01"),]
   ## Now remove false detections that occured before release,
-  temp_detects <- merge(temp_detects, tagcodes[,c("TagID_Hex", "RelDT", "PRI_nominal", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
+  temp_detects <- merge(temp_detects, studycodes[,c("TagID_Hex", "RelDT", "PRI_nominal", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
   temp_detects <- temp_detects[temp_detects$DateTime_PST > temp_detects$RelDT,]
   ## Now remove false detections that occured after the tags expected end of life
   if(nrow(temp_detects) > 0){
