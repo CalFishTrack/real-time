@@ -85,8 +85,8 @@ if (nrow(study_tagcodes) == 0){
   cat(paste("Project began on ", min(study_tagcodes$RelDT), ", see tagging details below:", sep = ""))
 
 
-  study_tagcodes$Release <- "Week 1"
-  #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2019-05-17"), "Release"] <- "Week 2"
+  study_tagcodes$Release <- "Release 1"
+  study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2020-03-20"), "Release"] <- "Release 2"
 
   
   
