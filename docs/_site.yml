@@ -17,6 +17,8 @@ navbar:
       href: pageMD_SH_W_F2020.html
     - text: Hatchery winter-run salmon
       href: pageLSWR_2020.html
+    - text: Battle Creek jump-start winter-run
+      href: pageBCJSWR_2020.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers

@@ -261,7 +261,7 @@ if (nrow(detects_tower) == 0){
   
   starttime <- as.Date(min(detects_tower$RelDT), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(c(Sys.time())), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
 
   wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
@@ -698,7 +698,7 @@ if(nrow(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgian
   legend(x = 1.55,y = 1.6,legend =  paste(round(routes$TransitionMat["A","A"],3)*100,"% (",round(routes$lcl.TransitionMat["A","A"],3)*100,"-",round(routes$ucl.TransitionMat["A","A"],3)*100,")", sep =""),col = "white", box.col = "light gray", bg = "light gray")
   legend(1.55,1.45, legend =  paste(round(routes$TransitionMat["A","B"],3)*100,"% (",round(routes$lcl.TransitionMat["A","B"],3)*100,"-",round(routes$ucl.TransitionMat["A","B"],3)*100,")", sep =""), box.col = "light gray", bg = "light gray")
 }  
-  mtext(text = "3.3 Routing Probabilities at Georgiana Slough Junction", cex = 1.3, side = 1, line = 0.2, adj = 0)
+  mtext(text = "3.3 Routing Probabilities at Georgiana Slough Junction (with 95% C.I.s)", cex = 1.3, side = 1, line = 0.2, adj = 0)
 
 
 ```
