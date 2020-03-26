@@ -19,6 +19,10 @@ navbar:
       href: pageLSWR_2020.html
     - text: Battle Creek jump-start winter-run
       href: pageBCJSWR_2020.html
+    - text: Rice field reared hatchery fall-run
+      href: pageUCD_Rice_2020.html
+    - text: Hatchery San Joaquin spring-run
+      href: pageSJSR_2020.html
     - text: 2020 SEASON SUMMARY
       href: pageSEASON_2020.html
   - text: Real-time Receivers
@@ -27,8 +31,6 @@ navbar:
     href: pageDEPLOY.html
   - text: Download data
     href: pageRealtime_download.html
-  - text: STARS shiny app
-    href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
   - text: Archive Study Pages
     menu:
     - text: 2018 Water Year
@@ -81,6 +83,8 @@ navbar:
         href: pageSHMC_Spring_2019.html
       - text: 2019 SEASON SUMMARY
         href: pageSEASON.html
+  - text: STARS shiny app
+    href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
 output:
   html_document:
     lib_dir: site_libs

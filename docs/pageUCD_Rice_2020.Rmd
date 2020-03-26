@@ -47,7 +47,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/NF_Battle.jpg"))#, 
+htmltools::img(src = knitr::image_uri("../data/yolo.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
@@ -55,7 +55,7 @@ htmltools::img(src = knitr::image_uri("../data/NF_Battle.jpg"))#,
 <br/>
 <br/>
 
-# **Hatchery-origin Battle Creek winter-run Chinook salmon**
+# **Hatchery-origin rice field reared fall-run Chinook salmon**
 
 ## 2019-2020 Season (PROVISIONAL DATA)
 
@@ -65,7 +65,7 @@ htmltools::img(src = knitr::image_uri("../data/NF_Battle.jpg"))#,
 ## _1. Project Status_
 ***
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_WCS_BattleCreekReintro.pdf?raw=true)
+Telemetry Study Template for this study can be found [here]
 
 ```{r print table with fish release details}
 
@@ -432,7 +432,7 @@ if (nrow(detects_study) == 0){
 } else {
   
   ## Only do survival to Georg split for now
-  test2 <- detects_study[detects_study$general_location %in% c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
+  test2 <- detects_study[detects_study$general_location %in% c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"),]
   
   ## We can only do multistate model if there is at least one detection in each route
   
@@ -447,7 +447,7 @@ if (nrow(detects_study) == 0){
     ## Make tagcode character
     study_tagcodes$TagID_Hex <- as.character(study_tagcodes$TagID_Hex)
     ## Make a crosstab query with frequencies for all tag/location combination
-    test2$general_location <- factor(test2$general_location, levels = c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
+    test2$general_location <- factor(test2$general_location, levels = c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2"))
     test2$TagCode <- factor(test2$TagCode, levels = study_tagcodes$TagID_Hex)
     mytable <- table(test2$TagCode, test2$general_location) # A will be rows, B will be columns
     
@@ -455,7 +455,7 @@ if (nrow(detects_study) == 0){
     mytable[mytable>0] <- "A"
     
     ## Order in order of rkm
-    mytable2 <- mytable[, c("ButteBrRT","TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2")]
+    mytable2 <- mytable[, c("TowerBridge", "I80-50_Br", "Sac_BlwGeorgiana", "Sac_BlwGeorgiana2", "Georgiana_Slough1", "Georgiana_Slough2")]
     
     ## Now sort the crosstab rows alphabetically
     mytable2 <- mytable2[order(row.names(mytable2)),]
@@ -483,9 +483,9 @@ if (nrow(detects_study) == 0){
     
     ## Paste together (concatenate) the data from each column of the crosstab into one string per row, add to tagging_meta.
     ## For this step, make sure both are sorted by FishID
-    study_tagcodes$inp_part1 <- apply(mytable2[,1:3],1,paste,collapse="")
-    study_tagcodes$inp_partA <- apply(mytable2[,4:5],1,paste,collapse="")
-    study_tagcodes$inp_partB <- apply(mytable2[,6:7],1,paste,collapse="")
+    study_tagcodes$inp_part1 <- apply(mytable2[,1:2],1,paste,collapse="")
+    study_tagcodes$inp_partA <- apply(mytable2[,3:4],1,paste,collapse="")
+    study_tagcodes$inp_partB <- apply(mytable2[,5:6],1,paste,collapse="")
     #study_tagcodes$inp_group <- apply(mytable4,1,paste,collapse=" ")
     
     ## We need to have a way of picking which route to assign to a fish if it was detected by both georg and blw-georg recvs
@@ -518,7 +518,7 @@ if (nrow(detects_study) == 0){
     #### p ####
     # Can't be seen at 2B or 3B or 4B (butte, tower or I80)
     ddl$p$fix=NA
-    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3,4)]=0
+    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3)]=0
     
     #### Psi ####
     # Only 1 transition allowed:
@@ -527,15 +527,15 @@ if (nrow(detects_study) == 0){
     ddl$Psi$fix=0
     # A to B can only happen for interval 3-4
     ddl$Psi$fix[ddl$Psi$stratum=="A"&
-                  ddl$Psi$tostratum=="B" & ddl$Psi$time==4]=NA
+                  ddl$Psi$tostratum=="B" & ddl$Psi$time==3]=NA
     
     #### Phi a.k.a. S ####
     ddl$S$fix=NA
     # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
-    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4,5)]=1
+    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4)]=1
     
     # For route A, fixing it to 1 for 5 (between two blw_georg lines)
-    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==5]=1
+    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==4]=1
     ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn't share the same intercept
     
     p.timexstratum=list(formula=~-1+stratum:time)
@@ -556,13 +556,11 @@ if (nrow(detects_study) == 0){
     results_short <- results[rownames(results) %in% c("S sA g1 c1 a0 o1 t1",
                                                       "S sA g1 c1 a1 o2 t2",
                                                       "S sA g1 c1 a2 o3 t3",
-                                                      "S sA g1 c1 a3 o4 t4",
                                                       "p sA g1 c1 a1 o1 t2",
                                                       "p sA g1 c1 a2 o2 t3",
                                                       "p sA g1 c1 a3 o3 t4",
-                                                      "p sA g1 c1 a4 o4 t5",
-                                                      "p sB g1 c1 a4 o4 t5",
-                                                      "Psi sA toB g1 c1 a3 o4 t4"
+                                                      "p sB g1 c1 a3 o3 t4",
+                                                      "Psi sA toB g1 c1 a2 o3 t3"
                                                       ),]
     
     
@@ -572,13 +570,13 @@ if (nrow(detects_study) == 0){
     Psilist=get.real(S.timexstratum.p.timexstratum.Psi.timexstratum,"Psi",vcv=TRUE)  
     Psivalues=Psilist$estimates
 
-    routes <- TransitionMatrix(Psivalues[Psivalues$time==4 & Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
+    routes <- TransitionMatrix(Psivalues[Psivalues$time==3 & Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
   
   
   
   
   
-    results_short$Measure <- c("Survival from release to Butte City","Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)","Detection probability at Butte City",
+    results_short$Measure <- c("Survival to TowerBridge", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)",
                                "Detection probability at TowerBridge", "Detection probability at I80-50_Br", "Detection probability at Blw_Georgiana", "Detection probability at Georgiana Slough",
                                "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
     
