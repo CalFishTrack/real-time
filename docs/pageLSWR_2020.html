@@ -429,6 +429,9 @@ div.tocify {
     <li>
       <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
     </li>
+    <li>
+      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -746,7 +749,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-25 20:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-25 21:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1423,7 +1426,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-87.8
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1666,7 +1669,7 @@ if (nrow(detects_benicia) == 0){
 
   ## Assign whether the results are tentative or final
   quality &lt;- &quot;tentative&quot;
-  if(endtime &lt; as.Date(c(Sys.time()))) { quality &lt;- &quot;final&quot;}
+  if(endtime &lt; as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;))) { quality &lt;- &quot;final&quot;}
   WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
   
   WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)

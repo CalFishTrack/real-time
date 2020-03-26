@@ -799,7 +799,7 @@ if (nrow(detects_benicia) == 0){
 
   ## Assign whether the results are tentative or final
   quality <- "tentative"
-  if(endtime < as.Date(c(Sys.time()))) { quality <- "final"}
+  if(endtime < as.Date(format(Sys.time(), "%Y-%m-%d"))) { quality <- "final"}
   WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
   
   WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')

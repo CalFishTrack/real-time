@@ -19,6 +19,8 @@ navbar:
       href: pageLSWR_2020.html
     - text: Battle Creek jump-start winter-run
       href: pageBCJSWR_2020.html
+    - text: 2020 SEASON SUMMARY
+      href: pageSEASON_2020.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers

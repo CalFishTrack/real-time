@@ -6,6 +6,8 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
+    includes:
+      in_header: GA_Script.html
   #prettydoc::html_pretty:
   #  theme: cayman
   #  toc: true
@@ -23,11 +25,9 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 <br/>
 
-# *Water Year 2019 Survival Summary*
+# *Water Year 2020 Survival Summary*
 
 <br/>
-
-ALL WATER YEAR 2019 STUDIES ARE COMPLETE.
 
 ## Survival to Benicia for all major Chinook salmon tagging efforts (n > 100)
 
@@ -38,7 +38,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 ```
 
-***Data current as of <span style="color:red">`r latest`</span>. All times in Pacific Standard Time.***
+***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
 
 ```{r print plot of season total survival, echo = FALSE, warning=FALSE, message = FALSE}
 library(CDECRetrieve)
@@ -55,10 +55,10 @@ benicia <- merge(benicia, tol_released)
 benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
 ## Now subset to only be WY2019 fish
-benicia_rel <- benicia_rel[benicia_rel$RelDT < "2019-07-01",]
-## Combine sutter bypass releases
-benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
-benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2019-07-01",]
+### Combine sutter bypass releases
+#benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
+#benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
 ## Label "ALL" release for any study with just 1 record
 benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
 wlk_flow <- as.data.frame(cdec_query("WLK", "41", "D", as.Date(min(benicia_rel$RelDT))-7, as.Date(max(benicia_rel$RelDT))+14))
