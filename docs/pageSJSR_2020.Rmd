@@ -86,7 +86,7 @@ if (nrow(study_tagcodes) == 0){
 
   study_tagcodes$Release <- "Upriver Release"
   study_tagcodes[study_tagcodes$Rel_loc == "Durham_Ferry", "Release"] <- "Downriver Release"
-    study_tagcodes[study_tagcodes$Rel_loc == "Franks_Tract", "Release"] <- "Franks Tract Release"
+  study_tagcodes[study_tagcodes$Rel_loc == "Franks_Tract", "Release"] <- "Franks Tract Release"
   #study_tagcodes[study_tagcodes$RelDT > as.POSIXct("2020-03-20"), "Release"] <- "Release 2"
 
   
@@ -243,6 +243,8 @@ if (nrow(detects_benicia)>0) {
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
+library(RMark)
+
 if (nrow(detects_benicia) == 0){
   WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
@@ -348,7 +350,6 @@ if (nrow(detects_benicia) == 0){
   
 }
 ```
-
 <br/>
 
 ***
@@ -450,7 +451,6 @@ if (nrow(detects_study) == 0){
 figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = "days")) / 4))
 
 ```
-
 <br/>
 
 ### 4.3 Fish arrivals per day
