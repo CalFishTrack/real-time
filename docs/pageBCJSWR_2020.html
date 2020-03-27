@@ -729,7 +729,7 @@ NF Battle Creek
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-27 14:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-27 15:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1327,7 +1327,7 @@ SE
 NA
 </td>
 <td style="text-align:left;">
-NO DETECTIONS YET
+NOT ENOUGH DETECTIONS
 </td>
 <td style="text-align:left;">
 NA
@@ -1656,7 +1656,7 @@ SE
 NA
 </td>
 <td style="text-align:left;">
-NO DETECTIONS YET
+NOT ENOUGH DETECTIONS
 </td>
 <td style="text-align:left;">
 NA
@@ -1765,7 +1765,116 @@ if (nrow(detects_study) == 0){
     }
   }
 }</code></pre>
-<p>[1] “No detections yet”</p>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+4.1 Detections for all releases combined
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+general_location
+</th>
+<th style="text-align:left;">
+First_arrival
+</th>
+<th style="text-align:left;">
+Mean_arrival
+</th>
+<th style="text-align:left;">
+Last_arrival
+</th>
+<th style="text-align:right;">
+Fish_count
+</th>
+<th style="text-align:right;">
+Percent_arrived
+</th>
+<th style="text-align:right;">
+rkm
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ButteBrRT
+</td>
+<td style="text-align:left;">
+2020-03-27 13:27:53
+</td>
+<td style="text-align:left;">
+2020-03-27 13:27:53
+</td>
+<td style="text-align:left;">
+2020-03-27 13:27:53
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+344.108
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+4.2 Detections for Release 1 release groups
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+general_location
+</th>
+<th style="text-align:left;">
+First_arrival
+</th>
+<th style="text-align:left;">
+Mean_arrival
+</th>
+<th style="text-align:left;">
+Last_arrival
+</th>
+<th style="text-align:right;">
+Fish_count
+</th>
+<th style="text-align:right;">
+Percent_arrived
+</th>
+<th style="text-align:right;">
+rkm
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ButteBrRT
+</td>
+<td style="text-align:left;">
+2020-03-27 13:27:53
+</td>
+<td style="text-align:left;">
+2020-03-27 13:27:53
+</td>
+<td style="text-align:left;">
+2020-03-27 13:27:53
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+344.108
+</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
 figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = &quot;days&quot;)) / 4))</code></pre>
 <p><br/></p>
@@ -1812,7 +1921,12 @@ if (nrow(detects_study) == 0){
   labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
   theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
 }</code></pre>
-<p>[1] “No detections yet”</p>
+<div class="figure">
+<img src="pageBCJSWR_2020_files/figure-html/print%20tables%20of%20fish%20detections%20per%20day-1.png" alt="Gray tiles = receiver location was operational, white tiles = receiver location non-operational" width="480" />
+<p class="caption">
+Gray tiles = receiver location was operational, white tiles = receiver location non-operational
+</p>
+</div>
 <pre class="r"><code>rm(list = ls())
 cleanup(ask = F)</code></pre>
 </div>
