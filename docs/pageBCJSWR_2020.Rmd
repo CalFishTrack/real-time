@@ -521,7 +521,7 @@ if (nrow(detects_study) == 0){
   
   if(nrow(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2"),]) == 0 |
      nrow(test2[test2$general_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"),]) == 0){
-    results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
+    results_short <- data.frame("Measure"=NA, "Estimate"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
     print(kable(results_short, row.names = F, "html", caption = "3.2 Reach-specific survival and probability of entering Georgiana Slough") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
@@ -814,6 +814,116 @@ if (nrow(detects_benicia) == 0){
   
   write.csv(benicia, "benicia_surv.csv", row.names = F, quote = F) 
   
+}
+```
+
+
+```{r print table of through-Delta survival, message = FALSE, results= "asis", warning=FALSE}
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+
+if (nrow(detects_study) == 0){
+    results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
+    colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
+    print(kable(results_short, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
+            kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+}else{
+  ## Only do survival to Georg split for now
+  test4 <- detects_study[detects_study$general_location %in% c("I80-50_Br", "Benicia_west", "Benicia_east"),]
+ 
+  if(nrow(test4[test4$general_location =="Benicia_west",]) == 0 |
+     nrow(test4[test4$general_location =="Benicia_east",]) == 0){
+    results_short <- data.frame("Measure"=NA, "Estimate"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
+    colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
+    print(kable(results_short, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
+            kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+
+  }else{
+  
+  Delta <- read.csv("Delta_surv.csv", stringsAsFactors = F)
+  Delta$RelDT <- as.POSIXct(Delta$RelDT)
+  
+  inp <- as.data.frame(dcast(test4, TagCode ~ general_location, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  inp <- inp[,c("TagCode","I80-50_Br", "Benicia_east", "Benicia_west")]
+  
+  # Count number of genlocs
+  gen_loc_sites <- ncol(inp)-1
+  
+  inp <- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+
+  inp <- merge(study_tagcodes, inp, by.x = "TagID_Hex", by.y = "TagCode", all.x = T)
+  
+  inp2 <- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+  inp2[is.na(inp2)] <- 0
+  inp2[inp2 > 0] <- 1
+  
+  inp <- cbind(inp, inp2)
+  groups <- as.character(sort(unique(inp$Release)))
+
+  inp[,groups] <- 0
+  for (i in groups) {
+    inp[as.character(inp$Release) == i, i] <- 1
+  }
+  
+  if(length(groups) > 1){
+    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
+  }else{
+    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",inp[,groups]," ;",sep = "")
+  }
+  
+  
+  write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+  
+  if(length(groups) > 1){
+  
+    WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
+    WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+    
+    WR.ddl <- make.design.data(WR.process)
+    
+    WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.surv <- round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1)
+    WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=2,to=length(groups)*3,by = 3),c("estimate", "se", "lcl", "ucl")] * 100,1))
+    
+  }else{
+    
+    WRinp <- convert.inp("WRinp.inp")
+    WR.process <- process.data(WRinp, model="CJS", begin.time=1) 
+    
+      
+    WR.ddl <- make.design.data(WR.process)
+    
+    WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+
+    WR.surv <- round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1)
+    
+  }
+  
+    
+  WR.surv <- cbind(Release = c("ALL", groups), WR.surv)
+
+  WR.surv1 <- WR.surv
+  colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.")
+
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))  
+  
+  WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
+  
+  WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
+  
+  ## remove old benicia record for this studyID
+  Delta <- Delta[!Delta$StudyID == unique(Delta$StudyID),]
+  
+  Delta <- rbind(Delta, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
+  
+  write.csv(Delta, "Delta_surv.csv", row.names = F, quote = F) 
+  }
 }
 ```
 

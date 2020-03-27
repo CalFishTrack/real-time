@@ -755,7 +755,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-26 17:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-03-26 19:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1777,6 +1777,189 @@ NA
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+
+if (nrow(detects_study) == 0){
+    results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
+    colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+    print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+}else{
+  ## Only do survival to Georg split for now
+  test4 &lt;- detects_study[detects_study$general_location %in% c(&quot;I80-50_Br&quot;, &quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
+ 
+  if(nrow(test4[test4$general_location ==&quot;Benicia_west&quot;,]) == 0 |
+     nrow(test4[test4$general_location ==&quot;Benicia_east&quot;,]) == 0){
+    results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NOT ENOUGH DETECTIONS&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
+    colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+    print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)&quot;) %&gt;%
+            kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+
+  }else{
+  
+  Delta &lt;- read.csv(&quot;Delta_surv.csv&quot;, stringsAsFactors = F)
+  Delta$RelDT &lt;- as.POSIXct(Delta$RelDT)
+  
+  inp &lt;- as.data.frame(dcast(test4, TagCode ~ general_location, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  inp &lt;- inp[,c(&quot;TagCode&quot;,&quot;I80-50_Br&quot;, &quot;Benicia_east&quot;, &quot;Benicia_west&quot;)]
+  
+  # Count number of genlocs
+  gen_loc_sites &lt;- ncol(inp)-1
+  
+  inp &lt;- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+
+  inp &lt;- merge(study_tagcodes, inp, by.x = &quot;TagID_Hex&quot;, by.y = &quot;TagCode&quot;, all.x = T)
+  
+  inp2 &lt;- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+  inp2[is.na(inp2)] &lt;- 0
+  inp2[inp2 &gt; 0] &lt;- 1
+  
+  inp &lt;- cbind(inp, inp2)
+  groups &lt;- as.character(sort(unique(inp$Release)))
+
+  inp[,groups] &lt;- 0
+  for (i in groups) {
+    inp[as.character(inp$Release) == i, i] &lt;- 1
+  }
+  
+  if(length(groups) &gt; 1){
+    inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,apply(inp[,groups], 1, paste, collapse=&quot; &quot;),&quot; ;&quot;,sep = &quot;&quot;)
+  }else{
+    inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,inp[,groups],&quot; ;&quot;,sep = &quot;&quot;)
+  }
+  
+  
+  write.table(inp$inp_final,&quot;WRinp.inp&quot;,row.names = F, col.names = F, quote = F)
+  
+  if(length(groups) &gt; 1){
+  
+    WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;, group.df=data.frame(rel=groups))
+    WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;) 
+    
+    WR.ddl &lt;- make.design.data(WR.process)
+    
+    WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    
+    WR.surv &lt;- round(WR.mark.all$results$real[2,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    WR.surv &lt;- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=2,to=length(groups)*3,by = 3),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    
+  }else{
+    
+    WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;)
+    WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1) 
+    
+      
+    WR.ddl &lt;- make.design.data(WR.process)
+    
+    WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+
+    WR.surv &lt;- round(WR.mark.all$results$real[2,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    
+  }
+  
+    
+  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups), WR.surv)
+
+  WR.surv1 &lt;- WR.surv
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))  
+  
+  WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
+  
+  WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
+  
+  ## remove old benicia record for this studyID
+  Delta &lt;- Delta[!Delta$StudyID == unique(Delta$StudyID),]
+  
+  Delta &lt;- rbind(Delta, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
+  
+  write.csv(Delta, &quot;Delta_surv.csv&quot;, row.names = F, quote = F) 
+  }
+}</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Release Group
+</th>
+<th style="text-align:right;">
+Survival (%)
+</th>
+<th style="text-align:right;">
+SE
+</th>
+<th style="text-align:right;">
+95% lower C.I.
+</th>
+<th style="text-align:right;">
+95% upper C.I.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ALL
+</td>
+<td style="text-align:right;">
+7.4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1.9
+</td>
+<td style="text-align:right;">
+25.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Release 1
+</td>
+<td style="text-align:right;">
+7.4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1.9
+</td>
+<td style="text-align:right;">
+25.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Release 2
+</td>
+<td style="text-align:right;">
+35.3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+35.3
+</td>
+<td style="text-align:right;">
+35.3
+</td>
+</tr>
+</tbody>
+</table>
 <p><br/></p>
 <hr />
 </div>
@@ -2048,10 +2231,10 @@ Sac_BlwGeorgiana2
 2020-03-19 19:34:25
 </td>
 <td style="text-align:left;">
-2020-03-23 09:42:39
+2020-03-23 09:40:02
 </td>
 <td style="text-align:left;">
-2020-03-26 16:01:37
+2020-03-26 15:32:52
 </td>
 <td style="text-align:right;">
 11
@@ -2287,10 +2470,10 @@ Sac_BlwGeorgiana2
 2020-03-19 19:34:25
 </td>
 <td style="text-align:left;">
-2020-03-23 09:42:39
+2020-03-23 09:40:02
 </td>
 <td style="text-align:left;">
-2020-03-26 16:01:37
+2020-03-26 15:32:52
 </td>
 <td style="text-align:right;">
 11
