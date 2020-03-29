@@ -47,7 +47,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/yolo.jpg"))#, 
+htmltools::img(src = knitr::image_uri("../data/Rice_Photo.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
@@ -65,7 +65,7 @@ htmltools::img(src = knitr::image_uri("../data/yolo.jpg"))#,
 ## _1. Project Status_
 ***
 
-Telemetry Study Template for this study can be found [here]
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_RiceProject_2020.pdf?raw=true)
 
 ```{r print table with fish release details}
 
