@@ -362,7 +362,9 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
-
+  study_count <- nrow(study_tagcodes)
+  gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+  
   arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
   
   tag_stats <- aggregate(list(First_arrival = arrivals$DateTime_PST), 
