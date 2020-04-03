@@ -729,7 +729,7 @@ Elkhorn
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 12:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 13:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1368,7 +1368,7 @@ Detection probability at Georgiana Slough
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+76.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1425,8 +1425,7 @@ if (nrow(detects_benicia) == 0){
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
   print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))  
-}
-if (length(table(detects_benicia$general_location)) &lt; 2){
+}else if (length(table(detects_benicia$general_location))== 1){
    WR.surv1 &lt;- data.frame(&quot;Release Group&quot;=NA, &quot;Survival (%)&quot;=&quot;NOT ENOUGH DETECTIONS&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
   print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
@@ -1457,26 +1456,21 @@ if (length(table(detects_benicia$general_location)) &lt; 2){
   
   inp &lt;- cbind(inp, inp2)
   groups &lt;- as.character(sort(unique(inp$Release)))
+  test3$Release &lt;- factor(test3$Release, levels = groups)
 
   inp[,groups] &lt;- 0
   for (i in groups) {
     inp[as.character(inp$Release) == i, i] &lt;- 1
   }
+
+  inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;),sep=&quot;&quot;)
+  
   
   if(length(groups) &gt; 1){
-    inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,apply(inp[,groups], 1, paste, collapse=&quot; &quot;),&quot; ;&quot;,sep = &quot;&quot;)
-  }else{
-    inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;), &quot; &quot;,inp[,groups],&quot; ;&quot;,sep = &quot;&quot;)
-  }
-  
-  
-  write.table(inp$inp_final,&quot;WRinp.inp&quot;,row.names = F, col.names = F, quote = F)
-  
-  if(length(groups) &gt; 1){
-  
-    WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;, group.df=data.frame(rel=groups))
-    WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;) 
-    
+  ## make sure factor levels have a release that has detections first. if first release in factor order has zero detectins, model goes haywire
+    inp.df &lt;- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = factor(inp$Release, levels = names(sort(table(test3$Release),decreasing = T))), stringsAsFactors = F)
+
+    WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;)
     WR.ddl &lt;- make.design.data(WR.process)
     
     WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)

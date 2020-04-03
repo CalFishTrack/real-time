@@ -716,6 +716,11 @@ if (nrow(detects_benicia) == 0){
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
   print(kable(WR.surv1, row.names = F, "html", caption = "3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))  
+}else if (length(table(detects_benicia$general_location)) == 1){
+   WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
+  colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
 } else {
   
   benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F)
@@ -742,26 +747,21 @@ if (nrow(detects_benicia) == 0){
   
   inp <- cbind(inp, inp2)
   groups <- as.character(sort(unique(inp$Release)))
+  test3$Release <- factor(test3$Release, levels = groups)
 
   inp[,groups] <- 0
   for (i in groups) {
     inp[as.character(inp$Release) == i, i] <- 1
   }
+
+  inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""),sep="")
+  
   
   if(length(groups) > 1){
-    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
-  }else{
-    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",inp[,groups]," ;",sep = "")
-  }
-  
-  
-  write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
-  
-  if(length(groups) > 1){
-  
-    WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
-    WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
-    
+  ## make sure factor levels have a release that has detections first. if first release in factor order has zero detectins, model goes haywire
+    inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = factor(inp$Release, levels = names(sort(table(test3$Release),decreasing = T))), stringsAsFactors = F)
+
+    WR.process <- process.data(inp.df, model="CJS", begin.time=1, groups = "rel")   
     WR.ddl <- make.design.data(WR.process)
     
     WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
