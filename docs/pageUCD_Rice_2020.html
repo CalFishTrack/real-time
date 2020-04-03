@@ -729,7 +729,7 @@ Elkhorn
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-02 17:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 11:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1260,16 +1260,16 @@ SE
 Survival to TowerBridge
 </td>
 <td style="text-align:right;">
-30.7
+31.0
 </td>
 <td style="text-align:right;">
 2.6
 </td>
 <td style="text-align:right;">
-25.9
+26.2
 </td>
 <td style="text-align:right;">
-35.9
+36.3
 </td>
 </tr>
 <tr>
@@ -1283,7 +1283,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-96.4
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1294,21 +1294,38 @@ Survival from TowerBridge to I80-50_Br
 % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
 </td>
 <td style="text-align:right;">
-23.7
+25.3
 </td>
 <td style="text-align:right;">
 4.2
 </td>
 <td style="text-align:right;">
-16.5
+17.9
 </td>
 <td style="text-align:right;">
-32.8
+34.4
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 Detection probability at TowerBridge
+</td>
+<td style="text-align:right;">
+77.7
+</td>
+<td style="text-align:right;">
+4.4
+</td>
+<td style="text-align:right;">
+68.0
+</td>
+<td style="text-align:right;">
+85.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at I80-50_Br
 </td>
 <td style="text-align:right;">
 78.7
@@ -1325,23 +1342,6 @@ Detection probability at TowerBridge
 </tr>
 <tr>
 <td style="text-align:left;">
-Detection probability at I80-50_Br
-</td>
-<td style="text-align:right;">
-79.6
-</td>
-<td style="text-align:right;">
-4.3
-</td>
-<td style="text-align:right;">
-70.0
-</td>
-<td style="text-align:right;">
-86.7
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 Detection probability at Blw_Georgiana
 </td>
 <td style="text-align:right;">
@@ -1351,7 +1351,7 @@ Detection probability at Blw_Georgiana
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+89.9
 </td>
 <td style="text-align:right;">
 100.0
@@ -1379,16 +1379,16 @@ Detection probability at Georgiana Slough
 Routing probability into Georgiana Slough (Conditional on fish arriving to junction)
 </td>
 <td style="text-align:right;">
-28.0
+25.9
 </td>
 <td style="text-align:right;">
-9.0
+8.4
 </td>
 <td style="text-align:right;">
-14.0
+12.9
 </td>
 <td style="text-align:right;">
-48.2
+45.3
 </td>
 </tr>
 </tbody>
@@ -1425,6 +1425,12 @@ if (nrow(detects_benicia) == 0){
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
   print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))  
+}
+if (length(table(detects_benicia$general_location)) &lt; 2){
+   WR.surv1 &lt;- data.frame(&quot;Release Group&quot;=NA, &quot;Survival (%)&quot;=&quot;NOT ENOUGH DETECTIONS&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))   
 } else {
   
   benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F)
@@ -1556,7 +1562,7 @@ Detection efficiency (%)
 NA
 </td>
 <td style="text-align:left;">
-NO DETECTIONS YET
+NOT ENOUGH DETECTIONS
 </td>
 <td style="text-align:left;">
 NA
@@ -1924,16 +1930,16 @@ Sac_BlwGeorgiana
 2020-03-22 11:49:28
 </td>
 <td style="text-align:left;">
-2020-03-27 04:20:21
+2020-03-27 19:26:09
 </td>
 <td style="text-align:left;">
-2020-04-01 19:41:27
+2020-04-02 19:58:22
 </td>
 <td style="text-align:right;">
-19
+21
 </td>
 <td style="text-align:right;">
-5.52
+6.10
 </td>
 <td style="text-align:right;">
 119.058
@@ -1970,19 +1976,42 @@ Sac_BlwGeorgiana2
 2020-03-22 12:08:02
 </td>
 <td style="text-align:left;">
-2020-03-26 17:59:00
+2020-03-27 11:47:31
 </td>
 <td style="text-align:left;">
-2020-04-01 20:20:52
+2020-04-02 20:18:26
 </td>
 <td style="text-align:right;">
-17
+19
 </td>
 <td style="text-align:right;">
-4.94
+5.52
 </td>
 <td style="text-align:right;">
 118.398
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2020-04-02 16:40:25
+</td>
+<td style="text-align:left;">
+2020-04-02 16:40:25
+</td>
+<td style="text-align:left;">
+2020-04-02 16:40:25
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.29
+</td>
+<td style="text-align:right;">
+52.240
 </td>
 </tr>
 </tbody>
@@ -2094,16 +2123,16 @@ Sac_BlwGeorgiana
 2020-03-22 11:49:28
 </td>
 <td style="text-align:left;">
-2020-03-27 04:20:21
+2020-03-27 19:26:09
 </td>
 <td style="text-align:left;">
-2020-04-01 19:41:27
+2020-04-02 19:58:22
 </td>
 <td style="text-align:right;">
-19
+21
 </td>
 <td style="text-align:right;">
-5.52
+6.10
 </td>
 <td style="text-align:right;">
 119.058
@@ -2140,19 +2169,42 @@ Sac_BlwGeorgiana2
 2020-03-22 12:08:02
 </td>
 <td style="text-align:left;">
-2020-03-26 17:59:00
+2020-03-27 11:47:31
 </td>
 <td style="text-align:left;">
-2020-04-01 20:20:52
+2020-04-02 20:18:26
 </td>
 <td style="text-align:right;">
-17
+19
 </td>
 <td style="text-align:right;">
-4.94
+5.52
 </td>
 <td style="text-align:right;">
 118.398
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2020-04-02 16:40:25
+</td>
+<td style="text-align:left;">
+2020-04-02 16:40:25
+</td>
+<td style="text-align:left;">
+2020-04-02 16:40:25
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.29
+</td>
+<td style="text-align:right;">
+52.240
 </td>
 </tr>
 </tbody>
