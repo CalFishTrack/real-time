@@ -446,17 +446,21 @@ if (nrow(detects_tower) == 0){
     
     inp <- cbind(inp, inp2)
     groups <- as.character(sort(unique(inp$Release)))
-  
+    test$Release <- factor(test$Release, levels = groups)
+
     inp[,groups] <- 0
     for (i in groups) {
       inp[as.character(inp$Release) == i, i] <- 1
     }
+  
+    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""),sep="")
     
-    if(length(unique(inp[,groups])) > 1){
-      inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
-      write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
-      WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
-      WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+    
+    if(length(groups) > 1){
+    ## make sure factor levels have a release that has detections first. if first release in factor order has zero detectins, model goes haywire
+      inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = factor(inp$Release, levels = names(sort(table(test$Release),decreasing = T))), stringsAsFactors = F)
+  
+    WR.process <- process.data(inp.df, model="CJS", begin.time=1, groups = "rel")     
       
       WR.ddl <- make.design.data(WR.process)
     
@@ -469,7 +473,7 @@ if (nrow(detects_tower) == 0){
       WR.surv$Detection_efficiency <- NA
       WR.surv[1,"Detection_efficiency"] <-   round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
     
-      WR.surv <- cbind(c("ALL", groups), WR.surv)
+      WR.surv <- cbind(c("ALL", names(sort(table(test$Release),decreasing = T))), WR.surv)
     }
     if(length(unique(inp[,groups])) < 2){
       inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ", 1,sep = "")
