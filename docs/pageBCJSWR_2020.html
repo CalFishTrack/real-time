@@ -729,7 +729,7 @@ NF Battle Creek
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-04 12:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-04 14:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1427,7 +1427,7 @@ if (nrow(detects_benicia) == 0){
   
   inp &lt;- cbind(inp, inp2)
   groups &lt;- as.character(sort(unique(inp$Release)))
-  test3$Release &lt;- factor(test3$Release, levels = groups)
+  groups_w_detects &lt;- names(table(test3$Release))
 
   inp[,groups] &lt;- 0
   for (i in groups) {
@@ -1438,33 +1438,47 @@ if (nrow(detects_benicia) == 0){
   
   
   if(length(groups) &gt; 1){
-  ## make sure factor levels have a release that has detections first. if first release in factor order has zero detectins, model goes haywire
-    inp.df &lt;- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = factor(inp$Release, levels = names(sort(table(test3$Release),decreasing = T))), stringsAsFactors = F)
+  ## make sure factor levels have a release that has detections first. if first release in factor order has zero #detectins, model goes haywire
+    inp.df &lt;- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = inp$Release, stringsAsFactors = F)
 
-    WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;)   
+    WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1) 
+    
     WR.ddl &lt;- make.design.data(WR.process)
     
     WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
     
-    WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    inp.df &lt;- inp.df[inp.df$rel %in% groups_w_detects,]
+    inp.df$rel &lt;- factor(inp.df$rel, levels = groups_w_detects)
+    if(length(groups_w_detects) &gt; 1){
+      WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;) 
     
-    WR.surv &lt;- round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
-    WR.surv &lt;- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=1,to=length(groups)*2,by = 2),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+      WR.ddl &lt;- make.design.data(WR.process)
+      WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    }else{  
+      WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1) 
+    
+      WR.ddl &lt;- make.design.data(WR.process)
+      WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    }
+    WR.surv &lt;- cbind(Release = &quot;ALL&quot;,round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    WR.surv.rel &lt;- cbind(Release = groups_w_detects, round(WR.mark.rel$results$real[seq(from=1,to=length(groups_w_detects)*2,by = 2),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    WR.surv.rel &lt;- merge(WR.surv.rel, data.frame(Release = groups), all.y = T)
+    WR.surv.rel[is.na(WR.surv.rel$estimate),&quot;estimate&quot;] &lt;- 0
+    WR.surv &lt;- rbind(WR.surv, WR.surv.rel)
     
   }else{
-    
-    WRinp &lt;- convert.inp(&quot;WRinp.inp&quot;)
+    inp.df &lt;- data.frame(ch = as.character(inp$inp_final), freq = 1, stringsAsFactors = F)
+    WRinp &lt;- convert.inp(inp.df)
     WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1) 
     
       
     WR.ddl &lt;- make.design.data(WR.process)
     
     WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
-
-    WR.surv &lt;- round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    
+    WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups),round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
     
   }
-  
   WR.surv$Detection_efficiency &lt;- NA
   WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
     
@@ -1643,7 +1657,7 @@ if (nrow(detects_study) == 0){
   WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
   
   ## remove old benicia record for this studyID
-  Delta &lt;- Delta[!Delta$StudyID == unique(Delta$StudyID),]
+  Delta &lt;- Delta[!Delta$StudyID %in% unique(detects_study$StudyID),]
   
   Delta &lt;- rbind(Delta, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
   

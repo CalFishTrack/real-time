@@ -305,10 +305,17 @@ if (nrow(detects_benicia) == 0){
     
     inp.df <- inp.df[inp.df$rel %in% groups_w_detects,]
     inp.df$rel <- factor(inp.df$rel, levels = groups_w_detects)
-    WR.process <- process.data(inp.df, model="CJS", begin.time=1, groups = "rel") 
+    if(length(groups_w_detects) > 1){
+      WR.process <- process.data(inp.df, model="CJS", begin.time=1, groups = "rel") 
     
-    WR.ddl <- make.design.data(WR.process)
-    WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+      WR.ddl <- make.design.data(WR.process)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    }else{  
+      WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
+    
+      WR.ddl <- make.design.data(WR.process)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    }
       
     WR.surv <- cbind(Release = "ALL",round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1))
     WR.surv.rel <- cbind(Release = groups_w_detects, round(WR.mark.rel$results$real[seq(from=1,to=length(groups_w_detects)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
@@ -326,7 +333,7 @@ if (nrow(detects_benicia) == 0){
     
     WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
 
-    WR.surv <- cbind(Release = "ALL",round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1))
+    WR.surv <- cbind(Release = c("ALL", groups),round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1))
     
   }
   

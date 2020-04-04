@@ -14,6 +14,17 @@ output:
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#library(tidyr)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+library(data.table)
+library(ggplot2)
+#library(xtable)
+#library(prettydoc)
+library(scales)
+library(viridis)
+library(forcats)
 ```
 
 ```{r logos, echo=FALSE, cache=TRUE}
@@ -40,7 +51,9 @@ latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
 ***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
 
-```{r print plot of season total survival, echo = FALSE, warning=FALSE, message = FALSE}
+<br>
+
+```{r print plot of season total survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE}
 library(CDECRetrieve)
 library(plotly)
 
@@ -55,7 +68,7 @@ benicia <- merge(benicia, tol_released)
 benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
 ## Now subset to only be WY2019 fish
-benicia_rel <- benicia_rel[benicia_rel$RelDT > "2019-07-01",]
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01",]
 ### Combine sutter bypass releases
 #benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
 #benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
@@ -102,7 +115,87 @@ p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = St
         axis.title.y.right = element_text(color = "blue"),
         axis.text.y.right = element_text(color = "blue"),
         panel.background = element_rect(fill = "white", colour = "black"),
-        legend.position="bottom")
+        legend.position="bottom",
+        panel.border = element_rect(colour = "black", fill=NA))
+
+ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
+  add_annotations( text="Data status", xref="paper", yref="paper",
+                   x=0.25, xanchor="left",
+                   y=-0.26, yanchor="bottom",    # Same y as legend below
+                   legendtitle=TRUE, showarrow=FALSE ) %>%
+  add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "blue"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
+  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2))
+       
+
+```
+***Hover cursor over points to see release group.***
+
+<br>
+
+
+```{r print plot of season total delta survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE}
+library(CDECRetrieve)
+library(plotly)
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+benicia <- read.csv("Delta_surv.csv", stringsAsFactors = F)
+benicia$RelDT <- as.POSIXct(benicia$RelDT)
+benicia <- merge(benicia, tol_released)
+## Now remove any release smaller than 100
+benicia <- benicia[benicia$total_released >99,]
+benicia_rel <- benicia[benicia$Release != "ALL",]
+## Now subset to only be WY2019 fish
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01",]
+### Combine sutter bypass releases
+#benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
+#benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
+## Label "ALL" release for any study with just 1 record
+benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
+wlk_flow <- as.data.frame(cdec_query("RVB", "25", "D", as.Date(min(benicia_rel$RelDT))-7, as.Date(max(benicia_rel$RelDT))+14))
+wlk_flow$parameter_value <- (wlk_flow$parameter_value - 32) * 5/9
+wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
+wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
+wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
+benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
+
+
+## Now plot
+
+library(ggplot2)
+
+pd <- position_dodge(1)
+boolColors <- as.character(c("final"="black", "tentative"="gray"))
+boolScale <- scale_colour_manual(name="data_quality", values=boolColors)
+
+ay <- list(
+  overlaying = "y",
+  nticks = 5,
+  color = "red",
+  side = "right",
+  title = "7-day moving average of Temperature (C) at Rio Vista",
+  automargin = TRUE
+)
+
+p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
+  xlim(range(wlk_flow$datetime)) +
+  geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
+  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= data_quality)) +
+  boolScale +
+  labs(x="Release Date", size = 8) +
+  labs(y="% through-Delta Survival", size = 8) +  
+  theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "light grey"),
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #axis.text.x=element_blank(),
+        #axis.ticks.x=element_blank(),
+        axis.line.y.right = element_line(color = "red"), 
+        axis.title.y.right = element_text(color = "red"),
+        axis.text.y.right = element_text(color = "red"),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        legend.position="bottom",
+        panel.border = element_rect(colour = "black", fill=NA))
 
 ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
   add_annotations( text="Data status", xref="paper", yref="paper",
