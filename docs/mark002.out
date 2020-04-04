@@ -1,0 +1,197 @@
+
+   Program  MARK  - Survival Rate Estimation with Capture-Recapture Data
+   gfortran(dble) Vers. 9.0 Jan 2019     4-Apr-2020 08:19:00    Page  001
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ 
+   This version was compiled by GCC version 8.1.0 using the options: 
+     -cpp -iprefix C:/Program Files/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/
+     mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/ -D_MT -D_REENTRANT
+     -U_REENTRANT -D IEEE -D DBLEPRECISION -m64 -mtune=core2 -march=nocona -mthreads
+     -O2 -fimplicit-none -fbounds-check -funroll-loops -ftree-vectorize
+     -ffpe-summary=invalid,zero,overflow,underflow -fno-unsafe-math-optimizations
+     -frounding-math -fsignaling-nans -fopenmp.
+
+   This problem will use 7 of 8 possible threads.
+
+
+  INPUT --- proc title ;
+
+   CPU Time for the last procedure was 0.01 seconds.     
+
+
+  INPUT --- proc chmatrix occasions= 3 groups= 3 etype= Live Nodes= 101 
+  INPUT --- ICMeans NoHist hist= 5 ;
+
+  INPUT ---    time interval 1 1 ;
+
+  INPUT ---    glabel(1)=relUpriver Release;
+
+  INPUT ---    glabel(2)=relFranks Tract Release;
+
+  INPUT ---    glabel(3)=relDownriver Release;
+
+   * *  WARNING  * *   At least a pair of the encounter histories are duplicates. 
+
+      Number of unique encounter histories read was 2.
+
+      Number of individual covariates read was 0.
+      Time interval lengths are all equal to 1.
+
+      Data type number is 1
+      Data type is Live Recaptures (CJS)                                                                               
+
+   CPU Time for the last procedure was 0.01 seconds.     
+
+  Program  MARK  - Survival Rate Estimation with Capture-Recapture Data
+   gfortran(dble) Vers. 9.0 Jan 2019     4-Apr-2020 08:19:00    Page  002
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ 
+
+
+  INPUT --- proc estimate link=Logit NOLOOP varest=2ndPart    ;
+
+
+  INPUT --- model={ Phi(~time * rel)p(~time) };
+
+  INPUT ---    group=1 Phi    rows=2 cols=2 Triang ;
+  INPUT ---        1 2 ;
+  INPUT ---        2 ;
+
+  INPUT ---    group=2 Phi    rows=2 cols=2 Triang ;
+  INPUT ---        3 4 ;
+  INPUT ---        4 ;
+
+  INPUT ---    group=3 Phi    rows=2 cols=2 Triang ;
+  INPUT ---        5 6 ;
+  INPUT ---        6 ;
+
+  INPUT ---    group=1 p    rows=2 cols=2 Triang ;
+  INPUT ---        7 8 ;
+  INPUT ---        8 ;
+
+  INPUT ---    group=2 p    rows=2 cols=2 Triang ;
+  INPUT ---        7 8 ;
+  INPUT ---        8 ;
+
+  INPUT ---    group=3 p    rows=2 cols=2 Triang ;
+  INPUT ---        7 8 ;
+  INPUT ---        8 ;
+
+  INPUT ---    design matrix constraints=8 covariates=8;
+  INPUT ---        1 0 0 0 0 0 0 0;
+  INPUT ---        1 1 0 0 0 0 0 0;
+  INPUT ---        1 0 1 0 0 0 0 0;
+  INPUT ---        1 1 1 0 1 0 0 0;
+  INPUT ---        1 0 0 1 0 0 0 0;
+  INPUT ---        1 1 0 1 0 1 0 0;
+  INPUT ---        0 0 0 0 0 0 1 0;
+  INPUT ---        0 0 0 0 0 0 1 1;
+  INPUT ---       blabel(1)=Phi:(Intercept);
+  INPUT ---       blabel(2)=Phi:time2;
+  INPUT ---       blabel(3)=Phi:relFranks Tract Release;
+  INPUT ---       blabel(4)=Phi:relDownriver Release;
+  INPUT ---       blabel(5)=Phi:time2:relFranks Tract Release;
+  INPUT ---       blabel(6)=Phi:time2:relDownriver Release;
+
+  Program  MARK  - Survival Rate Estimation with Capture-Recapture Data
+   gfortran(dble) Vers. 9.0 Jan 2019     4-Apr-2020 08:19:00    Page  003
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ 
+  INPUT ---       blabel(7)=p:(Intercept);
+  INPUT ---       blabel(8)=p:time3;
+  INPUT ---       rlabel(1)=Phi gUpriver Release c1 a0 t1;
+  INPUT ---       rlabel(2)=Phi gUpriver Release c1 a1 t2;
+  INPUT ---       rlabel(3)=Phi gFranks Tract Release c1 a0 t1;
+  INPUT ---       rlabel(4)=Phi gFranks Tract Release c1 a1 t2;
+  INPUT ---       rlabel(5)=Phi gDownriver Release c1 a0 t1;
+  INPUT ---       rlabel(6)=Phi gDownriver Release c1 a1 t2;
+  INPUT ---       rlabel(7)=p gUpriver Release c1 a1 t2;
+  INPUT ---       rlabel(8)=p gUpriver Release c1 a2 t3;
+
+ Link Function Used is LOGIT        
+
+ Variance Estimation Procedure Used is 2ndPart 
+ -2logL(saturated) = 35.848000     
+ Effective Sample Size = 803
+
+ Number of function evaluations was 44 for 8 parameters.
+ Time for numerical optimization was 0.01 seconds.     
+ -2logL { Phi(~time * rel)p(~time) } = 66.676433     
+ Penalty { Phi(~time * rel)p(~time) } = 0.0000000     
+ Gradient { Phi(~time * rel)p(~time) }:
+  0.3781430E-05  0.1947285E-06   0.000000      0.2564097E-06   0.000000    
+   0.000000       0.000000       0.000000    
+ Maximum ABS(G) { Phi(~time * rel)p(~time) } = 0.3781430E-05 
+ S Vector { Phi(~time * rel)p(~time) }:
+   8.133787      1.221395     0.8530888     0.6212999E-07 0.4659927E-07
+  0.3595706E-08 0.6098905E-09 0.2889370E-23
+ Time to compute number of parameters was 0.05 seconds.     
+ Ratio Threshold = 50.000000       Max Gap (7/8) = 0.2110808E+15   Next Max Gap (3/4) = 13730710.     
+ Gap Method for Num. of Estimated Parameters { Phi(~time * rel)p(~time) } = 3          
+ Threshold { Phi(~time * rel)p(~time) } = 0.7562859E-05                 
+ Numerical Threshold Method for Num. of Estimated Parameters { Phi(~time * rel)p(~time) } = 3          
+ Number of Estimated Parameters { Phi(~time * rel)p(~time) } = 3          
+ DEVIANCE { Phi(~time * rel)p(~time) } = 30.828433                     
+ DEVIANCE Degrees of Freedom { Phi(~time * rel)p(~time) } = -1            
+ c-hat { Phi(~time * rel)p(~time) } = 1.0000000                     
+ AIC { Phi(~time * rel)p(~time) } = 72.676433                  
+ AICc { Phi(~time * rel)p(~time) } = 72.706471                    
+ BIC { Phi(~time * rel)p(~time) } = 86.741498                    
+ Pearson Chisquare { Phi(~time * rel)p(~time) } = 224.29347                  
+ Possible Encounter Histories { Phi(~time * rel)p(~time) } = 12             
+ Pearson Chisquare df { Phi(~time * rel)p(~time) } = 6        
+ Pearson chat { Phi(~time * rel)p(~time) } = 37.382245                  
+ Sum(Observed/Expected) { Phi(~time * rel)p(~time) } = 127.78877                  
+ s-bar { Phi(~time * rel)p(~time) } = 12.865419                  
+ Fletcher chat { Phi(~time * rel)p(~time) } = 2.6960775                  
+
+
+                 LOGIT Link Function Parameters of { Phi(~time * rel)p(~time) }
+                                                              95% Confidence Interval
+ Parameter                    Beta         Standard Error      Lower           Upper
+ -------------------------  --------------  --------------  --------------  --------------
+    1:Phi:(Intercept)       -1.7741935       1.0042777      -3.7425777       0.1941908    
+    2:Phi:time2              23.487282       16468.059      -32253.910       32300.884    
+    3:Phi:relFranks Tract    25.771015       0.0000000       25.771015       25.771015    
+    4:Phi:relDownriver Rel  -17.596690       4068.9999      -7992.8367       7957.6433    
+    5:Phi:time2:relFranks    4.9358905       0.0000000       4.9358905       4.9358905    
+    6:Phi:time2:relDownriv   6.5539397       5283.0463      -10348.217       10361.325    
+    7:p:(Intercept)         -3.8969608       0.6520077      -5.1748959      -2.6190257    
+    8:p:time3                0.5300162E-06   0.8247447      -1.6164992       1.6165002    
+
+  Program  MARK  - Survival Rate Estimation with Capture-Recapture Data
+   gfortran(dble) Vers. 9.0 Jan 2019     4-Apr-2020 08:19:00    Page  004
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ 
+
+
+                 Real Function Parameters of { Phi(~time * rel)p(~time) }
+                                                               95% Confidence Interval
+  Parameter                  Estimate       Standard Error      Lower           Upper
+ --------------------------  --------------  --------------  --------------  --------------
+     1:Phi gUpriver Release   0.1450216       0.1245207       0.0231446       0.5483957                          
+     2:Phi gUpriver Release   1.0000000       0.6120234E-05   0.9999880       1.0000120                          
+     3:Phi gFranks Tract Re   1.0000000       0.0000000       1.0000000       1.0000000                          
+     4:Phi gFranks Tract Re   1.0000000       0.0000000       1.0000000       1.0000000                          
+     5:Phi gDownriver Relea   0.3866626E-08   0.1573330E-04  -0.3083341E-04   0.3084114E-04                      
+     6:Phi gDownriver Relea   0.9999768       0.4692283      0.2395264E-303   1.0000000                          
+     7:p gUpriver Release c   0.0198995       0.0127164       0.0056250       0.0679240                          
+     8:p gUpriver Release c   0.0198995       0.0127164       0.0056250       0.0679240                          
+
+ Attempted ordering of parameters by estimatibility:
+  7 8 1 4 6 2 3 5
+ Beta number 5 is a singular value.
+
+   CPU Time for the last procedure was 0.06 seconds.     
+
+
+  INPUT --- proc stop;
+
+     CPU Time in minutes for this job was 0.00
+
+     Time Start = 08:19:00.725   Time End = 08:19:00.765
+
+     Wall Clock Time in minutes for this job was 0.00
+
+
+          E X E C U T I O N   S U C C E S S F U L 
