@@ -325,7 +325,7 @@ if (nrow(detects_benicia) == 0){
   WR.surv$Detection_efficiency <- NA
   WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
     
-  WR.surv <- cbind(Release = c("ALL", groups), WR.surv)
+  WR.surv <- cbind(Release = c("ALL", names(sort(table(test3$Release),decreasing = T))), WR.surv)
 
   WR.surv1 <- WR.surv
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")

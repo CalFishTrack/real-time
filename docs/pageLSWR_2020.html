@@ -755,7 +755,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 15:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 16:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1138,16 +1138,16 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-11.0
+11.2
 </td>
 <td style="text-align:right;">
 1.4
 </td>
 <td style="text-align:right;">
-8.5
+8.7
 </td>
 <td style="text-align:right;">
-14.0
+14.2
 </td>
 <td style="text-align:right;">
 98.1
@@ -1178,16 +1178,16 @@ NA
 Release 2
 </td>
 <td style="text-align:right;">
-14.1
+14.8
 </td>
 <td style="text-align:right;">
-3.0
+3.1
 </td>
 <td style="text-align:right;">
-9.2
+9.8
 </td>
 <td style="text-align:right;">
-21.0
+21.9
 </td>
 <td style="text-align:right;">
 NA
@@ -1392,16 +1392,16 @@ SE
 Survival from release to Butte City
 </td>
 <td style="text-align:right;">
-23.6
+23.3
 </td>
 <td style="text-align:right;">
 2.7
 </td>
 <td style="text-align:right;">
-18.7
+18.5
 </td>
 <td style="text-align:right;">
-29.4
+28.9
 </td>
 </tr>
 <tr>
@@ -1409,16 +1409,16 @@ Survival from release to Butte City
 Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)
 </td>
 <td style="text-align:right;">
-46.4
+47.8
 </td>
 <td style="text-align:right;">
 6.0
 </td>
 <td style="text-align:right;">
-35.0
+36.4
 </td>
 <td style="text-align:right;">
-58.2
+59.5
 </td>
 </tr>
 <tr>
@@ -1432,7 +1432,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-93.8
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1443,16 +1443,16 @@ Survival from TowerBridge to I80-50_Br
 % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
 </td>
 <td style="text-align:right;">
-36.3
+35.7
 </td>
 <td style="text-align:right;">
-6.5
+6.4
 </td>
 <td style="text-align:right;">
-24.8
+24.3
 </td>
 <td style="text-align:right;">
-49.7
+49.0
 </td>
 </tr>
 <tr>
@@ -1460,16 +1460,16 @@ Survival from TowerBridge to I80-50_Br
 Detection probability at Butte City
 </td>
 <td style="text-align:right;">
-58.2
+58.9
 </td>
 <td style="text-align:right;">
-6.7
+6.6
 </td>
 <td style="text-align:right;">
-44.9
+45.7
 </td>
 <td style="text-align:right;">
-70.4
+71.0
 </td>
 </tr>
 <tr>
@@ -1477,13 +1477,13 @@ Detection probability at Butte City
 Detection probability at TowerBridge
 </td>
 <td style="text-align:right;">
-98.1
+98.2
 </td>
 <td style="text-align:right;">
 1.8
 </td>
 <td style="text-align:right;">
-87.9
+88.1
 </td>
 <td style="text-align:right;">
 99.7
@@ -1494,13 +1494,13 @@ Detection probability at TowerBridge
 Detection probability at I80-50_Br
 </td>
 <td style="text-align:right;">
-96.3
+96.4
 </td>
 <td style="text-align:right;">
-2.6
+2.5
 </td>
 <td style="text-align:right;">
-86.5
+86.7
 </td>
 <td style="text-align:right;">
 99.1
@@ -1661,7 +1661,7 @@ if (nrow(detects_benicia) == 0){
   WR.surv$Detection_efficiency &lt;- NA
   WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
     
-  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups), WR.surv)
+  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, names(sort(table(test3$Release),decreasing = T))), WR.surv)
 
   WR.surv1 &lt;- WR.surv
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
@@ -1912,16 +1912,16 @@ SE
 ALL
 </td>
 <td style="text-align:right;">
-13.2
+13.0
 </td>
 <td style="text-align:right;">
-4.7
+4.6
 </td>
 <td style="text-align:right;">
-6.4
+6.3
 </td>
 <td style="text-align:right;">
-25.2
+24.8
 </td>
 </tr>
 <tr>
@@ -2116,16 +2116,16 @@ TowerBridge
 2020-03-18 04:17:35
 </td>
 <td style="text-align:left;">
-2020-03-27 04:21:29
+2020-03-27 07:35:25
 </td>
 <td style="text-align:left;">
-2020-04-03 11:39:45
+2020-04-03 14:08:34
 </td>
 <td style="text-align:right;">
-54
+55
 </td>
 <td style="text-align:right;">
-10.76
+10.96
 </td>
 <td style="text-align:right;">
 172.000
@@ -2139,16 +2139,16 @@ I80-50_Br
 2020-03-18 05:25:52
 </td>
 <td style="text-align:left;">
-2020-03-27 08:32:06
+2020-03-27 11:45:30
 </td>
 <td style="text-align:left;">
-2020-04-03 12:23:32
+2020-04-03 14:35:31
 </td>
 <td style="text-align:right;">
-53
+54
 </td>
 <td style="text-align:right;">
-10.56
+10.76
 </td>
 <td style="text-align:right;">
 170.748
@@ -2594,16 +2594,16 @@ TowerBridge
 2020-03-29 18:36:53
 </td>
 <td style="text-align:left;">
-2020-04-01 03:44:47
+2020-04-01 06:39:58
 </td>
 <td style="text-align:left;">
-2020-04-03 11:39:45
+2020-04-03 14:08:34
 </td>
 <td style="text-align:right;">
-19
+20
 </td>
 <td style="text-align:right;">
-14.07
+14.81
 </td>
 <td style="text-align:right;">
 172.000
@@ -2617,16 +2617,16 @@ I80-50_Br
 2020-03-29 19:22:50
 </td>
 <td style="text-align:left;">
-2020-04-01 05:48:09
+2020-04-01 08:38:31
 </td>
 <td style="text-align:left;">
-2020-04-03 12:23:32
+2020-04-03 14:35:31
 </td>
 <td style="text-align:right;">
-19
+20
 </td>
 <td style="text-align:right;">
-14.07
+14.81
 </td>
 <td style="text-align:right;">
 170.748

@@ -782,7 +782,7 @@ Fremont_Ford
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 15:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-03 16:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -956,7 +956,7 @@ if (nrow(detects_benicia) == 0){
   WR.surv$Detection_efficiency &lt;- NA
   WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
     
-  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups), WR.surv)
+  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, names(sort(table(test3$Release),decreasing = T))), WR.surv)
 
   WR.surv1 &lt;- WR.surv
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
@@ -1015,24 +1015,24 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-0.2
-</td>
-<td style="text-align:right;">
-0.0
+0.4
 </td>
 <td style="text-align:right;">
 0.2
 </td>
 <td style="text-align:right;">
-0.3
+0.1
 </td>
 <td style="text-align:right;">
-100
+1.2
+</td>
+<td style="text-align:right;">
+66.7
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Downriver Release
+Franks Tract Release
 </td>
 <td style="text-align:right;">
 1.0
@@ -1052,19 +1052,19 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-Franks Tract Release
+Upriver Release
 </td>
 <td style="text-align:right;">
-0.3
+0.6
 </td>
 <td style="text-align:right;">
-0.3
+0.4
 </td>
 <td style="text-align:right;">
-0.0
+0.1
 </td>
 <td style="text-align:right;">
-2.0
+2.3
 </td>
 <td style="text-align:right;">
 NA
@@ -1072,7 +1072,7 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-Upriver Release
+Downriver Release
 </td>
 <td style="text-align:right;">
 0.0
@@ -1388,16 +1388,16 @@ Benicia_west
 2020-03-31 08:22:18
 </td>
 <td style="text-align:left;">
-2020-04-01 12:20:21
+2020-04-02 05:02:32
 </td>
 <td style="text-align:left;">
-2020-04-02 16:18:24
+2020-04-03 14:26:55
 </td>
 <td style="text-align:right;">
-2
+3
 </td>
 <td style="text-align:right;">
-0.25
+0.38
 </td>
 <td style="text-align:right;">
 52.040
@@ -1806,16 +1806,16 @@ Benicia_west
 2020-03-31 08:22:18
 </td>
 <td style="text-align:left;">
-2020-03-31 08:22:18
+2020-04-01 23:24:36
 </td>
 <td style="text-align:left;">
-2020-03-31 08:22:18
+2020-04-03 14:26:55
 </td>
 <td style="text-align:right;">
-1
+2
 </td>
 <td style="text-align:right;">
-0.29
+0.57
 </td>
 <td style="text-align:right;">
 52.040
