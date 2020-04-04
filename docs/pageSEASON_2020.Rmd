@@ -26,7 +26,16 @@ library(scales)
 library(viridis)
 library(forcats)
 ```
-
+<style>
+p.caption {
+  font-size: 2em;
+}
+caption {
+      font-size: 2em;
+}
+</style>
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
 ```{r logos, echo=FALSE, cache=TRUE}
 htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
                alt = 'logo', 
@@ -40,8 +49,6 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 
 <br/>
 
-## Survival to Benicia for all major Chinook salmon tagging efforts (n > 100)
-
 ```{r pull in latest data download time}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
@@ -53,7 +60,7 @@ latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
 <br>
 
-```{r print plot of season total survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE}
+```{r print plot of season total survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE, fig.cap="1.1 Survival to Benicia for all major Chinook salmon tagging efforts (n > 100). Hover cursor over points to see release group."}
 library(CDECRetrieve)
 library(plotly)
 
@@ -115,7 +122,7 @@ p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = St
         axis.title.y.right = element_text(color = "blue"),
         axis.text.y.right = element_text(color = "blue"),
         panel.background = element_rect(fill = "white", colour = "black"),
-        legend.position="bottom",
+        legend.position="top",
         panel.border = element_rect(colour = "black", fill=NA))
 
 ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
@@ -128,12 +135,12 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
        
 
 ```
-***Hover cursor over points to see release group.***
+
 
 <br>
 
 
-```{r print plot of season total delta survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE}
+```{r print plot of season total delta survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE, fig.cap="1.2 Through-Delta survival (City of Sacramento to Benicia) for all major Chinook salmon tagging efforts (n > 100). Hover cursor over points to see release group."}
 library(CDECRetrieve)
 library(plotly)
 
@@ -194,7 +201,7 @@ p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = St
         axis.title.y.right = element_text(color = "red"),
         axis.text.y.right = element_text(color = "red"),
         panel.background = element_rect(fill = "white", colour = "black"),
-        legend.position="bottom",
+        legend.position="top",
         panel.border = element_rect(colour = "black", fill=NA))
 
 ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
@@ -202,10 +209,31 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
                    x=0.25, xanchor="left",
                    y=-0.26, yanchor="bottom",    # Same y as legend below
                    legendtitle=TRUE, showarrow=FALSE ) %>%
-  add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "blue"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
+  add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "red"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
   layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2))
        
 
 ```
 
-***Hover cursor over points to see release group.***
+<br/>
+<br/>
+
+## Historic survival to Benicia estimates (PROVISIONAL DATA)
+```{r Benicia survival pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/surv_to_Benicia.png"))#, 
+               #alt = 'logo', 
+               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+```
+
+<br/>
+<br/>
+
+## Historic through-Delta survival estimates (PROVISIONAL DATA)
+```{r Delta survival pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/Delta_surv.png"))#, 
+               #alt = 'logo', 
+               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+```
+
+
+
