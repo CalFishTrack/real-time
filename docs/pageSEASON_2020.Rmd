@@ -109,7 +109,8 @@ ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
 wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
 wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
 benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
-
+## do this cuz can't get rid of legend title in ggplotly
+benicia_rel$. <- benicia_rel$data_quality
 
 ## Now plot
 
@@ -117,7 +118,7 @@ library(ggplot2)
 
 pd <- position_dodge(1)
 boolColors <- as.character(c("final"="black", "tentative"="gray"))
-boolScale <- scale_colour_manual(name="data_quality", values=boolColors)
+boolScale <- scale_colour_manual(name=".", values=boolColors)
 
 ay <- list(
   overlaying = "y",
@@ -131,7 +132,7 @@ ay <- list(
 p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
   xlim(range(wlk_flow$datetime)) +
   geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
-  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= data_quality)) +
+  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= .)) +
   boolScale +
   labs(x="Release Date", size = 8) +
   labs(y="% Survival to Benicia Bridge", size = 8) +  
@@ -153,7 +154,12 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
                    y=-0.26, yanchor="bottom",    # Same y as legend below
                    legendtitle=TRUE, showarrow=FALSE ) %>%
   add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "blue"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
-  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2))
+  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2), margin=list(
+  l = 50,
+  r = 100,
+  b = 50,
+  t = 50
+))
        
 
 ```
@@ -189,7 +195,8 @@ ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
 wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
 wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
 benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
-
+## do this cuz can't get rid of legend title in ggplotly
+benicia_rel$. <- benicia_rel$data_quality
 
 ## Now plot
 
@@ -197,7 +204,7 @@ library(ggplot2)
 
 pd <- position_dodge(1)
 boolColors <- as.character(c("final"="black", "tentative"="gray"))
-boolScale <- scale_colour_manual(name="data_quality", values=boolColors)
+boolScale <- scale_colour_manual(name=".", values=boolColors)
 
 ay <- list(
   overlaying = "y",
@@ -211,7 +218,7 @@ ay <- list(
 p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
   xlim(range(wlk_flow$datetime)) +
   geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
-  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= data_quality)) +
+  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= .)) +
   boolScale +
   labs(x="Release Date", size = 8) +
   labs(y="% through-Delta Survival", size = 8) +  
@@ -233,7 +240,12 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
                    y=-0.26, yanchor="bottom",    # Same y as legend below
                    legendtitle=TRUE, showarrow=FALSE ) %>%
   add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "red"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
-  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2))
+  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2), margin=list(
+  l = 50,
+  r = 100,
+  b = 50,
+  t = 50
+))
        
 
 ```
