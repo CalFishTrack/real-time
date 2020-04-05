@@ -26,6 +26,26 @@ library(scales)
 library(viridis)
 library(forcats)
 ```
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+```
+
 <style>
 p.caption {
   font-size: 2em;
@@ -60,7 +80,9 @@ latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
 <br>
 
-```{r print plot of season total survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE, fig.cap="1.1 Survival to Benicia for all major Chinook salmon tagging efforts (n > 100). Hover cursor over points to see release group."}
+## 1.1 Survival to Benicia for all major Chinook salmon tagging efforts (n > 100). 
+Hover cursor over points to see release group.
+```{r print plot of season total survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE}
 library(CDECRetrieve)
 library(plotly)
 
@@ -139,8 +161,9 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
 
 <br>
 
-
-```{r print plot of season total delta survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE, fig.cap="1.2 Through-Delta survival (City of Sacramento to Benicia) for all major Chinook salmon tagging efforts (n > 100). Hover cursor over points to see release group."}
+## 1.2 Through-Delta survival (City of Sacramento to Benicia) for all major Chinook salmon tagging efforts (n > 100).
+Hover cursor over points to see release group.
+```{r print plot of season total delta survival,fig.height = 6, fig.width = 6, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE, }
 library(CDECRetrieve)
 library(plotly)
 
@@ -218,21 +241,20 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
 <br/>
 <br/>
 
-## Historic survival to Benicia estimates (PROVISIONAL DATA)
+## 1.3 Historic survival to Benicia estimates (PROVISIONAL DATA)
+Click to expand
 ```{r Benicia survival pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/surv_to_Benicia.png"))#, 
-               #alt = 'logo', 
-               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+htmltools::img(src = knitr::image_uri("../data/surv_to_Benicia.png"))
+
 ```
 
 <br/>
 <br/>
 
-## Historic through-Delta survival estimates (PROVISIONAL DATA)
+## 1.4 Historic through-Delta survival estimates (PROVISIONAL DATA)
+Click to expand
 ```{r Delta survival pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/Delta_surv.png"))#, 
-               #alt = 'logo', 
-               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+htmltools::img(src = knitr::image_uri("../data/Delta_surv1.png"))
 ```
 
 
