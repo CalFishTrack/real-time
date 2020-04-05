@@ -664,7 +664,7 @@ if (nrow(study_tagcodes) == 0){
   kable(release_stats, format = &quot;html&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 }                       </code></pre>
-<pre><code>## Project began on 2020-04-06 10:00:00, see tagging details below:</code></pre>
+<pre><code>## Project began on 2020-04-07 10:00:00, see tagging details below:</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <thead>
 <tr>
@@ -700,25 +700,25 @@ Mean_weight
 Release 1
 </td>
 <td style="text-align:left;">
-2020-04-06 10:00:00
+2020-04-07 10:00:00
 </td>
 <td style="text-align:left;">
-2020-04-06 10:00:00
+2020-04-07 10:00:00
 </td>
 <td style="text-align:right;">
-638
+508
 </td>
 <td style="text-align:left;">
-FR_Boyds_Rel
+FR_Gridley_Rel
 </td>
 <td style="text-align:right;">
-240.755
+287.38
 </td>
 <td style="text-align:right;">
-88
+87.2
 </td>
 <td style="text-align:right;">
-7.5
+7.9
 </td>
 </tr>
 </tbody>
@@ -729,7 +729,7 @@ FR_Boyds_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-04 12:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-05 13:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -742,92 +742,6 @@ if(nrow(detects_study)&gt;0){
   detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
   detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
 }
-
-#detects_study &lt;- detects_study[detects_study$recv != 17135,]
-
-detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
-
-#wlk_flow &lt;- read.csv(&quot;wlk.csv&quot;)
-
-if (nrow(detects_butte) == 0){
-  plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
-  text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
-} else {
-  
-  detects_butte &lt;- merge(detects_butte,aggregate(list(first_detect = detects_butte$DateTime_PST), by = list(TagCode= detects_butte$TagCode), FUN = min))
-  
-  detects_butte$Day &lt;- as.Date(detects_butte$first_detect, &quot;Etc/GMT+8&quot;)
-  
-  starttime &lt;- as.Date(min(detects_butte$RelDT), &quot;Etc/GMT+8&quot;)
-  ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
-  
-
-  BTC_flow &lt;- cdec_query(&quot;BTC&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
-
-  BTC_flow$datetime &lt;- as.Date(format(BTC_flow$datetime, &quot;%Y-%m-%d&quot;))
-  BTC_flow_day &lt;- aggregate(list(parameter_value = BTC_flow$parameter_value),
-                            by = list(Day = BTC_flow$datetime),
-                            FUN = mean, na.rm = T)
-
-
-  daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
-
-  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), &quot;Release&quot;])
-  rel_num &lt;- length(rels)
-  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_butte$Release))])
-
-  tagcount &lt;- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, Release = detects_butte$Release ), FUN = function(x){length(unique(x))})
-  tagcount1 &lt;- dcast(tagcount, Day ~ Release)
-
-  daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
-
-  if(length(rels_no_detects)&gt;0){
-    for(i in rels_no_detects){
-      daterange1 &lt;- cbind(daterange1, x=NA)
-      names(daterange1)[names(daterange1) == &#39;x&#39;] &lt;- paste(i)
-    }
-  }
-
-  daterange2 &lt;- merge(daterange1, BTC_flow_day, by = &quot;Day&quot;, all.x = T)
-
-  rownames(daterange2) &lt;- daterange2$Day
-  daterange2$Day &lt;- NULL
-
-  par(mar=c(6, 5, 2, 5) + 0.1)
-  barp &lt;- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
-          xlab = &quot;&quot;, ylab = &quot;Number of fish arrivals per day&quot;,
-          ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
-          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = &quot;n&quot;, xaxt =&quot;n&quot;)#,
-  #border=NA
-  #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
-  #args.legend = list(x =&#39;topright&#39;, bty=&#39;n&#39;, inset=c(-0.2,0)), title = &quot;Release Group&quot;)
-  legend(x =&#39;topleft&#39;, legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = &quot;Release&quot;)
-  ybreaks &lt;- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) &lt; 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
-  xbreaks &lt;- if(ncol(barp) &gt; 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
-  barpmeans &lt;- colMeans(barp)
-  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
-  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
-
-  par(new=T)
-
-  plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
-  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-  mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
-}</code></pre>
-<div class="figure">
-<img src="pageFHSR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #000000; padding:3px" />
-<p class="caption">
-2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City
-</p>
-</div>
-<p><br/></p>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
-
-library(CDECRetrieve)
-library(reshape2)
-
 detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
 
 #wlk_flow &lt;- read.csv(&quot;wlk.csv&quot;)
@@ -1457,7 +1371,7 @@ if (nrow(detects_benicia) == 0){
     
     WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
 
-    WR.surv &lt;- cbind(Release = &quot;ALL&quot;,round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups),round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
     
   }
   WR.surv$Detection_efficiency &lt;- NA
@@ -1636,7 +1550,7 @@ if (nrow(detects_study) == 0){
   WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
   
   ## remove old benicia record for this studyID
-  Delta &lt;- Delta[!Delta$StudyID == unique(Delta$StudyID),]
+  Delta &lt;- Delta[!Delta$StudyID %in% unique(detects_study$StudyID),]
   
   Delta &lt;- rbind(Delta, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
   
