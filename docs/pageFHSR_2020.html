@@ -610,7 +610,8 @@ if (nrow(study_tagcodes) == 0){
   cat(paste(&quot;Project began on &quot;, min(study_tagcodes$RelDT), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
 
 
-  study_tagcodes$Release &lt;- &quot;Release 1&quot;
+  study_tagcodes$Release &lt;- &quot;Boyds&quot;
+  study_tagcodes[study_tagcodes$Rel_loc == &quot;FR_Gridley_Rel&quot;, &quot;Release&quot;] &lt;- &quot;Gridley&quot;
   #study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2020-03-20&quot;), &quot;Release&quot;] &lt;- &quot;Release 2&quot;
 
   
@@ -697,7 +698,7 @@ Mean_weight
 <tbody>
 <tr>
 <td style="text-align:left;">
-Release 1
+Boyds
 </td>
 <td style="text-align:left;">
 2020-04-07 10:00:00
@@ -706,7 +707,33 @@ Release 1
 2020-04-07 10:00:00
 </td>
 <td style="text-align:right;">
-508
+252
+</td>
+<td style="text-align:left;">
+FR_Boyds_Rel
+</td>
+<td style="text-align:right;">
+240.75
+</td>
+<td style="text-align:right;">
+87.1
+</td>
+<td style="text-align:right;">
+7.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gridley
+</td>
+<td style="text-align:left;">
+2020-04-07 10:00:00
+</td>
+<td style="text-align:left;">
+2020-04-07 10:00:00
+</td>
+<td style="text-align:right;">
+256
 </td>
 <td style="text-align:left;">
 FR_Gridley_Rel
@@ -715,7 +742,7 @@ FR_Gridley_Rel
 287.38
 </td>
 <td style="text-align:right;">
-87.2
+87.4
 </td>
 <td style="text-align:right;">
 7.9
@@ -729,7 +756,7 @@ FR_Gridley_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-06 10:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-06 11:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
