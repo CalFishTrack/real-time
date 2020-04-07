@@ -256,7 +256,7 @@ ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height =
 ## 1.3 Historic survival to Benicia estimates (PROVISIONAL DATA)
 Click to expand
 ```{r Benicia survival pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/surv_to_Benicia.png"))
+htmltools::img(src = knitr::image_uri("../data/Survival_to_Benicia.png"))
 
 ```
 
