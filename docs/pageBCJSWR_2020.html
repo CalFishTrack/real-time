@@ -732,7 +732,7 @@ NF Battle Creek
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-07 17:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-07 18:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -2030,7 +2030,7 @@ if (nrow(detects_study) == 0){
   beacon_by_day &lt;- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
   
   ## Now only keep beacon by day for days since fish were released
-  beacon_by_day &lt;- beacon_by_day[beacon_by_day$day &gt;= as.Date(min(study_tagcodes$RelDT)),]  
+  beacon_by_day &lt;- beacon_by_day[beacon_by_day$day &gt;= as.Date(min(study_tagcodes$RelDT)) &amp; beacon_by_day$day &lt;= endtime,]  
   
   beacon_by_day &lt;- merge(beacon_by_day, gen_locs[,c(&quot;location&quot;, &quot;general_location&quot;,&quot;rkm&quot;)], by = &quot;location&quot;, all.x = T)
 

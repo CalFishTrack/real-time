@@ -105,11 +105,12 @@ detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
+detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
+
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
-  
-  detects_study <- detects_study[detects_study$general_location == "TowerBridge",]
+
   detects_study <- merge(detects_study,aggregate(list(first_detect = detects_study$DateTime_PST), by = list(TagCode= detects_study$TagCode), FUN = min))
 
   detects_study <- merge(detects_study, tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
