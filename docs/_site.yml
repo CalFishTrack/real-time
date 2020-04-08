@@ -23,6 +23,8 @@ navbar:
       href: pageUCD_Rice_2020.html
     - text: Hatchery San Joaquin spring-run
       href: pageSJSR_2020.html
+    - text: Hatchery Feather River spring-run
+      href: pageFHSR_2020.html
     - text: 2020 SEASON SUMMARY
       href: pageSEASON_2020.html
   - text: Real-time Receivers

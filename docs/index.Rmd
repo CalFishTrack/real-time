@@ -33,11 +33,12 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 `r anicon::nia("New Updates", size = 2)`
 
-1. [New webpage created for San Joaquin spring-run Chinook salmon 3/25/2020](https://calfishtrack.github.io/real-time/pageSJSR_2020.html)
-2. [New webpage created for rice field reared fall-run Chinook salmon 3/25/2020](https://calfishtrack.github.io/real-time/pageUCD_Rice_2020.html)
-3. [New webpage created for Battle Creek jumpstart winter-run Chinook salmon 3/23/2020](https://calfishtrack.github.io/real-time/pageBCJSWR_2020.html)
-4. [New webpage created for hatchery winter-run Chinook salmon 3/11/2020](https://calfishtrack.github.io/real-time/pageLSWR_2020.html)
-5. [Instructions for downloading data have been updated 1/24/2020](https://calfishtrack.github.io/real-time/pageRealtime_download.html)
+1. [New webpage created for Feather River spring-run Chinook salmon 4/7/2020](https://calfishtrack.github.io/real-time/pageFHSR_2020.html)
+2. [New webpage created for San Joaquin spring-run Chinook salmon 3/25/2020](https://calfishtrack.github.io/real-time/pageSJSR_2020.html)
+3. [New webpage created for rice field reared fall-run Chinook salmon 3/25/2020](https://calfishtrack.github.io/real-time/pageUCD_Rice_2020.html)
+4. [New webpage created for Battle Creek jumpstart winter-run Chinook salmon 3/23/2020](https://calfishtrack.github.io/real-time/pageBCJSWR_2020.html)
+5. [New webpage created for hatchery winter-run Chinook salmon 3/11/2020](https://calfishtrack.github.io/real-time/pageLSWR_2020.html)
+6. [Instructions for downloading data have been updated 1/24/2020](https://calfishtrack.github.io/real-time/pageRealtime_download.html)
 
 
 </div>
