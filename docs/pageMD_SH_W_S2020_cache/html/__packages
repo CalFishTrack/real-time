@@ -1,0 +1,10 @@
+base
+knitr
+kableExtra
+lubridate
+data.table
+ggplot2
+scales
+viridisLite
+viridis
+forcats
