@@ -137,7 +137,7 @@ if (nrow(study_tagcodes) == 0){
 
 ## Real-time Fish Detections
 
-***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
+***`r anicon::nia("Study is complete, tags are no longer active.", size = 1, colour = "red")`. All times in Pacific Standard Time.***
 
 <br/>
 <center>

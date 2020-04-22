@@ -11,9 +11,9 @@ navbar:
       href: pageSRGS_2020.html
     - text: Hatchery late-fall-run salmon
       href: pageCHLF_2020.html
-    - text: Mill/Deer Creek wild salmon
+    - text: Mill/Deer Creek wild salmon, fall releases
       href: pageMD_CH_W_F2020.html
-    - text: Mill/Deer Creek wild steelhead
+    - text: Mill/Deer Creek wild steelhead, fall releases
       href: pageMD_SH_W_F2020.html
     - text: Hatchery winter-run salmon
       href: pageLSWR_2020.html
@@ -25,6 +25,10 @@ navbar:
       href: pageSJSR_2020.html
     - text: Hatchery Feather River spring-run
       href: pageFHSR_2020.html
+    - text: Mill/Deer Creek wild salmon, spring releases
+      href: pageMD_CH_W_S2020.html
+    - text: Mill/Deer Creek wild steelhead, spring releases
+      href: pageMD_SH_W_S2020.html
     - text: 2020 SEASON SUMMARY
       href: pageSEASON_2020.html
   - text: Real-time Receivers
