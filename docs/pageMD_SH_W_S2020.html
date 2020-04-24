@@ -762,7 +762,7 @@ Mill_Creek
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-23 18:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-04-23 19:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1383,16 +1383,16 @@ if (nrow(detects_study) == 0){
 <th style="text-align:left;">
 Measure
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Estimate
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 SE
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% lower C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% upper C.I.
 </th>
 </tr>
@@ -1400,19 +1400,172 @@ SE
 <tbody>
 <tr>
 <td style="text-align:left;">
-NA
+Survival from release to Butte City
 </td>
-<td style="text-align:left;">
-NO DETECTIONS YET
+<td style="text-align:right;">
+8.3
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+2.7
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+4.3
 </td>
+<td style="text-align:right;">
+15.5
+</td>
+</tr>
+<tr>
 <td style="text-align:left;">
-NA
+Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)
+</td>
+<td style="text-align:right;">
+62.5
+</td>
+<td style="text-align:right;">
+17.1
+</td>
+<td style="text-align:right;">
+28.5
+</td>
+<td style="text-align:right;">
+87.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Survival from TowerBridge to I80-50_Br
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+72.6
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
+</td>
+<td style="text-align:right;">
+50.0
+</td>
+<td style="text-align:right;">
+20.4
+</td>
+<td style="text-align:right;">
+16.8
+</td>
+<td style="text-align:right;">
+83.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at Butte City
+</td>
+<td style="text-align:right;">
+83.3
+</td>
+<td style="text-align:right;">
+15.2
+</td>
+<td style="text-align:right;">
+36.9
+</td>
+<td style="text-align:right;">
+97.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at TowerBridge
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+72.6
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at I80-50_Br
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+72.6
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at Blw_Georgiana
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+38.3
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at Georgiana Slough
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+14.7
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Routing probability into Georgiana Slough (Conditional on fish arriving to junction)
+</td>
+<td style="text-align:right;">
+33.3
+</td>
+<td style="text-align:right;">
+27.2
+</td>
+<td style="text-align:right;">
+4.3
+</td>
+<td style="text-align:right;">
+84.6
 </td>
 </tr>
 </tbody>
@@ -2026,6 +2179,29 @@ I80-50_Br
 </tr>
 <tr>
 <td style="text-align:left;">
+Georgiana_Slough1
+</td>
+<td style="text-align:left;">
+2020-04-23 18:09:46
+</td>
+<td style="text-align:left;">
+2020-04-23 18:09:46
+</td>
+<td style="text-align:left;">
+2020-04-23 18:09:46
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.87
+</td>
+<td style="text-align:right;">
+119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Sac_BlwGeorgiana
 </td>
 <td style="text-align:left;">
@@ -2045,6 +2221,29 @@ Sac_BlwGeorgiana
 </td>
 <td style="text-align:right;">
 119.058
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgiana_Slough2
+</td>
+<td style="text-align:left;">
+2020-04-23 18:17:58
+</td>
+<td style="text-align:left;">
+2020-04-23 18:17:58
+</td>
+<td style="text-align:left;">
+2020-04-23 18:17:58
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.87
+</td>
+<td style="text-align:right;">
+118.758
 </td>
 </tr>
 <tr>
@@ -2219,6 +2418,29 @@ I80-50_Br
 </tr>
 <tr>
 <td style="text-align:left;">
+Georgiana_Slough1
+</td>
+<td style="text-align:left;">
+2020-04-23 18:09:46
+</td>
+<td style="text-align:left;">
+2020-04-23 18:09:46
+</td>
+<td style="text-align:left;">
+2020-04-23 18:09:46
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.25
+</td>
+<td style="text-align:right;">
+119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Sac_BlwGeorgiana
 </td>
 <td style="text-align:left;">
@@ -2238,6 +2460,29 @@ Sac_BlwGeorgiana
 </td>
 <td style="text-align:right;">
 119.058
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgiana_Slough2
+</td>
+<td style="text-align:left;">
+2020-04-23 18:17:58
+</td>
+<td style="text-align:left;">
+2020-04-23 18:17:58
+</td>
+<td style="text-align:left;">
+2020-04-23 18:17:58
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.25
+</td>
+<td style="text-align:right;">
+118.758
 </td>
 </tr>
 <tr>
