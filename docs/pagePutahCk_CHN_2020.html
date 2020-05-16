@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>CalFishTrack</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/font-awesome-animation-1.0/font-awesome-animation-emi.css" rel="stylesheet" />
+<script src="site_libs/fontawesome-5.0.13/js/fontawesome-all.min.js"></script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-149845979-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-149845979-1');
+</script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html"></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    2020 Water Year Study Detections
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+    </li>
+    <li>
+      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+    </li>
+    <li>
+      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+    </li>
+    <li>
+      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+    </li>
+    <li>
+      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+    </li>
+    <li>
+      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+    </li>
+    <li>
+      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+    </li>
+    <li>
+      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+    </li>
+    <li>
+      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+    </li>
+    <li>
+      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+    </li>
+    <li>
+      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+    </li>
+    <li>
+      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+    </li>
+    <li>
+      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="pageREAL.html">Real-time Receivers</a>
+</li>
+<li>
+  <a href="pageDEPLOY.html">Autonomous Receivers</a>
+</li>
+<li>
+  <a href="pageRealtime_download.html">Download data</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Archive Study Pages
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2018 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageCHLF.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageLSWR.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCSR.html">Butte Creek wild spring-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMDSR.html">Mill/Deer Creek wild spring-run salmon</a>
+        </li>
+        <li>
+          <a href="pageSRSR.html">Sacramento River wild Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pageMHFR.html">Mokelumne hatchery fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageNHFR.html">Nimbus hatchery fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageSRGS.html">Wild green sturgeon</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2019 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageCHLF_2019.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2019.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageSRDC_2019.html">Deer Creek wild spring-run salmon</a>
+        </li>
+        <li>
+          <a href="pageSHDC_2019.html">Fall Deer Creek wild steelhead</a>
+        </li>
+        <li>
+          <a href="pageSRGS_2019.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageBCSR_2019.html">Butte Creek wild spring-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2019.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2019.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2019.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageSLPRFR_2019.html">Hatchery fall-run net-pen paired release</a>
+        </li>
+        <li>
+          <a href="pageYoloFR_2019.html">Hatchery fall-run Yolo bypass release</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2019.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pageSHDC_Spring_2019.html">Spring Deer Creek wild steelhead</a>
+        </li>
+        <li>
+          <a href="pageSHMC_Spring_2019.html">Mill Creek wild steelhead</a>
+        </li>
+        <li>
+          <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">CalFishTrack</h1>
+
+</div>
+
+
+<style>
+p.caption {
+  font-size: 1.5em;
+}
+caption {
+      font-size: 1.5em;
+}
+</style>
+<div id="central-valley-enhanced" class="section level1">
+<h1><em>Central Valley Enhanced</em></h1>
+</div>
+<div id="acoustic-tagging-project" class="section level1">
+<h1><em>Acoustic Tagging Project</em></h1>
+<p>preserve131c409b9fbf5259</p>
+<p><br/> <br/></p>
+<p>preservea8a85ba3d3364ee3</p>
+<p>preserve32b7470bb7dce25f</p>
+<p><br/> <br/></p>
+</div>
+<div id="putah-creek-wild-chinook-salmon" class="section level1">
+<h1><strong>Putah Creek wild Chinook salmon</strong></h1>
+<div id="season-provisional-data" class="section level2">
+<h2>2019-2020 Season (PROVISIONAL DATA)</h2>
+<p><br/></p>
+<hr />
+</div>
+<div id="project-status" class="section level2">
+<h2><em>1. Project Status</em></h2>
+<hr />
+<p>Telemetry Study Template for this study can be found <a href="https://github.com/CalFishTrack/real-time/blob/master/data/PutahCk_2020_Telemetry%20Study%20Summary.pdf?raw=true">here</a></p>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+tagcodes &lt;- as.data.frame(fread(&quot;qry_HexCodes.txt&quot;, stringsAsFactors = F))
+tagcodes$RelDT &lt;- as.POSIXct(tagcodes$RelDT, format = &quot;%m/%d/%Y %I:%M:%S %p&quot;, tz = &quot;Etc/GMT+8&quot;)
+latest &lt;- read.csv(&quot;latest_download.csv&quot;, stringsAsFactors = F)
+
+study_tagcodes &lt;- tagcodes[tagcodes$StudyID == &quot;Putah_Creek_CHN_2020&quot;,]
+ 
+
+if (nrow(study_tagcodes) == 0){
+  cat(&quot;Project has not yet begun&quot;)
+}else{
+  cat(paste(&quot;Project began on &quot;, min(study_tagcodes$RelDT), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
+
+  study_tagcodes$Release &lt;- &quot;Upriver Release&quot;
+  study_tagcodes[study_tagcodes$Rel_loc == &quot;Durham_Ferry&quot;, &quot;Release&quot;] &lt;- &quot;Downriver Release&quot;
+  study_tagcodes[study_tagcodes$Rel_loc == &quot;Franks_Tract&quot;, &quot;Release&quot;] &lt;- &quot;Franks Tract Release&quot;
+  #study_tagcodes[study_tagcodes$RelDT &gt; as.POSIXct(&quot;2020-03-20&quot;), &quot;Release&quot;] &lt;- &quot;Release 2&quot;
+
+  
+  
+  release_stats &lt;- aggregate(list(First_release_time = study_tagcodes$RelDT),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = min)
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Last_release_time = study_tagcodes$RelDT),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = max),
+                         by = c(&quot;Release&quot;))
+  
+                             
+  release_stats &lt;- merge(release_stats, aggregate(list(Number_fish_released =
+                                                         study_tagcodes$TagID_Hex),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = function(x) {length(unique(x))}),
+                         by = c(&quot;Release&quot;))
+  
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Release_location = study_tagcodes$Rel_loc),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = function(x) {head(x,1)}),
+                         by = c(&quot;Release&quot;))
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Release_rkm = study_tagcodes$Rel_rkm),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = function(x) {head(x,1)}),
+                         by = c(&quot;Release&quot;))
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Mean_length = study_tagcodes$Length),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = mean, na.rm = T),
+                         by = c(&quot;Release&quot;))
+  release_stats &lt;- merge(release_stats,
+                         aggregate(list(Mean_weight = study_tagcodes$Weight),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = mean, na.rm = T),
+                         by = c(&quot;Release&quot;))
+  
+    release_stats2&lt;-release_stats[,-3]
+  colnames(release_stats2)[2]&lt;-&quot;Release time&quot;
+  
+  release_stats[,c(&quot;Mean_length&quot;, &quot;Mean_weight&quot;)] &lt;- round(release_stats[,c(&quot;Mean_length&quot;, &quot;Mean_weight&quot;)],1)
+  
+  release_stats$First_release_time &lt;- format(release_stats$First_release_time, tz = &quot;Etc/GMT+8&quot;)
+  
+  release_stats$Last_release_time &lt;- format(release_stats$Last_release_time, tz = &quot;Etc/GMT+8&quot;)
+  
+  kable(release_stats, format = &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
+}                       </code></pre>
+<pre><code>## Project began on 2020-04-21 11:00:00, see tagging details below:</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+Release
+</th>
+<th style="text-align:left;">
+First_release_time
+</th>
+<th style="text-align:left;">
+Last_release_time
+</th>
+<th style="text-align:right;">
+Number_fish_released
+</th>
+<th style="text-align:left;">
+Release_location
+</th>
+<th style="text-align:right;">
+Release_rkm
+</th>
+<th style="text-align:right;">
+Mean_length
+</th>
+<th style="text-align:right;">
+Mean_weight
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Upriver Release
+</td>
+<td style="text-align:left;">
+2020-04-21 11:00:00
+</td>
+<td style="text-align:left;">
+2020-05-08 11:10:00
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:left;">
+Russell Ranch
+</td>
+<td style="text-align:right;">
+168.9
+</td>
+<td style="text-align:right;">
+78.9
+</td>
+<td style="text-align:right;">
+5.6
+</td>
+</tr>
+</tbody>
+</table>
+<p><br/></p>
+<hr />
+</div>
+<div id="real-time-fish-detections" class="section level2">
+<h2><em>2. Real-time Fish Detections</em></h2>
+<hr />
+<p><strong><em>Data current as of preserve631ef887a22a4cd8. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+library(CDECRetrieve)
+library(reshape2)
+
+detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_SCARF_San_Joaquin_Spring_run_2020.csv&quot;, sep = &quot;&quot;))
+
+
+if(nrow(detects_study)&gt;0){
+  detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
+  detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
+}
+
+
+detects_benicia &lt;- detects_study[detects_study$general_location %in% c(&quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
+
+if (nrow(detects_benicia)&gt;0) {
+  detects_benicia &lt;- merge(detects_benicia,aggregate(list(first_detect = detects_benicia$DateTime_PST), by = list(TagCode= detects_benicia$TagCode), FUN = min))
+  
+  detects_benicia$Day &lt;- as.Date(detects_benicia$first_detect, &quot;Etc/GMT+8&quot;)
+  
+  starttime &lt;- as.Date(min(detects_benicia$RelDT), &quot;Etc/GMT+8&quot;)
+  #endtime &lt;- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
+  #wlk_flow &lt;- cdec_query(&quot;COL&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
+  #wlk_flow$datetime &lt;- as.Date(wlk_flow$datetime)
+  #wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_benicia$RelDT)+(detects_benicia$tag_life*1.5)))
+ 
+  
+  daterange &lt;- data.frame(Day = seq.Date(from = starttime, to = endtime, by = &quot;day&quot;))
+  
+  rels &lt;- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_benicia$StudyID), &quot;Release&quot;])
+  rel_num &lt;- length(rels)
+  rels_no_detects &lt;- as.character(rels[!(rels %in% unique(detects_benicia$Release))])
+  
+  tagcount &lt;- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release = detects_benicia$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 &lt;- dcast(tagcount, Day ~ Release)
+                    
+  daterange1 &lt;- merge(daterange, tagcount1, all.x=T)
+  
+  if(length(rels_no_detects)&gt;0){
+    for(i in rels_no_detects){
+      daterange1 &lt;- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == &#39;x&#39;] &lt;- paste(i)
+    }
+  }
+  
+  #daterange2 &lt;- merge(daterange1, wlk_flow_day, by = &quot;Day&quot;, all.x = T)
+  daterange2 &lt;- daterange1
+  
+  rownames(daterange2) &lt;- daterange2$Day
+  daterange2$Day &lt;- NULL
+  
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp &lt;- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
+          xlab = &quot;&quot;, ylab = &quot;Number of fish arrivals per day&quot;, 
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;)#, 
+          #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+          #args.legend = list(x =&#39;topright&#39;, bty=&#39;n&#39;, inset=c(-0.2,0)), title = &quot;Release Group&quot;)
+  legend(x =&#39;topleft&#39;, legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = &quot;Release&quot;)
+  ybreaks &lt;- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) &lt; 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
+  xbreaks &lt;- if(ncol(barp) &gt; 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans &lt;- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2)[xbreaks], las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
+  box()
+
+#par(new=T)
+
+#plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
+#axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+#mtext(&quot;Flow (cfs) at Colusa Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
+
+}else{
+  plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
+  text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
+}</code></pre>
+<div class="figure">
+<img src="pagePutahCk_CHN_2020_files/figure-html/print figure of fish detections at Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
+<p class="caption">
+2.3 Detections at Benicia Bridge
+</p>
+</div>
+<p><br/></p>
+<hr />
+</div>
+<div id="survival-and-routing-probability" class="section level2">
+<h2><em>3. Survival and Routing Probability</em></h2>
+<hr />
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+library(RMark)
+
+if (nrow(detects_benicia) == 0){
+  WR.surv1 &lt;- data.frame(&quot;Release Group&quot;=NA, &quot;Survival (%)&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+}else if (length(table(detects_benicia$general_location)) == 1){
+   WR.surv1 &lt;- data.frame(&quot;Release Group&quot;=NA, &quot;Survival (%)&quot;=&quot;NOT ENOUGH DETECTIONS&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+} else {
+  
+  benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F)
+  benicia$RelDT &lt;- as.POSIXct(benicia$RelDT)
+
+  ## Only do survival to Benicia here
+  test3 &lt;- detects_study[detects_study$rkm &lt; 53,]
+  
+  ## Create inp for survival estimation
+  
+  inp &lt;- as.data.frame(dcast(test3, TagCode ~ rkm, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  # Count number of genlocs
+  gen_loc_sites &lt;- ncol(inp)-1
+  
+  inp &lt;- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+
+  inp &lt;- merge(study_tagcodes, inp, by.x = &quot;TagID_Hex&quot;, by.y = &quot;TagCode&quot;, all.x = T)
+  
+  inp2 &lt;- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+  inp2[is.na(inp2)] &lt;- 0
+  inp2[inp2 &gt; 0] &lt;- 1
+  
+  inp &lt;- cbind(inp, inp2)
+  groups &lt;- as.character(sort(unique(inp$Release)))
+  groups_w_detects &lt;- names(table(test3$Release))
+
+  inp[,groups] &lt;- 0
+  for (i in groups) {
+    inp[as.character(inp$Release) == i, i] &lt;- 1
+  }
+
+  inp$inp_final &lt;- paste(&quot;1&quot;,apply(inp2, 1, paste, collapse=&quot;&quot;),sep=&quot;&quot;)
+  
+  
+  if(length(groups) &gt; 1){
+  ## make sure factor levels have a release that has detections first. if first release in factor order has zero #detectins, model goes haywire
+    inp.df &lt;- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = inp$Release, stringsAsFactors = F)
+
+    WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1) 
+    
+    WR.ddl &lt;- make.design.data(WR.process)
+    
+    WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+    inp.df &lt;- inp.df[inp.df$rel %in% groups_w_detects,]
+    inp.df$rel &lt;- factor(inp.df$rel, levels = groups_w_detects)
+    if(length(groups_w_detects) &gt; 1){
+      WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1, groups = &quot;rel&quot;) 
+    
+      WR.ddl &lt;- make.design.data(WR.process)
+      WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    }else{  
+      WR.process &lt;- process.data(inp.df, model=&quot;CJS&quot;, begin.time=1) 
+    
+      WR.ddl &lt;- make.design.data(WR.process)
+      WR.mark.rel &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    }
+      
+    WR.surv &lt;- cbind(Release = &quot;ALL&quot;,round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    WR.surv.rel &lt;- cbind(Release = groups_w_detects, round(WR.mark.rel$results$real[seq(from=1,to=length(groups_w_detects)*2,by = 2),c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    WR.surv.rel &lt;- merge(WR.surv.rel, data.frame(Release = groups), all.y = T)
+    WR.surv.rel[is.na(WR.surv.rel$estimate),&quot;estimate&quot;] &lt;- 0
+    WR.surv &lt;- rbind(WR.surv, WR.surv.rel)
+    
+  }else{
+    inp.df &lt;- data.frame(ch = as.character(inp$inp_final), freq = 1, stringsAsFactors = F)
+    WRinp &lt;- convert.inp(inp.df)
+    WR.process &lt;- process.data(WRinp, model=&quot;CJS&quot;, begin.time=1) 
+    
+      
+    WR.ddl &lt;- make.design.data(WR.process)
+    
+    WR.mark.all &lt;- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+
+    WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, groups),round(WR.mark.all$results$real[1,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1))
+    
+  }
+  
+  WR.surv$Detection_efficiency &lt;- NA
+  WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
+    
+  WR.surv1 &lt;- WR.surv
+  colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
+
+  print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))    
+  
+  ## Find mean release time per release group, and ALL
+  reltimes &lt;- aggregate(list(RelDT = study_tagcodes$RelDT), by = list(Release = study_tagcodes$Release), FUN = mean)
+  reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$RelDT)))
+
+  ## Assign whether the results are tentative or final
+  quality &lt;- &quot;tentative&quot;
+  if(endtime &lt; as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;))) { quality &lt;- &quot;final&quot;}
+  WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
+  
+  WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
+  
+  ## remove old benicia record for this studyID
+  benicia &lt;- benicia[!benicia$StudyID == unique(study_tagcodes$StudyID),]
+  
+  benicia &lt;- rbind(benicia, data.frame(WR.surv, StudyID = unique(study_tagcodes$StudyID), data_quality = quality))
+  
+  write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
+  
+}</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Release Group
+</th>
+<th style="text-align:left;">
+Survival (%)
+</th>
+<th style="text-align:left;">
+SE
+</th>
+<th style="text-align:left;">
+95% lower C.I.
+</th>
+<th style="text-align:left;">
+95% upper C.I.
+</th>
+<th style="text-align:left;">
+Detection efficiency (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NO DETECTIONS YET
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<p><br/></p>
+<hr />
+</div>
+<div id="detections-statistics-at-all-realtime-receivers" class="section level2">
+<h2><em>4. Detections statistics at all realtime receivers</em></h2>
+<hr />
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+if (nrow(detects_study) == 0){
+  &quot;No detections yet&quot;
+} else {
+  study_count &lt;- nrow(study_tagcodes)
+  gen_locs &lt;- read.csv(&quot;realtime_locs.csv&quot;, stringsAsFactors = F)
+  
+  arrivals &lt;- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+  
+  tag_stats &lt;- aggregate(list(First_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = min)
+  tag_stats &lt;- merge(tag_stats, 
+                     aggregate(list(Mean_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = mean), 
+                     by = c(&quot;general_location&quot;))
+  tag_stats &lt;- merge(tag_stats, 
+                     aggregate(list(Last_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = max), 
+                     by = c(&quot;general_location&quot;))
+  tag_stats &lt;- merge(tag_stats, 
+                     aggregate(list(Fish_count = arrivals$TagCode), 
+                         by= list(general_location = arrivals$general_location), 
+                         FUN = function(x) {length(unique(x))}), 
+                     by = c(&quot;general_location&quot;))
+  tag_stats$Percent_arrived &lt;- round(tag_stats$Fish_count/study_count * 100,2)
+      
+  tag_stats &lt;- merge(tag_stats, unique(gen_locs[,c(&quot;general_location&quot;, &quot;rkm&quot;)]))
+  
+  tag_stats &lt;- tag_stats[order(tag_stats$rkm, decreasing = T),]
+  
+  tag_stats[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)] &lt;- format(tag_stats[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)], tz = &quot;Etc/GMT+8&quot;)
+
+  print(kable(tag_stats, row.names = F, 
+              caption = &quot;4.1 Detections for all releases combined&quot;,
+              &quot;html&quot;) %&gt;%
+          kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+  
+  for (j in sort(unique(study_tagcodes$Release))) {
+    
+    if(nrow(detects_study[detects_study$Release == j,]) &gt; 0 ) {
+    
+      temp &lt;- detects_study[detects_study$Release == j,]
+      
+        arrivals1 &lt;- aggregate(list(DateTime_PST = temp$DateTime_PST), by = list(general_location = temp$general_location, TagCode = temp$TagCode), FUN = min)
+  
+      rel_count &lt;- nrow(study_tagcodes[study_tagcodes$Release == j,])
+  
+      tag_stats1 &lt;- aggregate(list(First_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
+                             FUN = min)
+      tag_stats1 &lt;- merge(tag_stats1, 
+                         aggregate(list(Mean_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
+                             FUN = mean), 
+                         by = c(&quot;general_location&quot;))
+      tag_stats1 &lt;- merge(tag_stats1, 
+                   aggregate(list(Last_arrival = arrivals1$DateTime_PST), 
+                       by= list(general_location = arrivals1$general_location), 
+                       FUN = max), 
+                   by = c(&quot;general_location&quot;))
+      tag_stats1 &lt;- merge(tag_stats1, 
+                         aggregate(list(Fish_count = arrivals1$TagCode), 
+                                   by= list(general_location = arrivals1$general_location), 
+                                   FUN = function(x) {length(unique(x))}), 
+                         by = c(&quot;general_location&quot;))
+      
+      tag_stats1$Percent_arrived &lt;- round(tag_stats1$Fish_count/rel_count * 100,2)
+    
+      tag_stats1 &lt;- merge(tag_stats1, unique(gen_locs[,c(&quot;general_location&quot;, &quot;rkm&quot;)]))
+    
+      tag_stats1 &lt;- tag_stats1[order(tag_stats1$rkm, decreasing = T),]
+      
+      tag_stats1[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)] &lt;- format(tag_stats1[,c(&quot;First_arrival&quot;, &quot;Mean_arrival&quot;, &quot;Last_arrival&quot;)], tz = &quot;Etc/GMT+8&quot;)
+      
+      final_stats &lt;- kable(tag_stats1, row.names = F, 
+            caption = paste(&quot;4.2 Detections for&quot;,j,&quot;release groups&quot;, sep = &quot; &quot;),
+            &quot;html&quot;)
+      
+      print(kable_styling(final_stats, bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+      
+    } else {
+      cat(&quot;\n\n\\pagebreak\n&quot;)
+      print(paste(&quot;No detections for&quot;,j,&quot;release group yet&quot;, sep=&quot; &quot;), quote = F)
+      cat(&quot;\n\n\\pagebreak\n&quot;)
+    }
+  }
+}</code></pre>
+<p>[1] “No detections yet”</p>
+<pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
+figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), units = &quot;days&quot;)) / 4))</code></pre>
+<p><br/></p>
+<div id="fish-arrivals-per-day" class="section level3">
+<h3>4.3 Fish arrivals per day</h3>
+<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+if (nrow(detects_study) == 0){
+  &quot;No detections yet&quot;
+} else {
+  
+  beacon_by_day &lt;- fread(&quot;beacon_by_day.csv&quot;, stringsAsFactors = F)
+  beacon_by_day$day &lt;- as.Date(beacon_by_day$day)
+  
+  arrivals$day &lt;- as.Date(format(arrivals$DateTime_PST, &quot;%Y-%m-%d&quot;))
+  
+  arrivals_per_day &lt;- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day &lt;- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day &lt;- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day &lt;- beacon_by_day[beacon_by_day$day &gt;= as.Date(min(study_tagcodes$RelDT)) &amp; beacon_by_day$day &lt;= endtime,]  
+  
+  beacon_by_day &lt;- merge(beacon_by_day, gen_locs[,c(&quot;location&quot;, &quot;general_location&quot;,&quot;rkm&quot;)], by = &quot;location&quot;, all.x = T)
+
+  arrivals_per_day &lt;- merge(beacon_by_day, arrivals_per_day, all.x = T, by = c(&quot;general_location&quot;, &quot;day&quot;))
+  
+  arrivals_per_day$day &lt;- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day &lt;- arrivals_per_day[!arrivals_per_day$general_location == &quot;Bench_test&quot;,]
+  arrivals_per_day &lt;- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+  
+  ## Change order of data to plot decreasing rkm
+  arrivals_per_day &lt;- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
+  arrivals_per_day$general_location &lt;- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
+  
+  
+  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  geom_tile(fill = &quot;lightgray&quot;, color = &quot;black&quot;) + 
+  geom_text(aes(label=New_arrivals)) +
+  labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
+  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+}</code></pre>
+<p>[1] “No detections yet”</p>
+<pre class="r"><code>rm(list = ls())
+cleanup(ask = F)</code></pre>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
