@@ -445,6 +445,15 @@ div.tocify {
       <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
     </li>
     <li>
+      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+    </li>
+    <li>
+      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+    </li>
+    <li>
+      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+    </li>
+    <li>
       <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
     </li>
   </ul>
@@ -2497,7 +2506,7 @@ if (nrow(detects_study) == 0){
   beacon_by_day &lt;- fread(&quot;beacon_by_day.csv&quot;, stringsAsFactors = F)
   beacon_by_day$day &lt;- as.Date(beacon_by_day$day)
   
-  arrivals$day &lt;- as.Date(arrivals$DateTime_PST)
+  arrivals$day &lt;- as.Date(format(arrivals$DateTime_PST, &quot;%Y-%m-%d&quot;))
   
   arrivals_per_day &lt;- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
   arrivals_per_day$day &lt;- as.Date(arrivals_per_day$day)

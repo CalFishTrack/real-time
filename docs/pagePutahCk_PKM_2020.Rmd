@@ -155,6 +155,11 @@ if (nrow(study_tagcodes) == 0){
 ```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
+library(CDECRetrieve)
+library(reshape2)
+
+detects_study <- fread(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products\\Study_detection_files\\detects_Putah_Creek_PKM_2020.csv", sep = ""))
+
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
