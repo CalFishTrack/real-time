@@ -96,14 +96,16 @@ benicia <- merge(benicia, tol_released)
 ## Now remove any release smaller than 100
 benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
-## Now subset to only be WY2019 fish
+## Now subset to only be WY2020 fish. This usually removes green sturgeon too
 benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01",]
+## Remove any steelhead releases
+benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
 ### Combine sutter bypass releases
 #benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
 #benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
 ## Label "ALL" release for any study with just 1 record
 benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
-wlk_flow <- as.data.frame(cdec_query("WLK", "41", "D", as.Date(min(benicia_rel$RelDT))-7, as.Date(max(benicia_rel$RelDT))+14))
+wlk_flow <- as.data.frame(cdec_query("WLK", "41", "D", as.Date(min(benicia_rel$RelDT))-7, max(as.Date(max(benicia_rel$RelDT))+14, min(Sys.Date(), as.Date("2020-06-15")))))
 wlk_flow$datetime <- as.Date(wlk_flow$datetime)
 ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
 wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
@@ -183,12 +185,15 @@ benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
 ## Now subset to only be WY2019 fish
 benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01",]
+## Remove any steelhead releases
+benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
 ### Combine sutter bypass releases
 #benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
 #benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
 ## Label "ALL" release for any study with just 1 record
 benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
-wlk_flow <- as.data.frame(cdec_query("RVB", "25", "D", as.Date(min(benicia_rel$RelDT))-7, as.Date(max(benicia_rel$RelDT))+14))
+## download data from a week before first release, to current day (or 6/15, whichever comes first)
+wlk_flow <- as.data.frame(cdec_query("RVB", "25", "D", as.Date(min(benicia_rel$RelDT))-7, max(as.Date(max(benicia_rel$RelDT))+14, min(Sys.Date(), as.Date("2020-06-15")))))
 wlk_flow$parameter_value <- (wlk_flow$parameter_value - 32) * 5/9
 wlk_flow$datetime <- as.Date(wlk_flow$datetime)
 ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
