@@ -746,7 +746,7 @@ RBDD_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-17 18:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-17 19:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1110,19 +1110,19 @@ if (nrow(detects_tower) == 0){
 <th style="text-align:left;">
 Release
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Survival (%)
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 SE
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% lower C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% upper C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Detection efficiency (%)
 </th>
 </tr>
@@ -1130,21 +1130,41 @@ Detection efficiency (%)
 <tbody>
 <tr>
 <td style="text-align:left;">
-NA
+ALL
 </td>
-<td style="text-align:left;">
-NOT ENOUGH DETECTIONS
+<td style="text-align:right;">
+0.5
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+0.4
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+0.1
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+2
 </td>
+<td style="text-align:right;">
+100
+</td>
+</tr>
+<tr>
 <td style="text-align:left;">
+Week 1
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
 NA
 </td>
 </tr>
@@ -1860,10 +1880,33 @@ TowerBridge
 2020-05-17 16:32:32
 </td>
 <td style="text-align:left;">
-2020-05-17 16:32:32
+2020-05-17 17:07:37
 </td>
 <td style="text-align:left;">
-2020-05-17 16:32:32
+2020-05-17 17:42:42
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+172.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I80-50_Br
+</td>
+<td style="text-align:left;">
+2020-05-17 17:19:00
+</td>
+<td style="text-align:left;">
+2020-05-17 17:19:00
+</td>
+<td style="text-align:left;">
+2020-05-17 17:19:00
 </td>
 <td style="text-align:right;">
 1
@@ -1872,7 +1915,7 @@ TowerBridge
 0.25
 </td>
 <td style="text-align:right;">
-172.000
+170.748
 </td>
 </tr>
 <tr>
@@ -1961,10 +2004,33 @@ TowerBridge
 2020-05-17 16:32:32
 </td>
 <td style="text-align:left;">
-2020-05-17 16:32:32
+2020-05-17 17:07:37
 </td>
 <td style="text-align:left;">
-2020-05-17 16:32:32
+2020-05-17 17:42:42
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+172.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I80-50_Br
+</td>
+<td style="text-align:left;">
+2020-05-17 17:19:00
+</td>
+<td style="text-align:left;">
+2020-05-17 17:19:00
+</td>
+<td style="text-align:left;">
+2020-05-17 17:19:00
 </td>
 <td style="text-align:right;">
 1
@@ -1973,7 +2039,7 @@ TowerBridge
 0.25
 </td>
 <td style="text-align:right;">
-172.000
+170.748
 </td>
 </tr>
 <tr>
