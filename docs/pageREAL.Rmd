@@ -74,6 +74,8 @@ tagcodes <- fread("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 shed <- read.csv(file = "shed_tags.csv", stringsAsFactors = F)
+false_detects <- read.csv("false_detects.csv", stringsAsFactors = F)
+false_detects$tag_loc <- paste(false_detects$TagCode, false_detects$general_location, sep = "-")
 
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
 detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
@@ -929,7 +931,10 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 2, "visit_num"],]
   }
   
-  
+  ## Now remove manually identified false detections that were missed by the filter
+  false_detects_temp <- false_detects[false_detects$StudyID == k,]
+  temp_detects$tag_loc <- paste(temp_detects$TagCode, temp_detects$general_location, sep = "-")
+  temp_detects <- temp_detects[!temp_detects$tag_loc %in% false_detects_temp$tag_loc,]
   
   ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
   temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "Temp", "general_location", "latitude", "longitude", "rkm")]
