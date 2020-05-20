@@ -746,7 +746,7 @@ RBDD_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-20 11:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-20 12:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1347,16 +1347,16 @@ if (nrow(detects_study) == 0){
 <th style="text-align:left;">
 Measure
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Estimate
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 SE
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% lower C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% upper C.I.
 </th>
 </tr>
@@ -1364,19 +1364,172 @@ SE
 <tbody>
 <tr>
 <td style="text-align:left;">
-NA
+Survival from release to Butte City
 </td>
-<td style="text-align:left;">
-NOT ENOUGH DETECTIONS
+<td style="text-align:right;">
+51.1
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+3.1
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+45.0
 </td>
+<td style="text-align:right;">
+57.1
+</td>
+</tr>
+<tr>
 <td style="text-align:left;">
-NA
+Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)
+</td>
+<td style="text-align:right;">
+24.5
+</td>
+<td style="text-align:right;">
+3.1
+</td>
+<td style="text-align:right;">
+18.9
+</td>
+<td style="text-align:right;">
+31.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Survival from TowerBridge to I80-50_Br
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+96.2
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
+</td>
+<td style="text-align:right;">
+6.0
+</td>
+<td style="text-align:right;">
+3.4
+</td>
+<td style="text-align:right;">
+1.9
+</td>
+<td style="text-align:right;">
+17.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at Butte City
+</td>
+<td style="text-align:right;">
+92.0
+</td>
+<td style="text-align:right;">
+3.8
+</td>
+<td style="text-align:right;">
+80.5
+</td>
+<td style="text-align:right;">
+97.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at TowerBridge
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+96.2
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at I80-50_Br
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+96.2
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at Blw_Georgiana
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Detection probability at Georgiana Slough
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Routing probability into Georgiana Slough (Conditional on fish arriving to junction)
+</td>
+<td style="text-align:right;">
+66.7
+</td>
+<td style="text-align:right;">
+27.2
+</td>
+<td style="text-align:right;">
+15.4
+</td>
+<td style="text-align:right;">
+95.7
 </td>
 </tr>
 </tbody>
@@ -1926,10 +2079,33 @@ Georgiana_Slough1
 2020-05-20 08:52:37
 </td>
 <td style="text-align:left;">
-2020-05-20 08:52:37
+2020-05-20 09:58:49
 </td>
 <td style="text-align:left;">
-2020-05-20 08:52:37
+2020-05-20 11:05:02
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sac_BlwGeorgiana
+</td>
+<td style="text-align:left;">
+2020-05-20 10:50:26
+</td>
+<td style="text-align:left;">
+2020-05-20 10:50:26
+</td>
+<td style="text-align:left;">
+2020-05-20 10:50:26
 </td>
 <td style="text-align:right;">
 1
@@ -1938,7 +2114,7 @@ Georgiana_Slough1
 0.25
 </td>
 <td style="text-align:right;">
-119.208
+119.058
 </td>
 </tr>
 <tr>
@@ -1962,6 +2138,29 @@ Georgiana_Slough2
 </td>
 <td style="text-align:right;">
 118.758
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sac_BlwGeorgiana2
+</td>
+<td style="text-align:left;">
+2020-05-20 11:15:12
+</td>
+<td style="text-align:left;">
+2020-05-20 11:15:12
+</td>
+<td style="text-align:left;">
+2020-05-20 11:15:12
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+118.398
 </td>
 </tr>
 </tbody>
@@ -2073,10 +2272,33 @@ Georgiana_Slough1
 2020-05-20 08:52:37
 </td>
 <td style="text-align:left;">
-2020-05-20 08:52:37
+2020-05-20 09:58:49
 </td>
 <td style="text-align:left;">
-2020-05-20 08:52:37
+2020-05-20 11:05:02
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sac_BlwGeorgiana
+</td>
+<td style="text-align:left;">
+2020-05-20 10:50:26
+</td>
+<td style="text-align:left;">
+2020-05-20 10:50:26
+</td>
+<td style="text-align:left;">
+2020-05-20 10:50:26
 </td>
 <td style="text-align:right;">
 1
@@ -2085,7 +2307,7 @@ Georgiana_Slough1
 0.25
 </td>
 <td style="text-align:right;">
-119.208
+119.058
 </td>
 </tr>
 <tr>
@@ -2109,6 +2331,29 @@ Georgiana_Slough2
 </td>
 <td style="text-align:right;">
 118.758
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sac_BlwGeorgiana2
+</td>
+<td style="text-align:left;">
+2020-05-20 11:15:12
+</td>
+<td style="text-align:left;">
+2020-05-20 11:15:12
+</td>
+<td style="text-align:left;">
+2020-05-20 11:15:12
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+118.398
 </td>
 </tr>
 </tbody>
