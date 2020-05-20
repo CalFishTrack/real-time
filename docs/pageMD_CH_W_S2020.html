@@ -719,10 +719,10 @@ Deer Creek release
 2020-03-25
 </td>
 <td style="text-align:left;">
-2020-04-10
+2020-05-17
 </td>
 <td style="text-align:right;">
-11
+12
 </td>
 <td style="text-align:left;">
 Deer_Creek
@@ -731,10 +731,10 @@ Deer_Creek
 441.7
 </td>
 <td style="text-align:right;">
-128.8
+127.6
 </td>
 <td style="text-align:right;">
-20.7
+20.3
 </td>
 </tr>
 <tr>
@@ -771,7 +771,7 @@ Mill_Creek
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-19 18:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-19 19:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1158,16 +1158,16 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-25.0
+23.1
 </td>
 <td style="text-align:right;">
-12.5
+11.7
 </td>
 <td style="text-align:right;">
-8.3
+7.6
 </td>
 <td style="text-align:right;">
-55.2
+52.2
 </td>
 <td style="text-align:right;">
 100
@@ -1178,16 +1178,16 @@ ALL
 Deer Creek release
 </td>
 <td style="text-align:right;">
-27.3
+25.0
 </td>
 <td style="text-align:right;">
-13.4
+12.5
 </td>
 <td style="text-align:right;">
-9.0
+8.3
 </td>
 <td style="text-align:right;">
-58.6
+55.2
 </td>
 <td style="text-align:right;">
 NA
@@ -1599,16 +1599,16 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-8.3
+7.7
 </td>
 <td style="text-align:right;">
-8.0
+7.4
 </td>
 <td style="text-align:right;">
-1.2
+1.1
 </td>
 <td style="text-align:right;">
-41.3
+39.1
 </td>
 <td style="text-align:right;">
 100
@@ -1619,16 +1619,16 @@ ALL
 Deer Creek release
 </td>
 <td style="text-align:right;">
-9.1
+8.3
 </td>
 <td style="text-align:right;">
-8.7
+8.0
 </td>
 <td style="text-align:right;">
-1.3
+1.2
 </td>
 <td style="text-align:right;">
-43.9
+41.3
 </td>
 <td style="text-align:right;">
 NA
@@ -1811,13 +1811,13 @@ Deer Creek release
 33.3
 </td>
 <td style="text-align:right;">
-27.2
+0.0
 </td>
 <td style="text-align:right;">
-4.3
+33.3
 </td>
 <td style="text-align:right;">
-84.6
+33.3
 </td>
 </tr>
 <tr>
@@ -1937,6 +1937,199 @@ if (nrow(detects_study) == 0){
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <caption>
 4.1 Detections for all releases combined
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+general_location
+</th>
+<th style="text-align:left;">
+First_arrival
+</th>
+<th style="text-align:left;">
+Mean_arrival
+</th>
+<th style="text-align:left;">
+Last_arrival
+</th>
+<th style="text-align:right;">
+Fish_count
+</th>
+<th style="text-align:right;">
+Percent_arrived
+</th>
+<th style="text-align:right;">
+rkm
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ButteBrRT
+</td>
+<td style="text-align:left;">
+2020-03-29 05:47:42
+</td>
+<td style="text-align:left;">
+2020-04-03 12:51:06
+</td>
+<td style="text-align:left;">
+2020-04-14 14:50:47
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+46.15
+</td>
+<td style="text-align:right;">
+344.108
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TowerBridge
+</td>
+<td style="text-align:left;">
+2020-03-31 22:40:03
+</td>
+<td style="text-align:left;">
+2020-04-11 21:00:53
+</td>
+<td style="text-align:left;">
+2020-04-17 15:53:19
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+23.08
+</td>
+<td style="text-align:right;">
+172.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+I80-50_Br
+</td>
+<td style="text-align:left;">
+2020-03-31 23:33:38
+</td>
+<td style="text-align:left;">
+2020-04-11 21:55:57
+</td>
+<td style="text-align:left;">
+2020-04-17 16:40:40
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+23.08
+</td>
+<td style="text-align:right;">
+170.748
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgiana_Slough1
+</td>
+<td style="text-align:left;">
+2020-04-02 12:25:05
+</td>
+<td style="text-align:left;">
+2020-04-02 12:25:05
+</td>
+<td style="text-align:left;">
+2020-04-02 12:25:05
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7.69
+</td>
+<td style="text-align:right;">
+119.208
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgiana_Slough2
+</td>
+<td style="text-align:left;">
+2020-04-02 12:34:41
+</td>
+<td style="text-align:left;">
+2020-04-02 12:34:41
+</td>
+<td style="text-align:left;">
+2020-04-02 12:34:41
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7.69
+</td>
+<td style="text-align:right;">
+118.758
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2020-04-08 18:38:16
+</td>
+<td style="text-align:left;">
+2020-04-08 18:38:16
+</td>
+<td style="text-align:left;">
+2020-04-08 18:38:16
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7.69
+</td>
+<td style="text-align:right;">
+52.240
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_west
+</td>
+<td style="text-align:left;">
+2020-04-08 18:40:32
+</td>
+<td style="text-align:left;">
+2020-04-08 18:40:32
+</td>
+<td style="text-align:left;">
+2020-04-08 18:40:32
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7.69
+</td>
+<td style="text-align:right;">
+52.040
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<caption>
+4.2 Detections for Deer Creek release release groups
 </caption>
 <thead>
 <tr>
@@ -2120,199 +2313,6 @@ Benicia_west
 </td>
 <td style="text-align:right;">
 8.33
-</td>
-<td style="text-align:right;">
-52.040
-</td>
-</tr>
-</tbody>
-</table>
-<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
-<caption>
-4.2 Detections for Deer Creek release release groups
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;">
-general_location
-</th>
-<th style="text-align:left;">
-First_arrival
-</th>
-<th style="text-align:left;">
-Mean_arrival
-</th>
-<th style="text-align:left;">
-Last_arrival
-</th>
-<th style="text-align:right;">
-Fish_count
-</th>
-<th style="text-align:right;">
-Percent_arrived
-</th>
-<th style="text-align:right;">
-rkm
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-ButteBrRT
-</td>
-<td style="text-align:left;">
-2020-03-29 05:47:42
-</td>
-<td style="text-align:left;">
-2020-04-03 12:51:06
-</td>
-<td style="text-align:left;">
-2020-04-14 14:50:47
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-54.55
-</td>
-<td style="text-align:right;">
-344.108
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-TowerBridge
-</td>
-<td style="text-align:left;">
-2020-03-31 22:40:03
-</td>
-<td style="text-align:left;">
-2020-04-11 21:00:53
-</td>
-<td style="text-align:left;">
-2020-04-17 15:53:19
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-27.27
-</td>
-<td style="text-align:right;">
-172.000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-I80-50_Br
-</td>
-<td style="text-align:left;">
-2020-03-31 23:33:38
-</td>
-<td style="text-align:left;">
-2020-04-11 21:55:57
-</td>
-<td style="text-align:left;">
-2020-04-17 16:40:40
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-27.27
-</td>
-<td style="text-align:right;">
-170.748
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Georgiana_Slough1
-</td>
-<td style="text-align:left;">
-2020-04-02 12:25:05
-</td>
-<td style="text-align:left;">
-2020-04-02 12:25:05
-</td>
-<td style="text-align:left;">
-2020-04-02 12:25:05
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-9.09
-</td>
-<td style="text-align:right;">
-119.208
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Georgiana_Slough2
-</td>
-<td style="text-align:left;">
-2020-04-02 12:34:41
-</td>
-<td style="text-align:left;">
-2020-04-02 12:34:41
-</td>
-<td style="text-align:left;">
-2020-04-02 12:34:41
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-9.09
-</td>
-<td style="text-align:right;">
-118.758
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Benicia_east
-</td>
-<td style="text-align:left;">
-2020-04-08 18:38:16
-</td>
-<td style="text-align:left;">
-2020-04-08 18:38:16
-</td>
-<td style="text-align:left;">
-2020-04-08 18:38:16
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-9.09
-</td>
-<td style="text-align:right;">
-52.240
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Benicia_west
-</td>
-<td style="text-align:left;">
-2020-04-08 18:40:32
-</td>
-<td style="text-align:left;">
-2020-04-08 18:40:32
-</td>
-<td style="text-align:left;">
-2020-04-08 18:40:32
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-9.09
 </td>
 <td style="text-align:right;">
 52.040
