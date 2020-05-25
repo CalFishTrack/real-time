@@ -734,7 +734,7 @@ RBDD_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-24 08:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-05-25 08:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -1375,16 +1375,16 @@ SE
 Survival from release to Butte City
 </td>
 <td style="text-align:right;">
-34.0
+36.2
 </td>
 <td style="text-align:right;">
-2.1
+2.2
 </td>
 <td style="text-align:right;">
-30.0
+32.1
 </td>
 <td style="text-align:right;">
-38.2
+40.6
 </td>
 </tr>
 <tr>
@@ -1392,16 +1392,16 @@ Survival from release to Butte City
 Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)
 </td>
 <td style="text-align:right;">
-22.4
+21.0
 </td>
 <td style="text-align:right;">
-2.8
+2.6
 </td>
 <td style="text-align:right;">
-17.4
+16.3
 </td>
 <td style="text-align:right;">
-28.2
+26.6
 </td>
 </tr>
 <tr>
@@ -1500,7 +1500,7 @@ Detection probability at Blw_Georgiana
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+38.3
 </td>
 <td style="text-align:right;">
 100.0
@@ -1659,8 +1659,9 @@ if (nrow(detects_benicia) == 0){
   }
   WR.surv$Detection_efficiency &lt;- NA
   WR.surv[1,&quot;Detection_efficiency&quot;] &lt;- round(WR.mark.all$results$real[gen_loc_sites+1,&quot;estimate&quot;] * 100,1)
-    
-  WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, names(sort(table(test3$Release),decreasing = T))), WR.surv)
+  
+  #test3$Release &lt;- factor(test3$Release, levels = groups)  
+  #WR.surv &lt;- cbind(Release = c(&quot;ALL&quot;, names(sort(table(test3$Release),decreasing = T))), WR.surv)
 
   WR.surv1 &lt;- WR.surv
   colnames(WR.surv1) &lt;- c(&quot;Release Group&quot;, &quot;Survival (%)&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;, &quot;Detection efficiency (%)&quot;)
@@ -1696,19 +1697,19 @@ if (nrow(detects_benicia) == 0){
 <th style="text-align:left;">
 Release Group
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Survival (%)
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 SE
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% lower C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% upper C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Detection efficiency (%)
 </th>
 </tr>
@@ -1716,21 +1717,61 @@ Detection efficiency (%)
 <tbody>
 <tr>
 <td style="text-align:left;">
+ALL
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+100
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Week 1
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.8
+</td>
+<td style="text-align:right;">
 NA
 </td>
+</tr>
+<tr>
 <td style="text-align:left;">
-NOT ENOUGH DETECTIONS
+Week 2
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
 NA
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 NA
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 NA
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 NA
 </td>
 </tr>
@@ -1849,18 +1890,18 @@ if (nrow(detects_study) == 0){
 <thead>
 <tr>
 <th style="text-align:left;">
-Measure
+Release Group
 </th>
-<th style="text-align:left;">
-Estimate
+<th style="text-align:right;">
+Survival (%)
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 SE
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% lower C.I.
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 95% upper C.I.
 </th>
 </tr>
@@ -1868,19 +1909,53 @@ SE
 <tbody>
 <tr>
 <td style="text-align:left;">
-NA
+ALL
 </td>
-<td style="text-align:left;">
-NOT ENOUGH DETECTIONS
+<td style="text-align:right;">
+1.8
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+1.8
 </td>
-<td style="text-align:left;">
-NA
+<td style="text-align:right;">
+0.3
 </td>
+<td style="text-align:right;">
+11.8
+</td>
+</tr>
+<tr>
 <td style="text-align:left;">
-NA
+Week 1
+</td>
+<td style="text-align:right;">
+1.8
+</td>
+<td style="text-align:right;">
+1.8
+</td>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+11.8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Week 2
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+<td style="text-align:right;">
+100.0
 </td>
 </tr>
 </tbody>
@@ -2018,16 +2093,16 @@ ButteBrRT
 2020-05-15 12:49:17
 </td>
 <td style="text-align:left;">
-2020-05-17 10:34:41
+2020-05-17 21:08:05
 </td>
 <td style="text-align:left;">
-2020-05-24 06:22:50
+2020-05-25 05:16:08
 </td>
 <td style="text-align:right;">
-228
+243
 </td>
 <td style="text-align:right;">
-31.54
+33.61
 </td>
 <td style="text-align:right;">
 344.108
@@ -2192,6 +2267,29 @@ Sac_BlwGeorgiana2
 </td>
 <td style="text-align:right;">
 118.398
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2020-05-24 06:51:47
+</td>
+<td style="text-align:left;">
+2020-05-24 06:51:47
+</td>
+<td style="text-align:left;">
+2020-05-24 06:51:47
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.14
+</td>
+<td style="text-align:right;">
+52.240
 </td>
 </tr>
 <tr>
@@ -2412,6 +2510,29 @@ Sac_BlwGeorgiana2
 </tr>
 <tr>
 <td style="text-align:left;">
+Benicia_east
+</td>
+<td style="text-align:left;">
+2020-05-24 06:51:47
+</td>
+<td style="text-align:left;">
+2020-05-24 06:51:47
+</td>
+<td style="text-align:left;">
+2020-05-24 06:51:47
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+52.240
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Benicia_west
 </td>
 <td style="text-align:left;">
@@ -2473,16 +2594,16 @@ ButteBrRT
 2020-05-23 00:22:30
 </td>
 <td style="text-align:left;">
-2020-05-23 12:34:47
+2020-05-23 19:24:09
 </td>
 <td style="text-align:left;">
-2020-05-24 06:22:50
+2020-05-25 05:16:08
 </td>
 <td style="text-align:right;">
-40
+55
 </td>
 <td style="text-align:right;">
-12.38
+17.03
 </td>
 <td style="text-align:right;">
 344.108
