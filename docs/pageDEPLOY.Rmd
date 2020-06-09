@@ -50,6 +50,10 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 deploy <- read.csv("Autonomous_deployments.csv")
 
+deploy$StartTime <- as.character(as.POSIXct(deploy$StartTime, format = "%m/%d/%Y %H:%M:%S"))
+deploy$EndTime <- as.character(as.POSIXct(deploy$EndTime, format = "%m/%d/%Y %H:%M:%S"))
+deploy[is.na(deploy$EndTime), "EndTime"] <- "Active"
+
 leaflet(data = deploy[deploy$EndTime == "Active",]) %>%
     # setView(-72.14600, 43.82977, zoom = 8) %>% 
     addProviderTiles("Esri.WorldStreetMap", group = "Map") %>%

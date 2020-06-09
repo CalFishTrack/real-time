@@ -38,7 +38,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 # *Download Real-time data*
 
 Real-time data can be downloaded via ERDDAP website. Data is *preliminary* and subject to revision:
-http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.html
+https://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.html
 
 Alternatively, data can be imported directly into R. To do so, please use the following R code [here.](https://github.com/CalFishTrack/real-time/blob/master/data/accessing_ERDDAP_via_R_realtime.R) 
 
@@ -46,7 +46,7 @@ Alternatively, data can be imported directly into R. To do so, please use the fo
 
 # *Download archived and QAQC'd detection data*
 
-Now you can find *QAQCed and Final* real-time and autonomous JSATS detection data for 2013-2018 on ERDDAP at this url:
+Now you can find *QAQCed and Final* real-time and autonomous JSATS detection data for 2013-2019 on ERDDAP at this url:
 https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html
 
 Alternatively, data can be imported directly into R. To do so, please use the following R code [here.](https://github.com/CalFishTrack/real-time/blob/master/data/accessing_ERDDAP_via_R_autonomous.R)

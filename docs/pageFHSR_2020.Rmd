@@ -146,9 +146,9 @@ if (nrow(study_tagcodes) == 0){
 ***
 ## _2. Real-time Fish Detections_
 ***
-***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
+***`r anicon::nia("Study is complete, tags are no longer active.", size = 1, colour = "red")`. All times in Pacific Standard Time.***
 
-```{r print figure of fish detections at Tower, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"',fig.cap="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough"}
+```{r print figure of fish detections at Tower, message = FALSE, fig.height = 6, fig.width = 10, warning=F,out.extra='style="background-color: #000000; padding:3px"',fig.cap="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough"}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -419,12 +419,11 @@ if (nrow(detects_tower) == 0){
 }
 ```    
 
-
 ```{r print table of survival and routing, message = FALSE, results= "asis", warning=FALSE}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-
+route_results_possible <- F
 if (nrow(detects_study) == 0){
     results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
@@ -508,86 +507,99 @@ if (nrow(detects_study) == 0){
     ## now put in exceptions...fish that were seen in georgiana last
     study_tagcodes[study_tagcodes$last_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"), "inp_final"] <- paste("A",study_tagcodes[study_tagcodes$last_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"), "inp_part1"], study_tagcodes[study_tagcodes$last_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"), "inp_partB"]," 1 ;", sep = "")
     
-    write.table(study_tagcodes$inp_final,"WRinp_multistate.inp",row.names = F, col.names = F, quote = F)
+    ## At this point, some fish might not have been deemed to ever take a route based on last visit analysis. If so, model can't be run
     
-    WRinp <- convert.inp("WRinp_multistate.inp")
-    
-    dp <- process.data(WRinp, model="Multistrata") 
-    
-    ddl <- make.design.data(dp)
-    
-    #### p ####
-    # Can't be seen at 2B or 3B or 4B (butte, tower or I80)
-    ddl$p$fix=NA
-    ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3,4)]=0
-    
-    #### Psi ####
-    # Only 1 transition allowed:
-    # from A to B at time interval 4 to 5
-    
-    ddl$Psi$fix=0
-    # A to B can only happen for interval 3-4
-    ddl$Psi$fix[ddl$Psi$stratum=="A"&
-                  ddl$Psi$tostratum=="B" & ddl$Psi$time==4]=NA
-    
-    #### Phi a.k.a. S ####
-    ddl$S$fix=NA
-    # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
-    ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4,5)]=1
-    
-    # For route A, fixing it to 1 for 5 (between two blw_georg lines)
-    ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==5]=1
-    ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn't share the same intercept
-    
-    p.timexstratum=list(formula=~-1+stratum:time)
-    Psi.stratumxtime=list(formula=~-1+stratum:time)
-    S.stratumxtime=list(formula=~-1+stratum:time)
-    
-    ## Run model a first time
-    S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, silent = T, output = F)
-    
-    ## Identify any parameter estimates at 1, which would likely have bad SE estimates.
-    profile.intervals <- which(S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$estimate %in% c(0,1) & !S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$fixed == "Fixed")
-    
-    ## Rerun model using profile interval estimation for the tricky parameters
-    S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, profile.int = profile.intervals, silent = T, output = F)
-    
-    results <- S.timexstratum.p.timexstratum.Psi.timexstratum$results$real
-    
-    results_short <- results[rownames(results) %in% c("S sA g1 c1 a0 o1 t1",
-                                                      "S sA g1 c1 a1 o2 t2",
-                                                      "S sA g1 c1 a2 o3 t3",
-                                                      "S sA g1 c1 a3 o4 t4",
-                                                      "p sA g1 c1 a1 o1 t2",
-                                                      "p sA g1 c1 a2 o2 t3",
-                                                      "p sA g1 c1 a3 o3 t4",
-                                                      "p sA g1 c1 a4 o4 t5",
-                                                      "p sB g1 c1 a4 o4 t5",
-                                                      "Psi sA toB g1 c1 a3 o4 t4"
-                                                      ),]
-    
-    
-    results_short <- round(results_short[,c("estimate", "se", "lcl", "ucl")] * 100,1)
+    if(any(grepl(pattern = "A", study_tagcodes$inp_final)==T) & any(grepl(pattern = "B", study_tagcodes$inp_final)==T)){
+     
+      write.table(study_tagcodes$inp_final,"WRinp_multistate.inp",row.names = F, col.names = F, quote = F)
       
-    ## Now find estimate and CIs for AtoA route at junction
-    Psilist=get.real(S.timexstratum.p.timexstratum.Psi.timexstratum,"Psi",vcv=TRUE)  
-    Psivalues=Psilist$estimates
-
-    routes <- TransitionMatrix(Psivalues[Psivalues$time==4 & Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
+      WRinp <- convert.inp("WRinp_multistate.inp")
+      
+      dp <- process.data(WRinp, model="Multistrata") 
+      
+      ddl <- make.design.data(dp)
+      
+      #### p ####
+      # Can't be seen at 2B or 3B or 4B (butte, tower or I80)
+      ddl$p$fix=NA
+      ddl$p$fix[ddl$p$stratum == "B" & ddl$p$time %in% c(2,3,4)]=0
+      
+      #### Psi ####
+      # Only 1 transition allowed:
+      # from A to B at time interval 4 to 5
+      
+      ddl$Psi$fix=0
+      # A to B can only happen for interval 3-4
+      ddl$Psi$fix[ddl$Psi$stratum=="A"&
+                    ddl$Psi$tostratum=="B" & ddl$Psi$time==4]=NA
+      
+      #### Phi a.k.a. S ####
+      ddl$S$fix=NA
+      # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
+      ddl$S$fix[ddl$S$stratum=="B" & ddl$S$time %in% c(1,2,3,4,5)]=1
+      
+      # For route A, fixing it to 1 for 5 (between two blw_georg lines)
+      ddl$S$fix[ddl$S$stratum=="A" & ddl$S$time==5]=1
+      ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn't share the same intercept
+      
+      p.timexstratum=list(formula=~-1+stratum:time)
+      Psi.stratumxtime=list(formula=~-1+stratum:time)
+      S.stratumxtime=list(formula=~-1+stratum:time)
+      
+      ## Run model a first time
+      S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, silent = T, output = F)
+      
+      ## Identify any parameter estimates at 1, which would likely have bad SE estimates.
+      profile.intervals <- which(S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$estimate %in% c(0,1) & !S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$fixed == "Fixed")
+      
+      ## Rerun model using profile interval estimation for the tricky parameters
+      S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, profile.int = profile.intervals, silent = T, output = F)
+      
+      results <- S.timexstratum.p.timexstratum.Psi.timexstratum$results$real
+      
+      results_short <- results[rownames(results) %in% c("S sA g1 c1 a0 o1 t1",
+                                                        "S sA g1 c1 a1 o2 t2",
+                                                        "S sA g1 c1 a2 o3 t3",
+                                                        "S sA g1 c1 a3 o4 t4",
+                                                        "p sA g1 c1 a1 o1 t2",
+                                                        "p sA g1 c1 a2 o2 t3",
+                                                        "p sA g1 c1 a3 o3 t4",
+                                                        "p sA g1 c1 a4 o4 t5",
+                                                        "p sB g1 c1 a4 o4 t5",
+                                                        "Psi sA toB g1 c1 a3 o4 t4"
+                                                        ),]
+      
+      
+      results_short <- round(results_short[,c("estimate", "se", "lcl", "ucl")] * 100,1)
+        
+      ## Now find estimate and CIs for AtoA route at junction
+      Psilist=get.real(S.timexstratum.p.timexstratum.Psi.timexstratum,"Psi",vcv=TRUE)  
+      Psivalues=Psilist$estimates
   
-  
-  
-  
-  
-    results_short$Measure <- c("Survival from release to Butte City","Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)","Detection probability at Butte City",
-                               "Detection probability at TowerBridge", "Detection probability at I80-50_Br", "Detection probability at Blw_Georgiana", "Detection probability at Georgiana Slough",
-                               "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
+      routes <- TransitionMatrix(Psivalues[Psivalues$time==4 & Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
     
-    results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
+    
+    
+    
+    
+      results_short$Measure <- c("Survival from release to Butte City","Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)", "Survival from TowerBridge to I80-50_Br", "% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)","Detection probability at Butte City",
+                                 "Detection probability at TowerBridge", "Detection probability at I80-50_Br", "Detection probability at Blw_Georgiana", "Detection probability at Georgiana Slough",
+                                 "Routing probability into Georgiana Slough (Conditional on fish arriving to junction)")
+      
+      results_short <- results_short[,c("Measure", "estimate", "se", "lcl", "ucl")]
+      colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
+  
+      print(kable(results_short, row.names = F, "html", caption = "3.2 Reach-specific survival and probability of entering Georgiana Slough") %>%
+              kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+      
+      route_results_possible <- T
+    
+    } else {
+        results_short <- data.frame("Measure"=NA, "Estimate"="NOT ENOUGH DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
-
     print(kable(results_short, row.names = F, "html", caption = "3.2 Reach-specific survival and probability of entering Georgiana Slough") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+    }
   }
 }
 ```
@@ -611,8 +623,7 @@ rasterImage(georg, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
 if (nrow(detects_study) == 0){
     legend(x = 1.55,y = 1.6,legend =  "No detections yet",col = "white", box.col = "light gray", bg = "light gray") 
     legend(x = 1.55,y = 1.45,legend =  "No detections yet",col = "white", box.col = "light gray", bg = "light gray")
-}else if (nrow(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2"),]) == 0 |
-   nrow(test2[test2$general_location %in% c("Georgiana_Slough1", "Georgiana_Slough2"),]) == 0){
+}else if (route_results_possible == F){
     legend(x = 1.55,y = 1.6,legend =  "Too few detections",col = "white", box.col = "light gray", bg = "light gray") 
     legend(x = 1.55,y = 1.45,legend =  "Too few detections",col = "white", box.col = "light gray", bg = "light gray") 
 }else{  

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 
@@ -87,7 +87,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -236,6 +235,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -248,56 +248,12 @@ $(document).ready(function () {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 <style type="text/css">
 .code-folding-btn { margin-bottom: 4px; }
 </style>
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
 
 
-
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <style type="text/css">
 
@@ -311,6 +267,12 @@ $(document).ready(function ()  {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -581,13 +543,13 @@ div.tocify {
 </div>
 <div id="download-real-time-data" class="section level1">
 <h1><em>Download Real-time data</em></h1>
-<p>Real-time data can be downloaded via ERDDAP website. Data is <em>preliminary</em> and subject to revision: <a href="http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.html" class="uri">http://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.html</a></p>
+<p>Real-time data can be downloaded via ERDDAP website. Data is <em>preliminary</em> and subject to revision: <a href="https://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.html" class="uri">https://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.html</a></p>
 <p>Alternatively, data can be imported directly into R. To do so, please use the following R code <a href="https://github.com/CalFishTrack/real-time/blob/master/data/accessing_ERDDAP_via_R_realtime.R">here.</a></p>
 <p><br/></p>
 </div>
 <div id="download-archived-and-qaqcd-detection-data" class="section level1">
 <h1><em>Download archived and QAQC’d detection data</em></h1>
-<p>Now you can find <em>QAQCed and Final</em> real-time and autonomous JSATS detection data for 2013-2018 on ERDDAP at this url: <a href="https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html" class="uri">https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html</a></p>
+<p>Now you can find <em>QAQCed and Final</em> real-time and autonomous JSATS detection data for 2013-2019 on ERDDAP at this url: <a href="https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html" class="uri">https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html</a></p>
 <p>Alternatively, data can be imported directly into R. To do so, please use the following R code <a href="https://github.com/CalFishTrack/real-time/blob/master/data/accessing_ERDDAP_via_R_autonomous.R">here.</a></p>
 <p>In addition, you can access metadata on all receiver deployments <a href="https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_receivers.csvp?receiver_serial_number%2Creceiver_general_location%2Creceiver_region%2Creceiver_location%2Clatitude%2Clongitude%2Creceiver_river_km%2Creceiver_general_latitude%2Creceiver_general_longitude%2Creceiver_general_river_km%2Creceiver_make%2Creceiver_depth%2Creceiver_start%2Creceiver_end%2Creceiver_last_valid%2Creceiver_data_coverage%2Creceiver_coverage_problem%2Creceiver_agency&amp;orderBy(%22receiver_start%22)">here.</a></p>
 <p>Finally, you can access metadata on all tagged fish <a href="https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_taggedfish.csvp?fish_id%2Cstudy_id%2Cfish_type%2Cfish_origin%2Cfish_release_date%2Ctag_id_hex%2Ctag_id_decimal%2Ctag_weight%2Ctag_model%2Ctag_pulse_rate_interval_nominal%2Ctag_warranty_life%2Cfish_length_type%2Cfish_length%2Cfish_weight%2Crelease_location%2Crelease_latitude%2Crelease_longitude%2Crelease_river_km&amp;distinct()&amp;orderBy(%22fish_id%22)">here.</a></p>
@@ -625,6 +587,54 @@ $(document).ready(function () {
 });
 
 
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
 </script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
