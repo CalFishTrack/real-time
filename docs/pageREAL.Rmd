@@ -659,7 +659,7 @@ detects_summary$TagCode <- as.character(detects_summary$TagCode)
 ## However, also include visits that are longer than 30 days and have been determined to be a shed tag in past runs of the script
 ## The majority of detections for past identified shed tags would have been pulled out, so they likely wouldn't meet 20000 condition
 ## However, we want to include these fish in case there are new shed detections for those fish. Those will need to be removed too
-shed_new <- detects_summary[(detects_summary$diff > 20 & detects_summary$n > 20000) | (detects_summary$diff > 30 & detects_summary$TagCode %in% unique(shed$TagCode)) ,]
+shed_new <- detects_summary[(detects_summary$diff > 20 & detects_summary$n > 20000) | (detects_summary$diff > 20 & detects_summary$TagCode %in% unique(shed$TagCode)) ,]
 ## Here merge the new sheds with the old sheds so that we can get the old tally of detections removed
 ## Also so we can identify the new move ID for old, already removed shed detections
 shed_new <- merge(shed_new, shed[,c("TagCode", "general_location", "n", "min")], by = c("TagCode", "general_location", "min"), all = T)
