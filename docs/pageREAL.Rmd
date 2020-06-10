@@ -74,6 +74,7 @@ tagcodes <- fread("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
 
 shed <- read.csv(file = "shed_tags.csv", stringsAsFactors = F)
+shed$min <- as.POSIXct(shed$min)
 false_detects <- read.csv("false_detects.csv", stringsAsFactors = F)
 false_detects$tag_loc <- paste(false_detects$TagCode, false_detects$general_location, sep = "-")
 
@@ -652,15 +653,16 @@ detects_summary$diff <- as.numeric(difftime(detects_summary$max, detects_summary
 ## Bring back in relevant data from main detects table (TagCode and Genloc)
 move_unique <- unique(detects[,c("move", "TagCode", "general_location")])
 detects_summary <- merge(detects_summary, move_unique)
+detects_summary$TagCode <- as.character(detects_summary$TagCode)
 
 ## Now pull out GenLoc visits that are longer than 30 days and have more than 20000 detections
 ## However, also include visits that are longer than 30 days and have been determined to be a shed tag in past runs of the script
 ## The majority of detections for past identified shed tags would have been pulled out, so they likely wouldn't meet 20000 condition
 ## However, we want to include these fish in case there are new shed detections for those fish. Those will need to be removed too
-shed_new <- detects_summary[(detects_summary$diff > 30 & detects_summary$n > 20000) | (detects_summary$diff > 30 & detects_summary$TagCode %in% unique(shed$TagCode)) ,]
+shed_new <- detects_summary[(detects_summary$diff > 20 & detects_summary$n > 20000) | (detects_summary$diff > 30 & detects_summary$TagCode %in% unique(shed$TagCode)) ,]
 ## Here merge the new sheds with the old sheds so that we can get the old tally of detections removed
 ## Also so we can identify the new move ID for old, already removed shed detections
-shed_new <- merge(shed_new, shed[,c("TagCode", "general_location", "n")], by = c("TagCode", "general_location"), all = T)
+shed_new <- merge(shed_new, shed[,c("TagCode", "general_location", "n", "min")], by = c("TagCode", "general_location", "min"), all = T)
 ## Here, find the new total given past removed detections and new removed detections
 ## first, remove 200 detections from old shed detection counts to account for those we kept
 shed_new[is.na(shed_new$n.x)==F,"n.y"] <- shed_new[is.na(shed_new$n.x)==F,"n.y"]-200
