@@ -663,13 +663,21 @@ detects_summary$TagCode <- as.character(detects_summary$TagCode)
 shed_new <- detects_summary[(detects_summary$diff > 20 & detects_summary$n > 20000) | (detects_summary$diff > 20 & detects_summary$TagCode %in% unique(shed$TagCode) & detects_summary$n > 1000) ,]
 ## Here merge the new sheds with the old sheds so that we can get the old tally of detections removed
 ## Also so we can identify the new move ID for old, already removed shed detections
-shed_new <- merge(shed_new, shed[,c("TagCode", "general_location", "n", "min")], by = c("TagCode", "general_location", "min"), all = T)
+shed_new <- merge(shed_new, shed[,c("TagCode", "general_location", "n", "min","max", "diff")], by = c("TagCode", "general_location", "min"), all = T)
 ## Here, find the new total given past removed detections and new removed detections
 ## first, remove 200 detections from old shed detection counts to account for those we kept
 shed_new[is.na(shed_new$n.x)==F,"n.y"] <- shed_new[is.na(shed_new$n.x)==F,"n.y"]-200
 shed_new$n <- apply(shed_new[,c("n.x", "n.y")], 1, sum, na.rm = T)
 shed_new$n.x <- NULL
 shed_new$n.y <- NULL
+## Now keep the newer (larger) max per row
+shed_new$max <- apply(shed_new[,c("max.x", "max.y")], 1, max, na.rm = T)
+shed_new$max.x <- NULL
+shed_new$max.y <- NULL
+## Now keep the newer (larger) diff per row
+shed_new$diff <- apply(shed_new[,c("diff.x", "diff.y")], 1, max, na.rm = T)
+shed_new$diff.x <- NULL
+shed_new$diff.y <- NULL
 
 ## now run a loop and pull out first and last 100 detections (200 total) that occur between the min and max of shed movements
 shed_times <- unique(shed_new[,c("TagCode", "min", "max")])
@@ -685,6 +693,7 @@ detects <- detects[!(detects$move %in% shed_new$move),]
 detects <- rbind(detects, shed_detects)
 detects$mov_count <- NULL
 detects$move <- NULL
+shed_new$move <- NULL
 
 ## Now export shed tag summaries
 write.csv(shed_new,file = "shed_tags.csv", row.names = F)
