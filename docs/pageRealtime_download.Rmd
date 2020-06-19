@@ -47,13 +47,15 @@ Alternatively, data can be imported directly into R. To do so, please use the fo
 # *Download archived and QAQC'd detection data*
 
 Now you can find *QAQCed and Final* real-time and autonomous JSATS detection data for 2013-2019 on ERDDAP at this url:
-https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html
+https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_detects.html
+
+You can access metadata on all receiver deployments [here.](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_receivers.csvp?receiver_serial_number%2Creceiver_general_location%2Creceiver_region%2Creceiver_location%2Clatitude%2Clongitude%2Creceiver_river_km%2Creceiver_general_latitude%2Creceiver_general_longitude%2Creceiver_general_river_km%2Creceiver_make%2Creceiver_depth%2Creceiver_start%2Creceiver_end%2Creceiver_last_valid%2Creceiver_data_coverage%2Creceiver_coverage_problem%2Creceiver_agency&orderBy(%22receiver_start%22))
+
+You can access metadata on all tagged fish [here.](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_taggedfish.csvp?fish_id%2Cstudy_id%2Cfish_type%2Cfish_origin%2Cfish_release_date%2Ctag_id_hex%2Ctag_id_decimal%2Ctag_weight%2Ctag_model%2Ctag_pulse_rate_interval_nominal%2Ctag_warranty_life%2Cfish_length_type%2Cfish_length%2Cfish_weight%2Crelease_location%2Crelease_latitude%2Crelease_longitude%2Crelease_river_km&distinct()&orderBy(%22fish_id%22))
+
+Finally, you can access a compiled version of these 3 previous datasets in one dataset (all receiver deployment data and tagged fish data repeated per row of detection data) [here.](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html)
 
 Alternatively, data can be imported directly into R. To do so, please use the following R code [here.](https://github.com/CalFishTrack/real-time/blob/master/data/accessing_ERDDAP_via_R_autonomous.R)
-
-In addition, you can access metadata on all receiver deployments [here.](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_receivers.csvp?receiver_serial_number%2Creceiver_general_location%2Creceiver_region%2Creceiver_location%2Clatitude%2Clongitude%2Creceiver_river_km%2Creceiver_general_latitude%2Creceiver_general_longitude%2Creceiver_general_river_km%2Creceiver_make%2Creceiver_depth%2Creceiver_start%2Creceiver_end%2Creceiver_last_valid%2Creceiver_data_coverage%2Creceiver_coverage_problem%2Creceiver_agency&orderBy(%22receiver_start%22))
-
-Finally, you can access metadata on all tagged fish [here.](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS_taggedfish.csvp?fish_id%2Cstudy_id%2Cfish_type%2Cfish_origin%2Cfish_release_date%2Ctag_id_hex%2Ctag_id_decimal%2Ctag_weight%2Ctag_model%2Ctag_pulse_rate_interval_nominal%2Ctag_warranty_life%2Cfish_length_type%2Cfish_length%2Cfish_weight%2Crelease_location%2Crelease_latitude%2Crelease_longitude%2Crelease_river_km&distinct()&orderBy(%22fish_id%22))
 
 **This data delivery project is still under development but it is usable now**.
 
@@ -61,7 +63,7 @@ Finally, you can access metadata on all tagged fish [here.](https://oceanview.pf
 
 If you intend to download data off the ERDDAP website, rather than importing the data directly into R, please follow these instructions:
 
-The dataset title is: JSATS California Fish Tracking. There are many available fields so click on the question mark bubble for an explanation of each field.
+The dataset title is: [JSATS California Fish Tracking](https://oceanview.pfeg.noaa.gov/erddap/tabledap/FED_JSATS.html). There are many available fields so click on the question mark bubble for an explanation of each field.
 
 A simple data request to get you started would be:
 
