@@ -1037,7 +1037,7 @@ fwrite(UCD_processed_files, "UCD_processed_files.csv", row.names = F, quote = T)
 
 <br/>
 
-## Map of Real-time Receiver Sites
+## Map of Active Real-time Receiver Sites
 
 ```{r make map of realtime sites, echo=FALSE, warning=FALSE}
 
@@ -1067,7 +1067,7 @@ leaflet(data = gen_locs[is.na(gen_locs$stop),]) %>%
 
 <br/>
 
-## Receiver sites
+## Active Realtime receiver sites
 ``` {r print site stats, echo=FALSE, warning=FALSE}
 
 gen_locs <- gen_locs[order(gen_locs$rkm, decreasing = T),]
@@ -1101,7 +1101,7 @@ if (nrow(downloads_new_all) > 0) {
 
 <br/>
 
-## Operational time for each real-time receiver since 1/1/2019
+## Operational time for all real-time receivers since 1/1/2019
 
 <br/>
 
@@ -1116,7 +1116,7 @@ beacon_by_day <- beacon_by_day[beacon_by_day$day > as.Date("2018-12-31"),]
 par(mar=c(5.1,2.1,2.1,7.1))
 plot(beacon_by_day$day, beacon_by_day$location, yaxt = "n", xlab = "Total time receiver has been deployed and operational since 1/1/2019", pch = 15)
 axis(4, labels = unique(beacon_by_day$location), at = 1:length(unique(beacon_by_day$location)), las = 2, cex.axis = 0.7)
-points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$location), FUN = min, na.rm = T)$x), unique(beacon_by_day$location), col = "red", pch = 15)
+#points(as.Date(aggregate(beacon_by_day$recv_start, by = list(beacon_by_day$location), FUN = min, na.rm = T)$x), unique(beacon_by_day$location), col = "red", pch = 15)
 
 
 ```
@@ -1167,13 +1167,17 @@ gen_loc_stats <- merge(unique(gen_locs[,c("location", "rkm")]), last_download, b
 
 gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 
-gen_loc_stats <- merge(gen_loc_stats, gap_percent[c("location", "recv_start", "percent_downtime")], by = "location", all.x = T)
+gen_loc_stats <- merge(gen_loc_stats, gap_percent[c("location", "recv_start", "percent_downtime")], by = "location")
 
 gen_loc_stats <- merge(gen_loc_stats, efficiency, by = "location", all.x= T)
 
-gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
+gen_loc_stats$Active <- "No"
+gen_loc_stats[as.numeric(difftime(Sys.time(), gen_loc_stats$last_download, units = "days")) < 7, "Active"] <- "Yes"
 
-kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_time_efficiency", "last_download")], align = "c", row.names = F,  "html") %>%
+gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$Active, gen_loc_stats$rkm, decreasing = T),]
+
+
+kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_time_efficiency", "last_download", "Active")], align = "c", row.names = F,  "html") %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")
 
 
@@ -1197,9 +1201,13 @@ library(ggplot2)
 last_month <- beacon_by_day[which(beacon_by_day$day > as.Date(Sys.time()-60*60*24*30)),]
 
 last_month$recv_lab <- paste(last_month$recv, last_month$location, sep = " ")
+
+## Ensure that recvs without any detections still show up
+last_month$location <- factor(last_month$location, levels = unique(gen_loc_stats[gen_loc_stats$Active == "Yes","location"]))
+
 ## Change order of data to plot decreasing rkm
-last_month <- last_month[order(last_month$rkm, decreasing = F),]
-last_month$location <- factor(last_month$location, unique(last_month$location))
+#last_month <- last_month[order(last_month$rkm, decreasing = F),]
+
 ## Now plot a heatmap of percent fish distribution per region, per timestep
 
 
@@ -1207,11 +1215,11 @@ ggplot() +
   geom_tile(data=last_month, aes(x=factor(day), y=location, fill=day_efficiency, colour = "")) + 
   scale_fill_gradient(low = "red", high = "blue", name = "% Daily Beacon Detection Efficiency", na.value = "black", limits=c(0, 100)) +
   scale_colour_manual(values = NA) +
-  scale_y_discrete(position = "right") +
+  scale_y_discrete(position = "right", drop = F) +
   scale_x_discrete(labels = 29:0) +
   labs(x="# of Days Ago", y = NULL) +
   theme(legend.position="bottom", panel.background = element_blank()) +
-  guides(colour = guide_legend("No beacon tag", override.aes = list(colour = "black")))
+  guides(colour = guide_legend(title = "No beacon tag present", override.aes = list(colour = "black")))
 
 ```
 
@@ -1219,7 +1227,7 @@ ggplot() +
 <br/>
 
 
-## Voltage for each ATS receiver
+## Voltage for each ATS or Teknologics receiver
 
 <br/>
 
