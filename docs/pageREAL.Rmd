@@ -977,7 +977,7 @@ for (k in unique(tagcodes$StudyID)){
   temp_detects <- temp_detects[!temp_detects$tag_loc %in% false_detects_temp$tag_loc,]
   
   ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
-  temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "Temp", "general_location", "latitude", "longitude", "rkm")]
+  temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "tag_life", "general_location", "latitude", "longitude", "rkm")]
   
   ## Add this data to study_detections file, only if there is something to add
   if(nrow(temp_detects) > 0){
@@ -997,7 +997,7 @@ colnames(study_detections)[1] <- "Study_ID"
 study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T)
 
 study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
-fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "recv", "location", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc")], "study_detections.csv", row.names = F)
+fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "recv", "location", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc", "tag_life")], "study_detections.csv", row.names = F)
 
 
 latest <- as.character(round.POSIXt(max(downloads$end, na.rm = T), units = "hour"))
