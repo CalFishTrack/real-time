@@ -272,7 +272,7 @@ if (nrow(detects_tower) == 0){
   
   starttime <- as.Date(min(detects_tower$release_time), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_tower$release_time)+(as.numeric(detects_butte$tag_life)*1.5)))
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_tower$release_time)+(as.numeric(detects_tower$tag_life)*1.5)))
   
 
   ## download wilkins slough flow data
@@ -834,18 +834,18 @@ if (nrow(detects_benicia) == 0){
   print(kable(WR.surv1, row.names = F, "html", caption = "3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))    
   
-  ## Find mean release time per release group, and ALL
-  reltimes <- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
-  reltimes <- rbind(reltimes, data.frame(Release = "ALL", RelDT = mean(study_tagcodes$release_time)))
-
-  ## Assign whether the results are tentative or final
-  quality <- "tentative"
-  if(endtime < as.Date(format(Sys.time(), "%Y-%m-%d"))) { quality <- "final"}
-  WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
-  
-  WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
   
   if(exists("benicia")==T){
+    ## Find mean release time per release group, and ALL
+    reltimes <- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
+    reltimes <- rbind(reltimes, data.frame(Release = "ALL", RelDT = mean(study_tagcodes$release_time)))
+
+    ## Assign whether the results are tentative or final
+    quality <- "tentative"
+    if(endtime < as.Date(format(Sys.time(), "%Y-%m-%d"))) { quality <- "final"}
+    WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
+  
+    WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
     benicia$RelDT <- as.POSIXct(benicia$RelDT)
     ## remove old benicia record for this studyID
     benicia <- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
@@ -950,14 +950,14 @@ if (nrow(detects_study) == 0){
   print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))  
   
-  reltimes <- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
-  reltimes <- rbind(reltimes, data.frame(Release = "ALL", RelDT = mean(study_tagcodes$release_time)))
-  
-  WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
-  
-  WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
-  
   if(exists("Delta")==T){
+    reltimes <- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
+    reltimes <- rbind(reltimes, data.frame(Release = "ALL", RelDT = mean(study_tagcodes$release_time)))
+  
+    WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
+  
+    WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
+    
     Delta$RelDT <- as.POSIXct(Delta$RelDT)
     ## remove old benicia record for this studyID
     Delta <- Delta[!Delta$StudyID %in% unique(detects_study$Study_ID),]
@@ -1003,7 +1003,7 @@ if (nrow(detects_study) == 0){
                          by= list(general_location = arrivals$general_location), 
                          FUN = function(x) {length(unique(x))}), 
                      by = c("general_location"))
-  tag_stats$Percent_arrived <- round(tag_stats$Fish_count/study_count * 100,2)
+  tag_stats$Percent_arrived <- round(tag_stats$Fish_count/nrow(study_tagcodes) * 100,2)
       
   tag_stats <- merge(tag_stats, unique(detects_study[,c("general_location", "river_km")]))
   

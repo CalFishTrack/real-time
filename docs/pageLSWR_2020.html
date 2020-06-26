@@ -760,7 +760,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 22:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 23:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -859,7 +859,7 @@ if (nrow(detects_tower) == 0){
   
   starttime &lt;- as.Date(min(detects_tower$release_time), &quot;Etc/GMT+8&quot;)
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_tower$release_time)+(as.numeric(detects_butte$tag_life)*1.5)))
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_tower$release_time)+(as.numeric(detects_tower$tag_life)*1.5)))
   
 
   ## download wilkins slough flow data
@@ -918,8 +918,6 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## Warning in unclass(e1) + unclass(e2): longer object length is not a multiple of
-## shorter object length</code></pre>
 <div class="figure">
 <img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1441,7 +1439,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-90.3
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1693,18 +1691,18 @@ if (nrow(detects_benicia) == 0){
   print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))    
   
-  ## Find mean release time per release group, and ALL
-  reltimes &lt;- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
-  reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$release_time)))
-
-  ## Assign whether the results are tentative or final
-  quality &lt;- &quot;tentative&quot;
-  if(endtime &lt; as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;))) { quality &lt;- &quot;final&quot;}
-  WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
-  
-  WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
   
   if(exists(&quot;benicia&quot;)==T){
+    ## Find mean release time per release group, and ALL
+    reltimes &lt;- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
+    reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$release_time)))
+
+    ## Assign whether the results are tentative or final
+    quality &lt;- &quot;tentative&quot;
+    if(endtime &lt; as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;))) { quality &lt;- &quot;final&quot;}
+    WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
+  
+    WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
     benicia$RelDT &lt;- as.POSIXct(benicia$RelDT)
     ## remove old benicia record for this studyID
     benicia &lt;- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
@@ -1895,14 +1893,14 @@ if (nrow(detects_study) == 0){
   print(kable(WR.surv1, row.names = F, &quot;html&quot;, caption = &quot;3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))  
   
-  reltimes &lt;- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
-  reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$release_time)))
-  
-  WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
-  
-  WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
-  
   if(exists(&quot;Delta&quot;)==T){
+    reltimes &lt;- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
+    reltimes &lt;- rbind(reltimes, data.frame(Release = &quot;ALL&quot;, RelDT = mean(study_tagcodes$release_time)))
+  
+    WR.surv &lt;- merge(WR.surv, reltimes, by = &quot;Release&quot;, all.x = T)
+  
+    WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
+    
     Delta$RelDT &lt;- as.POSIXct(Delta$RelDT)
     ## remove old benicia record for this studyID
     Delta &lt;- Delta[!Delta$StudyID %in% unique(detects_study$Study_ID),]
@@ -2022,7 +2020,7 @@ if (nrow(detects_study) == 0){
                          by= list(general_location = arrivals$general_location), 
                          FUN = function(x) {length(unique(x))}), 
                      by = c(&quot;general_location&quot;))
-  tag_stats$Percent_arrived &lt;- round(tag_stats$Fish_count/study_count * 100,2)
+  tag_stats$Percent_arrived &lt;- round(tag_stats$Fish_count/nrow(study_tagcodes) * 100,2)
       
   tag_stats &lt;- merge(tag_stats, unique(detects_study[,c(&quot;general_location&quot;, &quot;river_km&quot;)]))
   
