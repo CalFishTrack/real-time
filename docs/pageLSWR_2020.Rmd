@@ -67,7 +67,7 @@ htmltools::img(src = knitr::image_uri("../data/shasta.jpeg"))#,
 
 Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_NOAA_LSNFH_Winter-run.pdf?raw=true)
 
-```{r print table with fish release details}
+```{r print table with fish release details, warning= F}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -80,9 +80,10 @@ library(RMark)
 library(scales)
 library(viridis)
 library(forcats)
-library(CDECRetrieve)
 library(reshape2)
 library(png)
+library(dataRetrieval)
+library(rerddap)
 
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 
@@ -97,9 +98,13 @@ colnames(detects_study)[which(colnames(detects_study) == "Rel_rkm")] <- "release
 colnames(detects_study)[which(colnames(detects_study) == "Rel_loc")] <- "release_location"
 colnames(detects_study)[which(colnames(detects_study) == "rkm")] <- "river_km"
 
-#detects_study <- tabledap('FEDcalFishTrack', url = "https://oceanview.pfeg.noaa.gov/erddap/", 'Study_ID="Winter_H_2020"')
-#detects_study$DateTime_PST <- as.POSIXct(detects_study$local_time, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
-#detects_study$release_time <- as.POSIXct(detects_study$release_time, format = "%Y-%m-%dT%H:%M:%S")
+##################################################################################################################
+#### TO RUN THE FOLLOWING CODE CHUNKS FROM HERE ON DOWN USING R ERDDAP, UN-COMMENT THESE NEXT 4 LINES OF CODE ####
+##################################################################################################################
+cache_delete_all()
+detects_study <- tabledap('FEDcalFishTrack', url = "https://oceanview.pfeg.noaa.gov/erddap/", 'Study_ID="Winter_H_2020"')
+detects_study$DateTime_PST <- as.POSIXct(detects_study$local_time, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+detects_study$release_time <- as.POSIXct(detects_study$release_time, format = "%Y-%m-%dT%H:%M:%S")
 
 
 detects_study$Release <- "Release 1"
@@ -189,16 +194,17 @@ if (nrow(detects_butte) == 0){
   
   starttime <- as.Date(min(detects_butte$release_time), "Etc/GMT+8")
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_butte$release_time)+(detects_butte$tag_life*1.5)))
   
   
-  BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
+  #BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
+  ## download bend bridge flow data
+  BTC_flow <- readNWISuv(siteNumbers = "11377100", parameterCd="00060", startDate = starttime, endDate = endtime+1)
   
-  BTC_flow$datetime <- as.Date(format(BTC_flow$datetime, "%Y-%m-%d"))
-  BTC_flow_day <- aggregate(list(parameter_value = BTC_flow$parameter_value),
+  BTC_flow$datetime <- as.Date(format(BTC_flow$dateTime, "%Y-%m-%d"))
+  BTC_flow_day <- aggregate(list(parameter_value = BTC_flow$X_00060_00000),
                             by = list(Day = BTC_flow$datetime),
                             FUN = mean, na.rm = T)
-  
   
   daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
   
@@ -244,7 +250,7 @@ if (nrow(detects_butte) == 0){
   
   plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-  mtext("Flow (cfs) at Butte City", side=4, line=3, cex=1.5, col="blue")
+  mtext("Flow (cfs) at Bend Bridge", side=4, line=3, cex=1.5, col="blue")
 }
 
 ```
@@ -272,10 +278,12 @@ if (nrow(detects_tower) == 0){
   endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_tower$release_time)+(detects_tower$tag_life*1.5)))
   
 
-  wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
-
-  wlk_flow$datetime <- as.Date(wlk_flow$datetime)
-  wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value),
+  #wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
+  ## download bend bridge flow data
+  wlk_flow <- readNWISuv(siteNumbers = "11390500", parameterCd="00060", startDate = starttime, endDate = endtime+1)
+  
+  wlk_flow$datetime <- as.Date(format(wlk_flow$dateTime, "%Y-%m-%d"))
+  wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$X_00060_00000),
                             by = list(Day = wlk_flow$datetime),
                             FUN = mean, na.rm = T)
 
@@ -731,7 +739,7 @@ if (nrow(detects_study) == 0){
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
   
 benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F)
-benicia$release_time <- as.POSIXct(benicia$release_time)
+benicia$RelDT <- as.POSIXct(benicia$RelDT)
 
 if (nrow(detects_benicia) == 0){
   WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
