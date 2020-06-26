@@ -581,24 +581,14 @@ library(kableExtra)
 library(lubridate)
 library(data.table)
 library(ggplot2)
-library(RMark)</code></pre>
-<pre><code>## Warning: package &#39;RMark&#39; was built under R version 3.6.3</code></pre>
-<pre><code>## This is RMark 2.2.7
-##  Documentation available at http://www.phidot.org/software/mark/rmark/RMarkDocumentation.zip</code></pre>
-<pre class="r"><code>library(scales)
+library(RMark)
+library(scales)
 library(viridis)
 library(forcats)
-library(reshape2)</code></pre>
-<pre><code>## Warning: package &#39;reshape2&#39; was built under R version 3.6.3</code></pre>
-<pre><code>## 
-## Attaching package: &#39;reshape2&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:data.table&#39;:
-## 
-##     dcast, melt</code></pre>
-<pre class="r"><code>library(png)
-library(dataRetrieval)</code></pre>
-<pre><code>## Warning: package &#39;dataRetrieval&#39; was built under R version 3.6.3</code></pre>
-<pre class="r"><code>latest &lt;- read.csv(&quot;latest_download.csv&quot;, stringsAsFactors = F)
+library(reshape2)
+library(png)
+library(dataRetrieval)
+library(rerddap)
 
 detects_study &lt;- fread(&quot;study_detections.csv&quot;, stringsAsFactors = F)
 detects_study &lt;- as.data.frame(detects_study[detects_study$Study_ID == &quot;Winter_H_2020&quot;,])
@@ -611,15 +601,17 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;Rel_rkm&quot;)] &
 colnames(detects_study)[which(colnames(detects_study) == &quot;Rel_loc&quot;)] &lt;- &quot;release_location&quot;
 colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;- &quot;river_km&quot;
 
+##################################################################################################################
+#### TO RUN THE FOLLOWING CODE CHUNKS FROM HERE ON DOWN USING R ERDDAP, UN-COMMENT THESE NEXT 4 LINES OF CODE ####
+##################################################################################################################
+#cache_delete_all()
 #detects_study &lt;- tabledap(&#39;FEDcalFishTrack&#39;, url = &quot;https://oceanview.pfeg.noaa.gov/erddap/&quot;, &#39;Study_ID=&quot;Winter_H_2020&quot;&#39;)
 #detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$local_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 #detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%dT%H:%M:%S&quot;)
-
+##################################################################################################################
 
 detects_study$Release &lt;- &quot;Release 1&quot;
 detects_study[detects_study$release_time &gt; as.POSIXct(&quot;2020-03-20&quot;), &quot;Release&quot;] &lt;- &quot;Release 2&quot;
-
-#study_tagcodes &lt;- tagcodes[tagcodes$StudyID == &quot;Winter_H_2020&quot;,]
 
 study_tagcodes &lt;- unique(detects_study[,c(&quot;TagCode&quot;, &quot;release_time&quot;, &quot;weight&quot;, &quot;length&quot;, &quot;release_rkm&quot;, &quot;release_location&quot;, &quot;Release&quot;)])
 
@@ -768,7 +760,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 17:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 21:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -784,11 +776,12 @@ if (nrow(detects_butte) == 0){
   
   starttime &lt;- as.Date(min(detects_butte$release_time), &quot;Etc/GMT+8&quot;)
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_butte$release_time)+(as.numeric(detects_butte$tag_life)*1.5)))
   
   
   #BTC_flow &lt;- cdec_query(&quot;BTC&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
   ## download bend bridge flow data
+
   BTC_flow &lt;- readNWISuv(siteNumbers = &quot;11377100&quot;, parameterCd=&quot;00060&quot;, startDate = starttime, endDate = endtime+1)
   
   BTC_flow$datetime &lt;- as.Date(format(BTC_flow$dateTime, &quot;%Y-%m-%d&quot;))
@@ -840,12 +833,12 @@ if (nrow(detects_butte) == 0){
   
   plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-  mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
+  mtext(&quot;Flow (cfs) at Bend Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
 <div class="figure">
-<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #000000; padding:3px" />
+<img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
-2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City
+2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge
 </p>
 </div>
 <p><br/></p>
@@ -866,11 +859,11 @@ if (nrow(detects_tower) == 0){
   
   starttime &lt;- as.Date(min(detects_tower$release_time), &quot;Etc/GMT+8&quot;)
   ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_tower$release_time)+(detects_tower$tag_life*1.5)))
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_tower$release_time)+(as.numeric(detects_butte$tag_life)*1.5)))
   
 
-  #wlk_flow &lt;- cdec_query(&quot;WLK&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
-  ## download bend bridge flow data
+  ## download wilkins slough flow data
+
   wlk_flow &lt;- readNWISuv(siteNumbers = &quot;11390500&quot;, parameterCd=&quot;00060&quot;, startDate = starttime, endDate = endtime+1)
   
   wlk_flow$datetime &lt;- as.Date(format(wlk_flow$dateTime, &quot;%Y-%m-%d&quot;))
@@ -925,6 +918,8 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning in unclass(e1) + unclass(e2): longer object length is not a multiple of
+## shorter object length</code></pre>
 <div class="figure">
 <img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -942,7 +937,7 @@ if (nrow(detects_benicia)&gt;0) {
   detects_benicia$Day &lt;- as.Date(detects_benicia$first_detect, &quot;Etc/GMT+8&quot;)
   
   starttime &lt;- as.Date(min(detects_benicia$release_time), &quot;Etc/GMT+8&quot;)
-  #endtime &lt;- as.Date(c(Sys.time()))#, max(detects_benicia$first_detect)+60*60*24)))
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_benicia$release_time)+(as.numeric(detects_benicia$tag_life)*1.5)))
   #wlk_flow &lt;- cdec_query(&quot;COL&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
   #wlk_flow$datetime &lt;- as.Date(wlk_flow$datetime)
   #wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
@@ -1445,7 +1440,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-0.0
+90.3
 </td>
 <td style="text-align:right;">
 100.0

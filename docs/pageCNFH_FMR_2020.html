@@ -734,7 +734,7 @@ RBDD_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 13:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 21:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -768,10 +768,11 @@ if (nrow(detects_butte) == 0){
   endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_butte$RelDT)+(detects_butte$tag_life*1.5)))
   
 
-  BTC_flow &lt;- cdec_query(&quot;BTC&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
-
-  BTC_flow$datetime &lt;- as.Date(format(BTC_flow$datetime, &quot;%Y-%m-%d&quot;))
-  BTC_flow_day &lt;- aggregate(list(parameter_value = BTC_flow$parameter_value),
+  library(dataRetrieval)
+  BTC_flow &lt;- readNWISuv(siteNumbers = &quot;11377100&quot;, parameterCd=&quot;00060&quot;, startDate = starttime, endDate = endtime+1)
+  
+  BTC_flow$datetime &lt;- as.Date(format(BTC_flow$dateTime, &quot;%Y-%m-%d&quot;))
+  BTC_flow_day &lt;- aggregate(list(parameter_value = BTC_flow$X_00060_00000),
                             by = list(Day = BTC_flow$datetime),
                             FUN = mean, na.rm = T)
 
@@ -819,12 +820,12 @@ if (nrow(detects_butte) == 0){
 
   plot(x = barpmeans, daterange2$parameter_value, yaxt = &quot;n&quot;, xaxt = &quot;n&quot;, ylab = &quot;&quot;, xlab = &quot;&quot;, col = &quot;blue&quot;, type = &quot;l&quot;, lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = &quot;Returning adults&quot;, xlab= &quot;Outmigration year&quot;, yaxt=&quot;n&quot;, col=&quot;red&quot;, pch=20)
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-  mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
+  mtext(&quot;Flow (cfs) at Bend Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
 <div class="figure">
-<img src="pageCNFH_FMR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #000000; padding:3px" />
+<img src="pageCNFH_FMR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
-2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City
+2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge
 </p>
 </div>
 <p><br/></p>
@@ -851,10 +852,12 @@ if (nrow(detects_tower) == 0){
   endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
 
-  wlk_flow &lt;- cdec_query(&quot;WLK&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
-
-  wlk_flow$datetime &lt;- as.Date(wlk_flow$datetime)
-  wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$parameter_value),
+  ## download wilkins slough flow data
+  library(dataRetrieval)
+  wlk_flow &lt;- readNWISuv(siteNumbers = &quot;11390500&quot;, parameterCd=&quot;00060&quot;, startDate = starttime, endDate = endtime+1)
+  
+  wlk_flow$datetime &lt;- as.Date(format(wlk_flow$dateTime, &quot;%Y-%m-%d&quot;))
+  wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$X_00060_00000),
                             by = list(Day = wlk_flow$datetime),
                             FUN = mean, na.rm = T)
 

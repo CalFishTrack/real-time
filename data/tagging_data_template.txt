@@ -1,4 +1,4 @@
-StudyID,RelDT,TagID_Hex,Weight,Length,Rel_rkm,Rel_loc,PRI_nominal,tag_life
+StudyID,Release_Datetime,TagID_Hex,Weight_gr,Length_mm,Release_riverkm,Release_location_name,PRI_nominal,tag_battery_life_days
 EXAMPLE_DATA_2018,3/13/2018 6:00:00 PM,8D16,10.4,101,540.258,Bonnyview_Rel,10,60
 EXAMPLE_DATA_2018,3/13/2018 6:00:00 PM,9274,10.5,96,540.258,Bonnyview_Rel,10,60
 EXAMPLE_DATA_2018,3/13/2018 6:00:00 PM,94D1,16.5,113,540.258,Bonnyview_Rel,10,60

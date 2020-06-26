@@ -181,10 +181,12 @@ if (nrow(detects_tower) == 0){
   endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
 
-  wlk_flow <- cdec_query("WLK", "20", "H", starttime, endtime+1)
-
-  wlk_flow$datetime <- as.Date(wlk_flow$datetime)
-  wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value),
+  ## download wilkins slough flow data
+  library(dataRetrieval)
+  wlk_flow <- readNWISuv(siteNumbers = "11390500", parameterCd="00060", startDate = starttime, endDate = endtime+1)
+  
+  wlk_flow$datetime <- as.Date(format(wlk_flow$dateTime, "%Y-%m-%d"))
+  wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$X_00060_00000),
                             by = list(Day = wlk_flow$datetime),
                             FUN = mean, na.rm = T)
 

@@ -786,7 +786,7 @@ Elkhorn
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 13:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 21:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
@@ -818,10 +818,12 @@ if (nrow(detects_tower) == 0){
   endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_tower$RelDT)+(detects_tower$tag_life*1.5)))
   
 
-  wlk_flow &lt;- cdec_query(&quot;WLK&quot;, &quot;20&quot;, &quot;H&quot;, starttime, endtime+1)
-
-  wlk_flow$datetime &lt;- as.Date(wlk_flow$datetime)
-  wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$parameter_value),
+  ## download wilkins slough flow data
+  library(dataRetrieval)
+  wlk_flow &lt;- readNWISuv(siteNumbers = &quot;11390500&quot;, parameterCd=&quot;00060&quot;, startDate = starttime, endDate = endtime+1)
+  
+  wlk_flow$datetime &lt;- as.Date(format(wlk_flow$dateTime, &quot;%Y-%m-%d&quot;))
+  wlk_flow_day &lt;- aggregate(list(parameter_value = wlk_flow$X_00060_00000),
                             by = list(Day = wlk_flow$datetime),
                             FUN = mean, na.rm = T)
 
@@ -1398,7 +1400,7 @@ Survival from release to Butte City
 98.8
 </td>
 <td style="text-align:right;">
-3262.2
+268.1
 </td>
 <td style="text-align:right;">
 0.0
@@ -1415,7 +1417,7 @@ Survival from Butte City to TowerBridge (minimum estimate since fish may have ta
 37.9
 </td>
 <td style="text-align:right;">
-1252.2
+102.8
 </td>
 <td style="text-align:right;">
 0.0
