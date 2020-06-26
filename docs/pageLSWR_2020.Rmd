@@ -417,6 +417,7 @@ if (nrow(detects_benicia)>0) {
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 study_count <- nrow(study_tagcodes)
+detects_tower <- detects_study[detects_study$general_location == "TowerBridge",]
 
 if (nrow(detects_tower) == 0){
   WR.surv <- data.frame("Release"=NA, "Survival (%)"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
@@ -702,7 +703,7 @@ if (nrow(detects_study) == 0){
 
 ```{r figure of routing with pic, fig.align="left", fig.height = 7, fig.width = 7.6}
 
-
+## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
 
 
 #Replace the directory and file information with your info
@@ -735,8 +736,9 @@ if (nrow(detects_study) == 0){
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
   
-benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F)
-benicia$RelDT <- as.POSIXct(benicia$RelDT)
+try(benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F))
+
+detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
 
 if (nrow(detects_benicia) == 0){
   WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
@@ -843,21 +845,22 @@ if (nrow(detects_benicia) == 0){
   
   WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
   
-  ## remove old benicia record for this studyID
-  benicia <- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
-  
-  benicia <- rbind(benicia, data.frame(WR.surv, StudyID = unique(detects_benicia$Study_ID), data_quality = quality))
-  
-  write.csv(benicia, "benicia_surv.csv", row.names = F, quote = F) 
-  
+  if(exists("benicia")==T){
+    benicia$RelDT <- as.POSIXct(benicia$RelDT)
+    ## remove old benicia record for this studyID
+    benicia <- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
+    
+    benicia <- rbind(benicia, data.frame(WR.surv, StudyID = unique(detects_benicia$Study_ID), data_quality = quality))
+    
+    write.csv(benicia, "benicia_surv.csv", row.names = F, quote = F) 
+  }
 }
 ```
 
 ```{r print table of through-Delta survival, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-Delta <- read.csv("Delta_surv.csv", stringsAsFactors = F)
-Delta$RelDT <- as.POSIXct(Delta$RelDT)
+try(Delta <- read.csv("Delta_surv.csv", stringsAsFactors = F))
 
 if (nrow(detects_study) == 0){
     results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
@@ -954,12 +957,15 @@ if (nrow(detects_study) == 0){
   
   WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
   
-  ## remove old benicia record for this studyID
-  Delta <- Delta[!Delta$StudyID %in% unique(detects_study$Study_ID),]
-  
-  Delta <- rbind(Delta, data.frame(WR.surv, StudyID = unique(detects_study$Study_ID), data_quality = quality))
-  
-  write.csv(Delta, "Delta_surv.csv", row.names = F, quote = F) 
+  if(exists("Delta")==T){
+    Delta$RelDT <- as.POSIXct(Delta$RelDT)
+    ## remove old benicia record for this studyID
+    Delta <- Delta[!Delta$StudyID %in% unique(detects_study$Study_ID),]
+    
+    Delta <- rbind(Delta, data.frame(WR.surv, StudyID = unique(detects_study$Study_ID), data_quality = quality))
+    
+    write.csv(Delta, "Delta_surv.csv", row.names = F, quote = F) 
+  }
   }
 }
 ```
@@ -1076,6 +1082,8 @@ figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_
 ```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5, fig.cap="Gray tiles = receiver location was operational, white tiles = receiver location non-operational"}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
 
 if (nrow(detects_study) == 0){
   "No detections yet"

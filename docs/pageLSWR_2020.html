@@ -760,7 +760,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 21:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-25 22:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -1007,6 +1007,7 @@ if (nrow(detects_benicia)&gt;0) {
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 study_count &lt;- nrow(study_tagcodes)
+detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
 
 if (nrow(detects_tower) == 0){
   WR.surv &lt;- data.frame(&quot;Release&quot;=NA, &quot;Survival (%)&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
@@ -1567,7 +1568,10 @@ Routing probability into Georgiana Slough (Conditional on fish arriving to junct
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>#Replace the directory and file information with your info
+<pre class="r"><code>## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
+
+
+#Replace the directory and file information with your info
 georg &lt;- readPNG(&quot;../data/georg.png&quot;)
 
 par(mar=c(2,0,0,0))
@@ -1591,8 +1595,9 @@ if (nrow(detects_study) == 0){
 <p><img src="pageLSWR_2020_files/figure-html/figure%20of%20routing%20with%20pic-1.png" width="729.6" style="display: block; margin: auto auto auto 0;" /></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
   
-benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F)
-benicia$RelDT &lt;- as.POSIXct(benicia$RelDT)
+try(benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F))
+
+detects_benicia &lt;- detects_study[detects_study$general_location %in% c(&quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
 
 if (nrow(detects_benicia) == 0){
   WR.surv1 &lt;- data.frame(&quot;Release Group&quot;=NA, &quot;Survival (%)&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA, &quot;Detection efficiency (%)&quot;=NA)
@@ -1699,13 +1704,15 @@ if (nrow(detects_benicia) == 0){
   
   WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
   
-  ## remove old benicia record for this studyID
-  benicia &lt;- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
-  
-  benicia &lt;- rbind(benicia, data.frame(WR.surv, StudyID = unique(detects_benicia$Study_ID), data_quality = quality))
-  
-  write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
-  
+  if(exists(&quot;benicia&quot;)==T){
+    benicia$RelDT &lt;- as.POSIXct(benicia$RelDT)
+    ## remove old benicia record for this studyID
+    benicia &lt;- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
+    
+    benicia &lt;- rbind(benicia, data.frame(WR.surv, StudyID = unique(detects_benicia$Study_ID), data_quality = quality))
+    
+    write.csv(benicia, &quot;benicia_surv.csv&quot;, row.names = F, quote = F) 
+  }
 }</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <caption>
@@ -1798,8 +1805,7 @@ NA
 </table>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-Delta &lt;- read.csv(&quot;Delta_surv.csv&quot;, stringsAsFactors = F)
-Delta$RelDT &lt;- as.POSIXct(Delta$RelDT)
+try(Delta &lt;- read.csv(&quot;Delta_surv.csv&quot;, stringsAsFactors = F))
 
 if (nrow(detects_study) == 0){
     results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
@@ -1896,12 +1902,15 @@ if (nrow(detects_study) == 0){
   
   WR.surv$RelDT &lt;- as.POSIXct(WR.surv$RelDT, origin = &#39;1970-01-01&#39;)
   
-  ## remove old benicia record for this studyID
-  Delta &lt;- Delta[!Delta$StudyID %in% unique(detects_study$Study_ID),]
-  
-  Delta &lt;- rbind(Delta, data.frame(WR.surv, StudyID = unique(detects_study$Study_ID), data_quality = quality))
-  
-  write.csv(Delta, &quot;Delta_surv.csv&quot;, row.names = F, quote = F) 
+  if(exists(&quot;Delta&quot;)==T){
+    Delta$RelDT &lt;- as.POSIXct(Delta$RelDT)
+    ## remove old benicia record for this studyID
+    Delta &lt;- Delta[!Delta$StudyID %in% unique(detects_study$Study_ID),]
+    
+    Delta &lt;- rbind(Delta, data.frame(WR.surv, StudyID = unique(detects_study$Study_ID), data_quality = quality))
+    
+    write.csv(Delta, &quot;Delta_surv.csv&quot;, row.names = F, quote = F) 
+  }
   }
 }</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
@@ -2803,6 +2812,8 @@ figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$relea
 <div id="fish-arrivals-per-day" class="section level3">
 <h3>4.3 Fish arrivals per day</h3>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+
+## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
 
 if (nrow(detects_study) == 0){
   &quot;No detections yet&quot;
