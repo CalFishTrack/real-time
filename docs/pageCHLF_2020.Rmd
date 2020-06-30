@@ -1041,12 +1041,26 @@ if (nrow(detects_study) == 0){
   arrivals_per_day$general_location <- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
   
   
-  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
-  geom_tile(fill = "lightgray", color = "black") + 
-  geom_text(aes(label=New_arrivals)) +
-  labs(x="General Location", y = "Date") +
-  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1)) +
-  theme(plot.margin = unit(c(0,0,0,0), "cm"))
+  # ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  # geom_tile(fill = "lightgray", color = "black") + 
+  # geom_text(aes(label=New_arrivals)) +
+  # labs(x="General Location", y = "Date") +
+  # theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1)) +
+  # theme(plot.margin = unit(c(0,0,0,0), "cm"))
+  
+    crosstab <- xtabs(formula = arrivals_per_day$New_arrivals ~ arrivals_per_day$day + arrivals_per_day$general_location, addNA =T)
+  crosstab[is.na(crosstab)] <- ""
+  crosstab[crosstab==0] <- NA
+  crosstab <- as.data.frame.matrix(crosstab)
+  colnames(crosstab) <- c("Butte Br", "Tower Br", "I8050 Br", "Old River", "Middle River", "CVP Tanks", "Georg Slough1", "Sac_Blw Georg1", "Georg Slough2", "Sac_Blw Georg2", "Benicia East", "Benicia West")
+
+ kable(crosstab, align = "c", escape = F, booktabs = T) %>%
+  kable_styling() %>%
+  #row_spec(0, angle = -45) %>%
+  column_spec(column = 1:12,width_min = "50px",border_left = T, border_right = T) %>%
+  column_spec(1, bold = T, width_min = "70px")%>%
+  scroll_box(width = "100%", height = "700px") %>%
+  kable_styling(font_size = 10)
 }
 
 rm(list = ls())

@@ -1079,8 +1079,8 @@ figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_
 
 <br/>
 
-### 4.3 Fish arrivals per day
-```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5, fig.cap="Gray tiles = receiver location was operational, white tiles = receiver location non-operational"}
+### 4.3 Fish arrivals per day ("NA" means receivers were non-operational)
+```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -1089,7 +1089,8 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
-  
+  arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+    
   beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
   beacon_by_day$day <- as.Date(beacon_by_day$day)
   
@@ -1103,6 +1104,7 @@ if (nrow(detects_study) == 0){
   ## Now subset to only look at data for the correct beacon for that day
   beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
   
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)))
   ## Now only keep beacon by day for days since fish were released
   beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$release_time)) & beacon_by_day$day <= endtime,]  
   
@@ -1120,12 +1122,24 @@ if (nrow(detects_study) == 0){
   arrivals_per_day <- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
   arrivals_per_day$general_location <- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
   
-  
-  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
-  geom_tile(fill = "lightgray", color = "black") + 
-  geom_text(aes(label=New_arrivals)) +
-  labs(x="General Location", y = "Date") +
-  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+  # 
+  # ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  # geom_tile(fill = "lightgray", color = "black") + 
+  # geom_text(aes(label=New_arrivals)) +
+  # labs(x="General Location", y = "Date") +
+  # theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+    crosstab <- xtabs(formula = arrivals_per_day$New_arrivals ~ arrivals_per_day$day + arrivals_per_day$general_location, addNA =T)
+  crosstab[is.na(crosstab)] <- ""
+  crosstab[crosstab==0] <- NA
+  crosstab <- as.data.frame.matrix(crosstab)
+  colnames(crosstab) <- c("Butte Br", "Tower Br", "I8050 Br", "Old River", "Middle River", "CVP Tanks", "Georg Slough1", "Sac_Blw Georg1", "Georg Slough2", "Sac_Blw Georg2", "Benicia East", "Benicia West")
+
+ kable(crosstab, align = "c") %>%
+  kable_styling(c("striped", "condensed"), font_size = 11) %>%
+  #row_spec(0, angle = -45) %>%
+  column_spec(column = 1:12,width_min = "50px",border_left = T, border_right = T) %>%
+  column_spec(1, bold = T, width_min = "75px")%>%
+  scroll_box(width = "100%", height = "700px")
 }
 
 rm(list = ls())

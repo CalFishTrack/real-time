@@ -761,7 +761,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-29 14:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-29 18:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -2808,8 +2808,8 @@ Benicia_west
 <pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
 figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_time), units = &quot;days&quot;)) / 4))</code></pre>
 <p><br/></p>
-<div id="fish-arrivals-per-day" class="section level3">
-<h3>4.3 Fish arrivals per day</h3>
+<div id="fish-arrivals-per-day-na-means-receivers-were-non-operational" class="section level3">
+<h3>4.3 Fish arrivals per day (“NA” means receivers were non-operational)</h3>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
@@ -2817,7 +2817,8 @@ figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$relea
 if (nrow(detects_study) == 0){
   &quot;No detections yet&quot;
 } else {
-  
+  arrivals &lt;- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+    
   beacon_by_day &lt;- fread(&quot;beacon_by_day.csv&quot;, stringsAsFactors = F)
   beacon_by_day$day &lt;- as.Date(beacon_by_day$day)
   
@@ -2831,6 +2832,7 @@ if (nrow(detects_study) == 0){
   ## Now subset to only look at data for the correct beacon for that day
   beacon_by_day &lt;- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
   
+  endtime &lt;- min(as.Date(format(Sys.time(), &quot;%Y-%m-%d&quot;)), max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)))
   ## Now only keep beacon by day for days since fish were released
   beacon_by_day &lt;- beacon_by_day[beacon_by_day$day &gt;= as.Date(min(study_tagcodes$release_time)) &amp; beacon_by_day$day &lt;= endtime,]  
   
@@ -2848,18 +2850,3413 @@ if (nrow(detects_study) == 0){
   arrivals_per_day &lt;- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
   arrivals_per_day$general_location &lt;- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
   
-  
-  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
-  geom_tile(fill = &quot;lightgray&quot;, color = &quot;black&quot;) + 
-  geom_text(aes(label=New_arrivals)) +
-  labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
-  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+  # 
+  # ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  # geom_tile(fill = &quot;lightgray&quot;, color = &quot;black&quot;) + 
+  # geom_text(aes(label=New_arrivals)) +
+  # labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
+  # theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+    crosstab &lt;- xtabs(formula = arrivals_per_day$New_arrivals ~ arrivals_per_day$day + arrivals_per_day$general_location, addNA =T)
+  crosstab[is.na(crosstab)] &lt;- &quot;&quot;
+  crosstab[crosstab==0] &lt;- NA
+  crosstab &lt;- as.data.frame.matrix(crosstab)
+  colnames(crosstab) &lt;- c(&quot;Butte Br&quot;, &quot;Tower Br&quot;, &quot;I8050 Br&quot;, &quot;Old River&quot;, &quot;Middle River&quot;, &quot;CVP Tanks&quot;, &quot;Georg Slough1&quot;, &quot;Sac_Blw Georg1&quot;, &quot;Georg Slough2&quot;, &quot;Sac_Blw Georg2&quot;, &quot;Benicia East&quot;, &quot;Benicia West&quot;)
+
+ kable(crosstab, align = &quot;c&quot;) %&gt;%
+  kable_styling(c(&quot;striped&quot;, &quot;condensed&quot;), font_size = 11) %&gt;%
+  #row_spec(0, angle = -45) %&gt;%
+  column_spec(column = 1:12,width_min = &quot;50px&quot;,border_left = T, border_right = T) %&gt;%
+  column_spec(1, bold = T, width_min = &quot;75px&quot;)%&gt;%
+  scroll_box(width = &quot;100%&quot;, height = &quot;700px&quot;)
 }</code></pre>
-<div class="figure">
-<img src="pageLSWR_2020_files/figure-html/print%20tables%20of%20fish%20detections%20per%20day-1.png" alt="Gray tiles = receiver location was operational, white tiles = receiver location non-operational" width="480" />
-<p class="caption">
-Gray tiles = receiver location was operational, white tiles = receiver location non-operational
-</p>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:700px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-condensed" style="font-size: 11px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Butte Br
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Tower Br
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+I8050 Br
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Old River
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Middle River
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+CVP Tanks
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Georg Slough1
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Sac_Blw Georg1
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Georg Slough2
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Sac_Blw Georg2
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Benicia East
+</th>
+<th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;">
+Benicia West
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-11
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-13
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-14
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-16
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-17
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-19
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+24
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-20
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-21
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-22
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-23
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-24
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+16
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+16
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-25
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+9
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-26
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+9
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+16
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-27
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+9
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-28
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+9
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+16
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-29
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-30
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+9
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-03-31
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+33
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+21
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-01
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+9
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-02
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-03
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-04
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-05
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+2
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-06
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-07
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-08
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-09
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-10
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-11
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+6
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+8
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-13
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+16
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-14
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-16
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-17
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-19
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-20
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-21
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-22
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-23
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-24
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+3
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-25
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-26
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-27
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-28
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-29
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-04-30
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-01
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-02
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-03
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-04
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-05
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-06
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-07
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-08
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-09
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-10
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-11
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-13
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-14
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-16
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-17
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-19
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-20
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-21
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-22
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-23
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-24
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-25
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-26
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-27
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-28
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-29
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-30
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-31
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-01
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-02
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-03
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-04
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-05
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-06
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-07
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-08
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-09
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-10
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-11
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-12
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-13
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-14
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-16
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-17
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-18
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-19
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-20
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-21
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-22
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-23
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-24
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-25
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-26
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-27
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-28
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-06-29
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <pre class="r"><code>rm(list = ls())
 cleanup(ask = F)</code></pre>
