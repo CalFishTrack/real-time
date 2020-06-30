@@ -1080,7 +1080,7 @@ figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_
 <br/>
 
 ### 4.3 Fish arrivals per day ("NA" means receivers were non-operational)
-```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5}
+```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
