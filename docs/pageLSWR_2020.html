@@ -761,7 +761,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-30 10:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">2020-06-30 11:00:00</span>. Updates occur hourly. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -2863,14 +2863,14 @@ if (nrow(detects_study) == 0){
   colnames(crosstab) &lt;- c(&quot;Butte Br&quot;, &quot;Tower Br&quot;, &quot;I8050 Br&quot;, &quot;Old River&quot;, &quot;Middle River&quot;, &quot;CVP Tanks&quot;, &quot;Georg Slough1&quot;, &quot;Sac_Blw Georg1&quot;, &quot;Georg Slough2&quot;, &quot;Sac_Blw Georg2&quot;, &quot;Benicia East&quot;, &quot;Benicia West&quot;)
 
  kable(crosstab, align = &quot;c&quot;) %&gt;%
-  kable_styling(c(&quot;striped&quot;, &quot;condensed&quot;), font_size = 11) %&gt;%
+  kable_styling(c(&quot;striped&quot;, &quot;condensed&quot;), font_size = 11, full_width = F, position = &quot;left&quot;) %&gt;%
   #row_spec(0, angle = -45) %&gt;%
   column_spec(column = 1:12,width_min = &quot;50px&quot;,border_left = T, border_right = T) %&gt;%
   column_spec(1, bold = T, width_min = &quot;75px&quot;)%&gt;%
   scroll_box(width = &quot;100%&quot;, height = &quot;700px&quot;)
 }</code></pre>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:700px; overflow-x: scroll; width:100%; ">
-<table class="table table-striped table-condensed" style="font-size: 11px; margin-left: auto; margin-right: auto;">
+<table class="table table-striped table-condensed" style="font-size: 11px; width: auto !important; ">
 <thead>
 <tr>
 <th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
