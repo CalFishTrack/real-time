@@ -1202,11 +1202,12 @@ last_month <- beacon_by_day[which(beacon_by_day$day > as.Date(Sys.time()-60*60*2
 
 last_month$recv_lab <- paste(last_month$recv, last_month$location, sep = " ")
 
-## Ensure that recvs without any detections still show up
-last_month$location <- factor(last_month$location, levels = unique(gen_loc_stats[gen_loc_stats$Active == "Yes","location"]))
-
+## Ensure that recvs without any detections still show up. Find sites that should be ploted
+sites <- gen_loc_stats[as.numeric(difftime(Sys.time(), gen_loc_stats$last_download, units = "days")) < 30,]
 ## Change order of data to plot decreasing rkm
-#last_month <- last_month[order(last_month$rkm, decreasing = F),]
+sites <- sites[order(sites$rkm, decreasing = F),]
+
+last_month$location <- factor(last_month$location, levels = unique(sites$location))
 
 ## Now plot a heatmap of percent fish distribution per region, per timestep
 
@@ -1279,29 +1280,5 @@ ggplot(volt.files_2weeks, aes(x = Datetime, y = Volts)) +
 
 ```
 
-
-<br/>
-
-```{r see winter run counts per tagger, echo=FALSE}
-
-# setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
-# 
-# 
-# detects <- read.csv("detects_Winter_H_2018.csv", stringsAsFactors = FALSE)
-# tagging <- read.csv("Tagged_Fish_Metadata.txt", stringsAsFactors = F)
-# tagging <- tagging[tagging$StudyID == "Winter_H_2018",]
-# 
-# detects_tagger <- merge(detects, tagging[,c("TagID_Hex","Surgeon", "Rel_group")], by.x = "TagCode", by.y = "TagID_Hex")
-# 
-# arrivals <- as.data.frame(table(detects_tagger[!duplicated(detects_tagger$TagCode),"Surgeon"]))
-# 
-# colnames(arrivals) <- c("Surgeon", "Unique_Fish_Arrivals")
-# arrivals$total_tagged <- 200
-# arrivals$percent_arrivals <- round(arrivals$Unique_Fish_Arrivals/arrivals$total_tagged * 100,2)
-# 
-# kable(arrivals)
-
-
-```
 
 
