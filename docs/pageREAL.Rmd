@@ -1250,8 +1250,10 @@ volt.files_2weeks$Volts <- NULL
 if (nrow(volt.files_2weeks) >0){
   for (i in 1:nrow(volt.files_2weeks)){
     test <- read.csv(volt.files_2weeks[i,"path"], skip = 3, stringsAsFactors = F)
-    volt.files_2weeks[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
-    volt.files_2weeks[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
+    if(ncol(test)==1){
+      volt.files_2weeks[i,"Volts"] <- as.numeric(substr(test[1,],11,15))
+      volt.files_2weeks[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
+    }
   }
   volt.files_2weeks <- merge(volt.files_2weeks, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
   
