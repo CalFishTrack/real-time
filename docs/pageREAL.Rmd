@@ -1190,7 +1190,7 @@ kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_t
 
 <br/>
 
-```{r print heatmap of detection efficiency, warning=FALSE, message=FALSE}
+```{r print heatmap of detection efficiency, warning=FALSE, message=FALSE, fig.width = 10}
 
 
 library(ggplot2)
@@ -1236,7 +1236,7 @@ ggplot() +
 
 <br/>
 
-```{r print voltage for ATS receivers,fig.height = 30, echo=FALSE, warning=FALSE, message=FALSE}
+```{r print voltage for ATS receivers,fig.height = 30, fig.width = 10, echo=FALSE, warning=FALSE, message=FALSE}
 
 library(ggplot2)
 
