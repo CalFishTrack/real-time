@@ -1200,24 +1200,28 @@ library(ggplot2)
 #last_month <- beacon_by_day[which(as.POSIXct(beacon_by_day$day, format = "%Y-%m-%d") > Sys.time()-60*60*24*30),]
 last_month <- beacon_by_day[which(beacon_by_day$day > as.Date(Sys.time()-60*60*24*30)),]
 
-last_month$recv_lab <- paste(last_month$recv, last_month$location, sep = " ")
-
 ## Ensure that recvs without any detections still show up. Find sites that should be ploted
+
 sites <- gen_loc_stats[as.numeric(difftime(Sys.time(), gen_loc_stats$last_download, units = "days")) < 30,]
 ## Change order of data to plot decreasing rkm
 sites <- sites[order(sites$rkm, decreasing = F),]
 
 last_month$location <- factor(last_month$location, levels = unique(sites$location))
-
 ## Now plot a heatmap of percent fish distribution per region, per timestep
 
+## make combined label for plot
+current_locs <- gen_locs[is.na(gen_locs$stop),]
+labels <- merge(data.frame(location = levels(last_month$location)), current_locs, all.x=T)
+labels$recv_lab <- paste(labels$location, labels$recv, sep = " ")
+## sort in same order as data
+labels<- labels[order(match(labels$location,levels(last_month$location))),]
 
 ggplot() +
   geom_tile(data=last_month, aes(x=factor(day), y=location, fill=day_efficiency, colour = "")) + 
   scale_fill_gradient(low = "red", high = "blue", name = "% Daily Beacon Detection Efficiency", na.value = "black", limits=c(0, 100)) +
   scale_colour_manual(values = NA) +
-  scale_y_discrete(position = "right", drop = F) +
   scale_x_discrete(labels = 29:0) +
+  scale_y_discrete(position = "right", drop = F, labels = labels$recv_lab) +
   labs(x="# of Days Ago", y = NULL) +
   theme(legend.position="bottom", panel.background = element_blank()) +
   guides(colour = guide_legend(title = "No beacon tag present", override.aes = list(colour = "black")))
@@ -1271,13 +1275,16 @@ colnames(volt.teknos) <- colnames(volt.files_2weeks)
 volt.files_2weeks <- rbind(volt.files_2weeks, volt.teknos)
 volt.files_2weeks$Volts <- as.numeric(volt.files_2weeks$Volts)
 
+volt.files_2weeks <- merge(volt.files_2weeks, labels[,c("recv", "location")], by.x = "RECV", by.y = "recv")
+volt.files_2weeks$recv_lab <- paste(volt.files_2weeks$location, volt.files_2weeks$RECV, sep = "\n")
+
 ggplot(volt.files_2weeks, aes(x = Datetime, y = Volts)) + 
   geom_line() + 
   geom_point() +
   ylim(9,15) +
   scale_x_datetime(date_breaks = "2 days", date_labels = "%Y-%m-%d") +
   geom_hline(yintercept=12, linetype="dashed", color = "red") +
-  facet_grid(RECV ~ .) + 
+  facet_grid(recv_lab ~ .) + 
   theme(legend.position = "none")
 
 ```
