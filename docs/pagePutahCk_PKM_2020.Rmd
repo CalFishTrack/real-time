@@ -151,7 +151,7 @@ if (nrow(study_tagcodes) == 0){
 ***
 ## _2. Detections statistics at all realtime receivers_
 ***
-***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
+***`r anicon::nia("Study is complete, tags are no longer active", size = 1, colour = "red")`. All times in Pacific Standard Time.***
 
 ```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))

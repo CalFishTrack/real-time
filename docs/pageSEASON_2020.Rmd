@@ -76,7 +76,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 latest <- read.csv("latest_download.csv", stringsAsFactors = F)
 ```
 
-***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
+***`r anicon::nia("All studies are complete, tags are no longer active", size = 1, colour = "red")`. All times in Pacific Standard Time.***
 
 <br>
 
