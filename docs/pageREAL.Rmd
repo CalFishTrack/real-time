@@ -368,7 +368,9 @@ if (nrow(TECKNO_files) > 0) {
       ## Get volts, sometimes in row 1 or 2
       sun_volts <- max(test[1:2,"V17"])
       bat_volts <- max(test[1:2,"V18"])
-      downloads_new2 <- rbindlist(list(downloads_new2, data.frame(list(filename = TECKNO_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
+      if(nrow(test1)>0){
+        downloads_new2 <- rbindlist(list(downloads_new2, data.frame(list(filename = TECKNO_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
+      }
     }
   }
   
