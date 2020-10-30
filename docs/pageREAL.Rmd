@@ -981,22 +981,28 @@ for (k in unique(tagcodes$StudyID)){
   ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
   temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")]
   
-  ## Add this data to study_detections file, only if there is something to add
-  if(nrow(temp_detects) > 0){
-    study_detections <- rbindlist(list(study_detections, cbind(k,temp_detects)))
+  if (nrow(temp_detects) == 0){
+    temp_detects <- data.frame(Study_ID = studycodes$StudyID, TagCode = studycodes$TagID_Hex, location=NA,recv=NA,DateTime_Orig=NA, DateTime_PST=as.POSIXct(NA), general_location=NA, latitude=NA, longitude=NA, rkm=NA, stringsAsFactors = F)
+  }else{
+    temp_detects <- data.frame(Study_ID = k, temp_detects)
   }
+  temp_detects <- merge(temp_detects, studycodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T)
+
+  study_detections <- rbindlist(list(study_detections, temp_detects))
+  
   temp_detects$DateTime_PST <- format(temp_detects$DateTime_PST, "%Y-%m-%d %H:%M:%S")
   temp_detects$TagCode <- as.character(temp_detects$TagCode)
-  fwrite(temp_detects, paste(getwd(),"/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F, quote = T)
+  fwrite(temp_detects, paste("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F, quote = T)
+  rm(temp_detects)
 }
 
 
 #### Now export study_detections
 ## But first change column name for studyid
-colnames(study_detections)[1] <- "Study_ID"
+#colnames(study_detections)[1] <- "Study_ID"
 
 ## Now merge in important release data
-study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T)
+#study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T)
 
 study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
 fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "recv", "location", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc", "tag_life")], "study_detections.csv", row.names = F)
