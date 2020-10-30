@@ -73,7 +73,7 @@ htmltools::img(src = knitr::image_uri("../data/putah5.jpg"))#,
 
 Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/PutahCk_2020_Telemetry Study Summary.pdf?raw=true)
 
-```{r print table with fish release details}
+```{r print table with fish release details, warning = F}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -150,7 +150,7 @@ if (nrow(study_tagcodes) == 0){
 ***`r anicon::nia("Study is complete, tags are no longer active", size = 1, colour = "red")`. All times in Pacific Standard Time.***
 
 
-```{r print figure of fish detections at Benicia, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', ,fig.cap="2.1 Detections at Benicia Bridge"}
+```{r print figure of fish detections at Benicia, message = FALSE, warning = F, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', ,fig.cap="2.1 Detections at Benicia Bridge"}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
@@ -160,7 +160,7 @@ library(reshape2)
 detects_study <- fread(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products\\Study_detection_files\\detects_Putah_Creek_CHN_2020.csv", sep = ""))
 
 
-if(nrow(detects_study)>0){
+if(nrow(detects_study[is.na(detects_study$DateTime_PST)==F])>0){
   detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
   detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
 }
@@ -375,7 +375,7 @@ if (nrow(detects_benicia) == 0){
 ```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F]) == 0){
   "No detections yet"
 } else {
   study_count <- nrow(study_tagcodes)
@@ -475,7 +475,7 @@ figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), 
 ```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5, fig.cap="Gray tiles = receiver location was operational, white tiles = receiver location non-operational"}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F]) == 0){
   "No detections yet"
 } else {
   

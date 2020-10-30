@@ -521,7 +521,7 @@ if (nrow(detects_tower) == 0){
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
 route_results_possible <- F
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
   colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
   print(kable(results_short, row.names = F, "html", caption = "3.2 Reach-specific survival and probability of entering Georgiana Slough") %>%
@@ -717,7 +717,7 @@ plot(1:2, type='n', xlab="", ylab="", xaxt = "n", yaxt = "n")
 #Get the plot information so the image will fill the plot box, and draw it
 lim <- par()
 rasterImage(georg, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
     legend(x = 1.55,y = 1.6,legend =  "No detections yet",col = "white", box.col = "light gray", bg = "light gray") 
     legend(x = 1.55,y = 1.45,legend =  "No detections yet",col = "white", box.col = "light gray", bg = "light gray")
 }else if (route_results_possible == F){
@@ -863,7 +863,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 try(Delta <- read.csv("Delta_surv.csv", stringsAsFactors = F))
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
     results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
     print(kable(results_short, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
@@ -980,7 +980,7 @@ if (nrow(detects_study) == 0){
 ```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   "No detections yet"
 } else {
 
@@ -1086,7 +1086,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   "No detections yet"
 } else {
   arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)

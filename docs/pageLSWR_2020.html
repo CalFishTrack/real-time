@@ -1193,7 +1193,7 @@ NA
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 route_results_possible &lt;- F
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
   colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
   print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.2 Reach-specific survival and probability of entering Georgiana Slough&quot;) %&gt;%
@@ -1580,7 +1580,7 @@ plot(1:2, type=&#39;n&#39;, xlab=&quot;&quot;, ylab=&quot;&quot;, xaxt = &quot;n
 #Get the plot information so the image will fill the plot box, and draw it
 lim &lt;- par()
 rasterImage(georg, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
     legend(x = 1.55,y = 1.6,legend =  &quot;No detections yet&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;) 
     legend(x = 1.55,y = 1.45,legend =  &quot;No detections yet&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;)
 }else if (route_results_possible == F){
@@ -1806,7 +1806,7 @@ NA
 
 try(Delta &lt;- read.csv(&quot;Delta_surv.csv&quot;, stringsAsFactors = F))
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
     results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
     colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
     print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)&quot;) %&gt;%
@@ -1997,7 +1997,7 @@ Release 2
 <hr />
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   &quot;No detections yet&quot;
 } else {
 
@@ -2310,7 +2310,7 @@ Benicia_west
 2020-03-22 19:05:03
 </td>
 <td style="text-align:left;">
-2020-04-04 11:30:46
+2020-04-04 11:30:37
 </td>
 <td style="text-align:left;">
 2020-04-13 10:58:24
@@ -2549,10 +2549,10 @@ Benicia_west
 2020-03-22 19:05:03
 </td>
 <td style="text-align:left;">
-2020-03-29 04:46:09
+2020-03-29 04:45:50
 </td>
 <td style="text-align:left;">
-2020-04-09 21:47:10
+2020-04-09 21:45:14
 </td>
 <td style="text-align:right;">
 6
@@ -2814,7 +2814,7 @@ figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$relea
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
 
-if (nrow(detects_study) == 0){
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   &quot;No detections yet&quot;
 } else {
   arrivals &lt;- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
