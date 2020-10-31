@@ -160,7 +160,7 @@ library(reshape2)
 detects_study <- fread(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products\\Study_detection_files\\detects_Putah_Creek_CHN_2020.csv", sep = ""))
 
 
-if(nrow(detects_study[is.na(detects_study$DateTime_PST)==F])>0){
+if(nrow(detects_study)>0){
   detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
   detects_study <- merge(detects_study, study_tagcodes[,c("TagID_Hex", "RelDT", "StudyID", "Release", "tag_life")], by.x = "TagCode", by.y = "TagID_Hex")
 }
@@ -375,7 +375,7 @@ if (nrow(detects_benicia) == 0){
 ```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F]) == 0){
+if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   study_count <- nrow(study_tagcodes)
@@ -475,7 +475,7 @@ figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT), 
 ```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE, fig.height = figheight, fig.width = 5, fig.cap="Gray tiles = receiver location was operational, white tiles = receiver location non-operational"}
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F]) == 0){
+if (nrow(detects_study) == 0){
   "No detections yet"
 } else {
   

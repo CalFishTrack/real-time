@@ -709,12 +709,12 @@ Russell Ranch
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
-library(reshape2)</code></pre>
-<pre><code>## Warning: package &#39;reshape2&#39; was built under R version 3.6.3</code></pre>
-<pre class="r"><code>detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_Putah_Creek_CHN_2020.csv&quot;, sep = &quot;&quot;))
+library(reshape2)
+
+detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_Putah_Creek_CHN_2020.csv&quot;, sep = &quot;&quot;))
 
 
-if(nrow(detects_study[is.na(detects_study$DateTime_PST)==F])&gt;0){
+if(nrow(detects_study)&gt;0){
   detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
   detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
 }
@@ -976,7 +976,7 @@ NA
 <hr />
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F]) == 0){
+if (nrow(detects_study) == 0){
   &quot;No detections yet&quot;
 } else {
   study_count &lt;- nrow(study_tagcodes)
@@ -1073,7 +1073,7 @@ figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$RelDT
 <h3>4.3 Fish arrivals per day</h3>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F]) == 0){
+if (nrow(detects_study) == 0){
   &quot;No detections yet&quot;
 } else {
   

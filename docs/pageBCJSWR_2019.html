@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 
@@ -88,7 +88,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -237,6 +236,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -249,56 +249,12 @@ $(document).ready(function () {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 <style type="text/css">
 .code-folding-btn { margin-bottom: 4px; }
 </style>
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
 
 
-
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <style type="text/css">
 
@@ -312,6 +268,12 @@ $(document).ready(function ()  {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -729,7 +691,7 @@ NF Battle Creek
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2020-05-17 15:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2020-10-30 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -738,13 +700,13 @@ NF Battle Creek
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
-library(reshape2)
-
-detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_BC_Jumpstart_2019.csv&quot;, stringsAsFactors = F)
+library(reshape2)</code></pre>
+<pre><code>## Warning: package &#39;reshape2&#39; was built under R version 3.6.3</code></pre>
+<pre class="r"><code>detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_BC_Jumpstart_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
-  detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;RelDT&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
+  detects_study &lt;- merge(detects_study, study_tagcodes[,c(&quot;TagID_Hex&quot;, &quot;StudyID&quot;, &quot;Release&quot;, &quot;RelDT&quot;, &quot;tag_life&quot;)], by.x = &quot;TagCode&quot;, by.y = &quot;TagID_Hex&quot;)
 }
   
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -914,6 +876,7 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning: package &#39;dataRetrieval&#39; was built under R version 3.6.3</code></pre>
 <p><img src="pageBCJSWR_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -1115,19 +1078,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-18.5
+13.2
 </td>
 <td style="text-align:right;">
-4
+11.6
 </td>
 <td style="text-align:right;">
-11.8
+2.1
 </td>
 <td style="text-align:right;">
-27.7
+52.5
 </td>
 <td style="text-align:right;">
-31.4
+9.1
 </td>
 </tr>
 <tr>
@@ -1135,16 +1098,16 @@ ALL
 Week 1
 </td>
 <td style="text-align:right;">
-18.5
+13.2
 </td>
 <td style="text-align:right;">
-4
+11.6
 </td>
 <td style="text-align:right;">
-11.8
+2.1
 </td>
 <td style="text-align:right;">
-27.7
+52.5
 </td>
 <td style="text-align:right;">
 NA
@@ -1338,16 +1301,16 @@ SE
 Survival from release to Butte City
 </td>
 <td style="text-align:right;">
-49.8
+100.0
 </td>
 <td style="text-align:right;">
-16.1
+0.0
 </td>
 <td style="text-align:right;">
-21.9
+100.0
 </td>
 <td style="text-align:right;">
-77.9
+100.0
 </td>
 </tr>
 <tr>
@@ -1355,16 +1318,16 @@ Survival from release to Butte City
 Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)
 </td>
 <td style="text-align:right;">
-44.7
+27.2
 </td>
 <td style="text-align:right;">
-15.6
+11.7
 </td>
 <td style="text-align:right;">
-19.0
+10.6
 </td>
 <td style="text-align:right;">
-73.6
+54.2
 </td>
 </tr>
 <tr>
@@ -1372,13 +1335,13 @@ Survival from Butte City to TowerBridge (minimum estimate since fish may have ta
 Survival from TowerBridge to I80-50_Br
 </td>
 <td style="text-align:right;">
-94.2
+100.0
 </td>
 <td style="text-align:right;">
-16.3
+0.0
 </td>
 <td style="text-align:right;">
-4.3
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1389,16 +1352,16 @@ Survival from TowerBridge to I80-50_Br
 % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
 </td>
 <td style="text-align:right;">
-65.4
+33.0
 </td>
 <td style="text-align:right;">
-11.6
+20.1
 </td>
 <td style="text-align:right;">
-40.9
+7.6
 </td>
 <td style="text-align:right;">
-83.8
+74.5
 </td>
 </tr>
 <tr>
@@ -1406,16 +1369,16 @@ Survival from TowerBridge to I80-50_Br
 Detection probability at Butte City
 </td>
 <td style="text-align:right;">
-7.2
+0.2
 </td>
 <td style="text-align:right;">
-2.8
+0.2
 </td>
 <td style="text-align:right;">
-3.3
+0.0
 </td>
 <td style="text-align:right;">
-15.2
+1.4
 </td>
 </tr>
 <tr>
@@ -1423,16 +1386,16 @@ Detection probability at Butte City
 Detection probability at TowerBridge
 </td>
 <td style="text-align:right;">
-26.0
+4.4
 </td>
 <td style="text-align:right;">
-5.1
+2.6
 </td>
 <td style="text-align:right;">
-17.3
+1.4
 </td>
 <td style="text-align:right;">
-37.2
+13.2
 </td>
 </tr>
 <tr>
@@ -1440,16 +1403,16 @@ Detection probability at TowerBridge
 Detection probability at I80-50_Br
 </td>
 <td style="text-align:right;">
-33.3
+8.1
 </td>
 <td style="text-align:right;">
-6.2
+4.1
 </td>
 <td style="text-align:right;">
-22.4
+2.9
 </td>
 <td style="text-align:right;">
-46.4
+20.7
 </td>
 </tr>
 <tr>
@@ -1457,16 +1420,16 @@ Detection probability at I80-50_Br
 Detection probability at Blw_Georgiana
 </td>
 <td style="text-align:right;">
-40.7
+16.7
 </td>
 <td style="text-align:right;">
-9.5
+15.2
 </td>
 <td style="text-align:right;">
-24.2
+2.3
 </td>
 <td style="text-align:right;">
-59.7
+63.1
 </td>
 </tr>
 <tr>
@@ -1474,16 +1437,16 @@ Detection probability at Blw_Georgiana
 Detection probability at Georgiana Slough
 </td>
 <td style="text-align:right;">
-100.0
+81.3
 </td>
 <td style="text-align:right;">
-0.0
+9.8
 </td>
 <td style="text-align:right;">
-88.7
+55.3
 </td>
 <td style="text-align:right;">
-100.0
+93.8
 </td>
 </tr>
 <tr>
@@ -1491,16 +1454,16 @@ Detection probability at Georgiana Slough
 Routing probability into Georgiana Slough (Conditional on fish arriving to junction)
 </td>
 <td style="text-align:right;">
-32.1
+46.6
 </td>
 <td style="text-align:right;">
-6.5
+21.1
 </td>
 <td style="text-align:right;">
-20.8
+14.2
 </td>
 <td style="text-align:right;">
-45.9
+82.1
 </td>
 </tr>
 </tbody>
@@ -1644,19 +1607,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-12.8
+11
 </td>
 <td style="text-align:right;">
 1.5
 </td>
 <td style="text-align:right;">
-10.1
+8.5
 </td>
 <td style="text-align:right;">
-16
+14.2
 </td>
 <td style="text-align:right;">
-89.3
+65.3
 </td>
 </tr>
 <tr>
@@ -1664,19 +1627,19 @@ ALL
 Week 1
 </td>
 <td style="text-align:right;">
-12.8
+11
 </td>
 <td style="text-align:right;">
 1.5
 </td>
 <td style="text-align:right;">
-10.1
+8.5
 </td>
 <td style="text-align:right;">
-16
+14.2
 </td>
 <td style="text-align:right;">
-89.3
+65.3
 </td>
 </tr>
 </tbody>
@@ -1815,16 +1778,16 @@ ButteBrRT
 2019-03-30 04:36:57
 </td>
 <td style="text-align:left;">
-2019-04-03 01:07:00
+2019-03-30 04:36:57
 </td>
 <td style="text-align:left;">
-2019-04-19 07:10:55
+2019-03-30 04:36:57
 </td>
 <td style="text-align:right;">
-18
+1
 </td>
 <td style="text-align:right;">
-3.6
+0.2
 </td>
 <td style="text-align:right;">
 344.108
@@ -1835,19 +1798,19 @@ ButteBrRT
 TowerBridge
 </td>
 <td style="text-align:left;">
-2019-04-02 21:20:43
+2019-04-05 01:19:05
 </td>
 <td style="text-align:left;">
-2019-04-09 19:56:08
+2019-04-12 06:13:42
 </td>
 <td style="text-align:left;">
-2019-04-23 14:10:22
+2019-04-21 14:20:32
 </td>
 <td style="text-align:right;">
-29
+6
 </td>
 <td style="text-align:right;">
-5.8
+1.2
 </td>
 <td style="text-align:right;">
 172.000
@@ -1861,16 +1824,16 @@ I80-50_Br
 2019-04-02 04:22:35
 </td>
 <td style="text-align:left;">
-2019-04-12 08:05:47
+2019-04-13 19:33:35
 </td>
 <td style="text-align:left;">
-2019-04-28 18:21:53
+2019-04-24 10:05:26
 </td>
 <td style="text-align:right;">
-35
+11
 </td>
 <td style="text-align:right;">
-7.0
+2.2
 </td>
 <td style="text-align:right;">
 170.748
@@ -1884,16 +1847,16 @@ Georgiana_Slough1
 2019-04-03 07:13:19
 </td>
 <td style="text-align:left;">
-2019-04-09 22:26:49
+2019-04-10 10:09:07
 </td>
 <td style="text-align:left;">
 2019-04-20 15:32:02
 </td>
 <td style="text-align:right;">
-22
+17
 </td>
 <td style="text-align:right;">
-4.4
+3.4
 </td>
 <td style="text-align:right;">
 119.208
@@ -1904,19 +1867,19 @@ Georgiana_Slough1
 Sac_BlwGeorgiana
 </td>
 <td style="text-align:left;">
-2019-04-03 19:56:03
+2019-04-04 02:24:39
 </td>
 <td style="text-align:left;">
-2019-04-15 01:03:57
+2019-04-15 01:54:27
 </td>
 <td style="text-align:left;">
-2019-04-26 02:45:37
+2019-04-23 00:11:20
 </td>
 <td style="text-align:right;">
-19
+4
 </td>
 <td style="text-align:right;">
-3.8
+0.8
 </td>
 <td style="text-align:right;">
 119.058
@@ -1930,7 +1893,7 @@ Georgiana_Slough2
 2019-04-03 07:23:30
 </td>
 <td style="text-align:left;">
-2019-04-09 18:59:28
+2019-04-09 18:59:37
 </td>
 <td style="text-align:left;">
 2019-04-20 15:15:20
@@ -1950,19 +1913,19 @@ Georgiana_Slough2
 Sac_BlwGeorgiana2
 </td>
 <td style="text-align:left;">
-2019-04-03 10:21:17
+2019-04-05 10:48:16
 </td>
 <td style="text-align:left;">
-2019-04-12 05:22:17
+2019-04-12 18:06:27
 </td>
 <td style="text-align:left;">
-2019-04-23 02:33:25
+2019-04-23 00:22:49
 </td>
 <td style="text-align:right;">
-27
+6
 </td>
 <td style="text-align:right;">
-5.4
+1.2
 </td>
 <td style="text-align:right;">
 118.398
@@ -1976,16 +1939,16 @@ Benicia_east
 2019-04-07 20:45:00
 </td>
 <td style="text-align:left;">
-2019-04-15 10:21:50
+2019-04-15 05:58:11
 </td>
 <td style="text-align:left;">
-2019-04-25 12:14:51
+2019-04-25 10:13:24
 </td>
 <td style="text-align:right;">
-57
+36
 </td>
 <td style="text-align:right;">
-11.4
+7.2
 </td>
 <td style="text-align:right;">
 52.240
@@ -1999,16 +1962,16 @@ Benicia_west
 2019-04-07 20:51:22
 </td>
 <td style="text-align:left;">
-2019-04-16 03:48:51
+2019-04-15 16:46:09
 </td>
 <td style="text-align:left;">
 2019-04-25 12:19:18
 </td>
 <td style="text-align:right;">
-56
+49
 </td>
 <td style="text-align:right;">
-11.2
+9.8
 </td>
 <td style="text-align:right;">
 52.040
@@ -2040,6 +2003,54 @@ $(document).ready(function () {
 });
 
 
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
 </script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
