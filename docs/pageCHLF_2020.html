@@ -368,55 +368,13 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2020 Water Year Study Detections
+    2021 Water Year Study Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
-    </li>
-    <li>
-      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
-      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
-    </li>
-    <li>
-      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
-    </li>
-    <li>
-      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
-    </li>
-    <li>
-      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
-    </li>
-    <li>
-      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
-    </li>
-    <li>
-      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+      <a href="pageCHLF_2021.html">Hatchery late-fall-run salmon</a>
     </li>
   </ul>
 </li>
@@ -512,6 +470,56 @@ div.tocify {
         </li>
         <li>
           <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2020 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+        </li>
+        <li>
+          <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
         </li>
       </ul>
     </li>
@@ -713,9 +721,9 @@ BattleCk_CNFH
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
-library(reshape2)</code></pre>
-<pre><code>## Warning: package &#39;reshape2&#39; was built under R version 3.6.3</code></pre>
-<pre class="r"><code>detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_ColemanLateFall_2020.csv&quot;, sep = &quot;&quot;))
+library(reshape2)
+
+detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_ColemanLateFall_2020.csv&quot;, sep = &quot;&quot;))
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -794,6 +802,9 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
+## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
+## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageCHLF_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -875,6 +886,9 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
+## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
+## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageCHLF_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -945,6 +959,9 @@ if (nrow(detects_benicia)&gt;0) {
 }else{
   print(&quot;No detections at Benicia yet&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
+## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
+## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageCHLF_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -2494,12 +2511,12 @@ if (nrow(detects_study) == 0){
   arrivals_per_day$general_location &lt;- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
   
   
-  ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
-  geom_tile(fill = &quot;lightgray&quot;, color = &quot;black&quot;) + 
-  geom_text(aes(label=New_arrivals)) +
-  labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
-  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1)) +
-  theme(plot.margin = unit(c(0,0,0,0), &quot;cm&quot;))
+  # ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  # geom_tile(fill = &quot;lightgray&quot;, color = &quot;black&quot;) + 
+  # geom_text(aes(label=New_arrivals)) +
+  # labs(x=&quot;General Location&quot;, y = &quot;Date&quot;) +
+  # theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1)) +
+  # theme(plot.margin = unit(c(0,0,0,0), &quot;cm&quot;))
   
     crosstab &lt;- xtabs(formula = arrivals_per_day$New_arrivals ~ arrivals_per_day$day + arrivals_per_day$general_location, addNA =T)
   crosstab[is.na(crosstab)] &lt;- &quot;&quot;
@@ -2765,7 +2782,7 @@ Benicia West
 68
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-28
+32
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 60
@@ -2801,7 +2818,7 @@ Benicia West
 280
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-161
+184
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 284
@@ -2837,7 +2854,7 @@ Benicia West
 188
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-105
+120
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 180
@@ -2873,7 +2890,7 @@ Benicia West
 56
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-35
+40
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 52
@@ -2882,7 +2899,7 @@ Benicia West
 32
 </td>
 <td style="text-align:center;">
-40
+32
 </td>
 </tr>
 <tr>
@@ -2911,7 +2928,7 @@ Benicia West
 24
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-7
+8
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 32
@@ -2920,7 +2937,7 @@ Benicia West
 224
 </td>
 <td style="text-align:center;">
-290
+232
 </td>
 </tr>
 <tr>
@@ -2949,7 +2966,7 @@ Benicia West
 32
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-14
+16
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 32
@@ -2958,7 +2975,7 @@ Benicia West
 56
 </td>
 <td style="text-align:center;">
-70
+56
 </td>
 </tr>
 <tr>
@@ -2992,7 +3009,7 @@ Benicia West
 96
 </td>
 <td style="text-align:center;">
-110
+88
 </td>
 </tr>
 <tr>
@@ -3024,7 +3041,7 @@ Benicia West
 80
 </td>
 <td style="text-align:center;">
-80
+64
 </td>
 </tr>
 <tr>
@@ -3059,7 +3076,7 @@ Benicia West
 40
 </td>
 <td style="text-align:center;">
-60
+48
 </td>
 </tr>
 <tr>
@@ -3092,7 +3109,7 @@ Benicia West
 56
 </td>
 <td style="text-align:center;">
-70
+56
 </td>
 </tr>
 <tr>
@@ -3125,7 +3142,7 @@ Benicia West
 16
 </td>
 <td style="text-align:center;">
-20
+16
 </td>
 </tr>
 <tr>
@@ -3158,7 +3175,7 @@ Benicia West
 24
 </td>
 <td style="text-align:center;">
-30
+24
 </td>
 </tr>
 <tr>
@@ -3190,7 +3207,7 @@ Benicia West
 16
 </td>
 <td style="text-align:center;">
-30
+24
 </td>
 </tr>
 <tr>
@@ -3222,7 +3239,7 @@ Benicia West
 40
 </td>
 <td style="text-align:center;">
-40
+32
 </td>
 </tr>
 <tr>
@@ -3253,7 +3270,7 @@ Benicia West
 40
 </td>
 <td style="text-align:center;">
-50
+40
 </td>
 </tr>
 <tr>
@@ -3286,7 +3303,7 @@ Benicia West
 8
 </td>
 <td style="text-align:center;">
-20
+16
 </td>
 </tr>
 <tr>
@@ -3318,7 +3335,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;">
-10
+8
 </td>
 </tr>
 <tr>
@@ -3349,7 +3366,7 @@ Benicia West
 8
 </td>
 <td style="text-align:center;">
-10
+8
 </td>
 </tr>
 <tr>
@@ -3375,7 +3392,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-7
+8
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3412,7 +3429,7 @@ Benicia West
 16
 </td>
 <td style="text-align:center;">
-20
+16
 </td>
 </tr>
 <tr>
@@ -3590,7 +3607,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;">
-10
+8
 </td>
 </tr>
 <tr>
@@ -4415,7 +4432,7 @@ NA
 24
 </td>
 <td style="text-align:center;">
-30
+24
 </td>
 </tr>
 <tr>
@@ -4475,7 +4492,7 @@ NA
 8
 </td>
 <td style="text-align:center;">
-10
+8
 </td>
 </tr>
 <tr>

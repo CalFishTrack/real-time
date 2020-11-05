@@ -5,38 +5,10 @@ navbar:
   left:
   - text: Home
     href: index.html
-  - text: 2020 Water Year Study Detections
+  - text: 2021 Water Year Study Detections
     menu:
-    - text: Wild green sturgeon
-      href: pageSRGS_2020.html
     - text: Hatchery late-fall-run salmon
-      href: pageCHLF_2020.html
-    - text: Mill/Deer Creek wild salmon, fall releases
-      href: pageMD_CH_W_F2020.html
-    - text: Mill/Deer Creek wild steelhead, fall releases
-      href: pageMD_SH_W_F2020.html
-    - text: Hatchery winter-run salmon
-      href: pageLSWR_2020.html
-    - text: Battle Creek jump-start winter-run
-      href: pageBCJSWR_2020.html
-    - text: Rice field reared hatchery fall-run
-      href: pageUCD_Rice_2020.html
-    - text: Hatchery San Joaquin spring-run
-      href: pageSJSR_2020.html
-    - text: Hatchery Feather River spring-run
-      href: pageFHSR_2020.html
-    - text: Mill/Deer Creek wild salmon, spring releases
-      href: pageMD_CH_W_S2020.html
-    - text: Mill/Deer Creek wild steelhead, spring releases
-      href: pageMD_SH_W_S2020.html
-    - text: Hatchery fall-run Chinook salmon May Release
-      href: pageCNFH_FMR_2020.html
-    - text: Wild Putah Creek Chinook salmon
-      href: pagePutahCk_CHN_2020.html
-    - text: Wild Putah Creek Sacramento pikeminnow
-      href: pagePutahCk_PKM_2020.html
-    - text: 2020 SEASON SUMMARY
-      href: pageSEASON_2020.html
+      href: pageCHLF_2021.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
@@ -95,6 +67,38 @@ navbar:
         href: pageSHMC_Spring_2019.html
       - text: 2019 SEASON SUMMARY
         href: pageSEASON.html
+    - text: 2020 Water Year
+      menu:
+      - text: Wild green sturgeon
+        href: pageSRGS_2020.html
+      - text: Hatchery late-fall-run salmon
+        href: pageCHLF_2020.html
+      - text: Mill/Deer Creek wild salmon, fall releases
+        href: pageMD_CH_W_F2020.html
+      - text: Mill/Deer Creek wild steelhead, fall releases
+        href: pageMD_SH_W_F2020.html
+      - text: Hatchery winter-run salmon
+        href: pageLSWR_2020.html
+      - text: Battle Creek jump-start winter-run
+        href: pageBCJSWR_2020.html
+      - text: Rice field reared hatchery fall-run
+        href: pageUCD_Rice_2020.html
+      - text: Hatchery San Joaquin spring-run
+        href: pageSJSR_2020.html
+      - text: Hatchery Feather River spring-run
+        href: pageFHSR_2020.html
+      - text: Mill/Deer Creek wild salmon, spring releases
+        href: pageMD_CH_W_S2020.html
+      - text: Mill/Deer Creek wild steelhead, spring releases
+        href: pageMD_SH_W_S2020.html
+      - text: Hatchery fall-run Chinook salmon May Release
+        href: pageCNFH_FMR_2020.html
+      - text: Wild Putah Creek Chinook salmon
+        href: pagePutahCk_CHN_2020.html
+      - text: Wild Putah Creek Sacramento pikeminnow
+        href: pagePutahCk_PKM_2020.html
+      - text: 2020 SEASON SUMMARY
+        href: pageSEASON_2020.html
   - text: STARS shiny app
     href: http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
 output:

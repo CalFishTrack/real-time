@@ -357,55 +357,13 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2020 Water Year Study Detections
+    2021 Water Year Study Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
-    </li>
-    <li>
-      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
-      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
-    </li>
-    <li>
-      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
-    </li>
-    <li>
-      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
-    </li>
-    <li>
-      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
-    </li>
-    <li>
-      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
-    </li>
-    <li>
-      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+      <a href="pageCHLF_2021.html">Hatchery late-fall-run salmon</a>
     </li>
   </ul>
 </li>
@@ -501,6 +459,56 @@ div.tocify {
         </li>
         <li>
           <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2020 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+        </li>
+        <li>
+          <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
         </li>
       </ul>
     </li>
@@ -691,7 +699,7 @@ NF Battle Creek
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2020-10-30 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2020-11-04 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -700,9 +708,9 @@ NF Battle Creek
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
-library(reshape2)</code></pre>
-<pre><code>## Warning: package &#39;reshape2&#39; was built under R version 3.6.3</code></pre>
-<pre class="r"><code>detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_BC_Jumpstart_2019.csv&quot;, stringsAsFactors = F)
+library(reshape2)
+
+detects_study &lt;- read.csv(&quot;C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_BC_Jumpstart_2019.csv&quot;, stringsAsFactors = F)
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -876,7 +884,6 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## Warning: package &#39;dataRetrieval&#39; was built under R version 3.6.3</code></pre>
 <p><img src="pageBCJSWR_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -1304,10 +1311,10 @@ Survival from release to Butte City
 100.0
 </td>
 <td style="text-align:right;">
-0.0
+0.4
 </td>
 <td style="text-align:right;">
-100.0
+15.3
 </td>
 <td style="text-align:right;">
 100.0

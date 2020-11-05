@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 
@@ -88,7 +88,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -237,6 +236,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -249,56 +249,12 @@ $(document).ready(function () {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 <style type="text/css">
 .code-folding-btn { margin-bottom: 4px; }
 </style>
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
 
 
-
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <style type="text/css">
 
@@ -312,6 +268,12 @@ $(document).ready(function ()  {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -395,55 +357,13 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2020 Water Year Study Detections
+    2021 Water Year Study Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
-    </li>
-    <li>
-      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
-      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
-    </li>
-    <li>
-      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
-    </li>
-    <li>
-      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
-    </li>
-    <li>
-      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
-    </li>
-    <li>
-      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
-    </li>
-    <li>
-      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+      <a href="pageCHLF_2021.html">Hatchery late-fall-run salmon</a>
     </li>
   </ul>
 </li>
@@ -539,6 +459,56 @@ div.tocify {
         </li>
         <li>
           <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2020 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+        </li>
+        <li>
+          <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
         </li>
       </ul>
     </li>
@@ -747,7 +717,7 @@ YB_ToeDrain_I5
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2020-05-17 15:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2020-11-04 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <p><br/> <br/></p>
 <center>
 <div id="detections-at-benicia-bridge" class="section level4">
@@ -828,6 +798,9 @@ if (nrow(detects_benicia)&gt;0) {
 }else{
   print(&quot;No detections at Benicia yet&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
+## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
+## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <p><img src="pageYoloFR_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -973,19 +946,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-6.4
+6.1
 </td>
 <td style="text-align:right;">
 0.9
 </td>
 <td style="text-align:right;">
-4.8
+4.6
 </td>
 <td style="text-align:right;">
-8.4
+8.1
 </td>
 <td style="text-align:right;">
-95.6
+97.6
 </td>
 </tr>
 <tr>
@@ -993,16 +966,16 @@ ALL
 Release Sac
 </td>
 <td style="text-align:right;">
-17.6
+17.2
 </td>
 <td style="text-align:right;">
 2.4
 </td>
 <td style="text-align:right;">
-13.3
+12.9
 </td>
 <td style="text-align:right;">
-22.9
+22.4
 </td>
 <td style="text-align:right;">
 NA
@@ -1013,16 +986,16 @@ NA
 Release Yolo
 </td>
 <td style="text-align:right;">
-0.6
-</td>
-<td style="text-align:right;">
 0.4
 </td>
 <td style="text-align:right;">
-0.2
+0.3
 </td>
 <td style="text-align:right;">
-1.9
+0.1
+</td>
+<td style="text-align:right;">
+1.7
 </td>
 <td style="text-align:right;">
 NA
@@ -1161,19 +1134,19 @@ rkm
 TowerBridge
 </td>
 <td style="text-align:left;">
-2019-04-26 23:27:03
+2019-04-26 23:28:36
 </td>
 <td style="text-align:left;">
-2019-04-27 19:24:49
+2019-04-27 22:33:29
 </td>
 <td style="text-align:left;">
-2019-05-16 22:29:53
+2019-05-16 22:31:33
 </td>
 <td style="text-align:right;">
-191
+158
 </td>
 <td style="text-align:right;">
-26.34
+21.79
 </td>
 <td style="text-align:right;">
 172.000
@@ -1187,16 +1160,16 @@ I80-50_Br
 2019-04-26 23:58:33
 </td>
 <td style="text-align:left;">
-2019-04-27 22:33:51
+2019-04-27 23:42:54
 </td>
 <td style="text-align:left;">
 2019-05-16 23:02:05
 </td>
 <td style="text-align:right;">
-186
+164
 </td>
 <td style="text-align:right;">
-25.66
+22.62
 </td>
 <td style="text-align:right;">
 170.748
@@ -1207,10 +1180,10 @@ I80-50_Br
 Georgiana_Slough1
 </td>
 <td style="text-align:left;">
-2019-04-27 15:13:10
+2019-04-27 15:15:52
 </td>
 <td style="text-align:left;">
-2019-04-30 22:07:24
+2019-04-30 22:07:50
 </td>
 <td style="text-align:left;">
 2019-05-12 21:12:44
@@ -1233,16 +1206,16 @@ Sac_BlwGeorgiana
 2019-04-27 11:33:46
 </td>
 <td style="text-align:left;">
-2019-04-30 15:06:28
+2019-04-30 16:27:56
 </td>
 <td style="text-align:left;">
 2019-05-21 05:18:24
 </td>
 <td style="text-align:right;">
-85
+78
 </td>
 <td style="text-align:right;">
-11.72
+10.76
 </td>
 <td style="text-align:right;">
 119.058
@@ -1253,10 +1226,10 @@ Sac_BlwGeorgiana
 Georgiana_Slough2
 </td>
 <td style="text-align:left;">
-2019-04-27 16:20:37
+2019-04-27 16:27:52
 </td>
 <td style="text-align:left;">
-2019-04-30 22:42:23
+2019-04-30 22:43:22
 </td>
 <td style="text-align:left;">
 2019-05-12 21:24:42
@@ -1279,16 +1252,16 @@ Sac_BlwGeorgiana2
 2019-04-27 11:41:53
 </td>
 <td style="text-align:left;">
-2019-04-30 14:14:52
+2019-04-30 15:35:32
 </td>
 <td style="text-align:left;">
 2019-05-21 04:52:00
 </td>
 <td style="text-align:right;">
-92
+90
 </td>
 <td style="text-align:right;">
-12.69
+12.41
 </td>
 <td style="text-align:right;">
 118.398
@@ -1302,16 +1275,16 @@ Benicia_east
 2019-04-29 02:53:12
 </td>
 <td style="text-align:left;">
-2019-05-04 21:11:05
+2019-05-04 23:51:38
 </td>
 <td style="text-align:left;">
 2019-05-14 17:28:14
 </td>
 <td style="text-align:right;">
-44
+43
 </td>
 <td style="text-align:right;">
-6.07
+5.93
 </td>
 <td style="text-align:right;">
 52.240
@@ -1325,16 +1298,16 @@ Benicia_west
 2019-04-29 02:57:28
 </td>
 <td style="text-align:left;">
-2019-05-06 06:24:53
+2019-05-04 19:49:21
 </td>
 <td style="text-align:left;">
-2019-07-11 01:28:23
+2019-05-14 17:41:05
 </td>
 <td style="text-align:right;">
-45
+42
 </td>
 <td style="text-align:right;">
-6.21
+5.79
 </td>
 <td style="text-align:right;">
 52.040
@@ -1366,6 +1339,54 @@ $(document).ready(function () {
 });
 
 
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
 </script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

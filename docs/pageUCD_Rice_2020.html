@@ -368,55 +368,13 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2020 Water Year Study Detections
+    2021 Water Year Study Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
-    </li>
-    <li>
-      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
-      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
-    </li>
-    <li>
-      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
-    </li>
-    <li>
-      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
-    </li>
-    <li>
-      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
-    </li>
-    <li>
-      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
-    </li>
-    <li>
-      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+      <a href="pageCHLF_2021.html">Hatchery late-fall-run salmon</a>
     </li>
   </ul>
 </li>
@@ -512,6 +470,56 @@ div.tocify {
         </li>
         <li>
           <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2020 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+        </li>
+        <li>
+          <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
         </li>
       </ul>
     </li>
@@ -945,6 +953,9 @@ if (nrow(detects_benicia)&gt;0) {
   plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
   text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
+## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
+## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageUCD_Rice_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1448,16 +1459,16 @@ Survival from TowerBridge to I80-50_Br
 % arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)
 </td>
 <td style="text-align:right;">
-25.2
+24.9
 </td>
 <td style="text-align:right;">
 2.3
 </td>
 <td style="text-align:right;">
-21.0
+20.7
 </td>
 <td style="text-align:right;">
-30.0
+29.7
 </td>
 </tr>
 <tr>
@@ -1522,7 +1533,7 @@ Detection probability at Blw_Georgiana
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+97.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1550,16 +1561,16 @@ Detection probability at Georgiana Slough
 Routing probability into Georgiana Slough (Conditional on fish arriving to junction)
 </td>
 <td style="text-align:right;">
-21.3
+21.6
 </td>
 <td style="text-align:right;">
-4.3
+4.4
 </td>
 <td style="text-align:right;">
-14.1
+14.2
 </td>
 <td style="text-align:right;">
-31.1
+31.4
 </td>
 </tr>
 </tbody>
@@ -2255,16 +2266,16 @@ Sac_BlwGeorgiana
 2020-03-22 11:49:28
 </td>
 <td style="text-align:left;">
-2020-05-08 14:32:33
+2020-05-08 06:37:33
 </td>
 <td style="text-align:left;">
 2020-06-09 14:33:03
 </td>
 <td style="text-align:right;">
-73
+72
 </td>
 <td style="text-align:right;">
-7.70
+7.59
 </td>
 <td style="text-align:right;">
 119.058
@@ -2301,16 +2312,16 @@ Sac_BlwGeorgiana2
 2020-03-22 12:08:02
 </td>
 <td style="text-align:left;">
-2020-05-08 18:01:56
+2020-05-08 09:34:24
 </td>
 <td style="text-align:left;">
 2020-06-09 14:44:37
 </td>
 <td style="text-align:right;">
-68
+67
 </td>
 <td style="text-align:right;">
-7.17
+7.07
 </td>
 <td style="text-align:right;">
 118.398
@@ -2347,7 +2358,7 @@ Benicia_west
 2020-04-03 14:34:13
 </td>
 <td style="text-align:left;">
-2020-04-21 23:50:28
+2020-04-21 23:49:41
 </td>
 <td style="text-align:left;">
 2020-06-08 11:51:43
@@ -2563,10 +2574,10 @@ Benicia_west
 2020-04-03 14:34:13
 </td>
 <td style="text-align:left;">
-2020-04-09 09:30:29
+2020-04-09 09:29:36
 </td>
 <td style="text-align:left;">
-2020-04-13 15:03:26
+2020-04-13 14:55:53
 </td>
 <td style="text-align:right;">
 14
@@ -2687,16 +2698,16 @@ Sac_BlwGeorgiana
 2020-05-31 22:29:27
 </td>
 <td style="text-align:left;">
-2020-06-01 06:44:56
+2020-06-01 06:35:11
 </td>
 <td style="text-align:left;">
 2020-06-01 19:23:32
 </td>
 <td style="text-align:right;">
-12
+11
 </td>
 <td style="text-align:right;">
-12
+11
 </td>
 <td style="text-align:right;">
 119.058
@@ -2733,16 +2744,16 @@ Sac_BlwGeorgiana2
 2020-05-31 23:11:23
 </td>
 <td style="text-align:left;">
-2020-06-01 11:27:22
+2020-06-01 11:41:58
 </td>
 <td style="text-align:left;">
 2020-06-03 06:00:53
 </td>
 <td style="text-align:right;">
-12
+11
 </td>
 <td style="text-align:right;">
-12
+11
 </td>
 <td style="text-align:right;">
 118.398
@@ -3185,10 +3196,10 @@ Benicia_east
 Benicia_west
 </td>
 <td style="text-align:left;">
-2020-06-03 03:43:56
+2020-06-03 03:42:16
 </td>
 <td style="text-align:left;">
-2020-06-03 22:43:16
+2020-06-03 22:42:43
 </td>
 <td style="text-align:left;">
 2020-06-04 08:42:33

@@ -368,55 +368,13 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2020 Water Year Study Detections
+    2021 Water Year Study Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
-    </li>
-    <li>
-      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
-      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
-    </li>
-    <li>
-      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
-    </li>
-    <li>
-      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
-    </li>
-    <li>
-      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
-    </li>
-    <li>
-      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
-    </li>
-    <li>
-      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+      <a href="pageCHLF_2021.html">Hatchery late-fall-run salmon</a>
     </li>
   </ul>
 </li>
@@ -512,6 +470,56 @@ div.tocify {
         </li>
         <li>
           <a href="pageSEASON.html">2019 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2020 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+        </li>
+        <li>
+          <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
         </li>
       </ul>
     </li>
@@ -891,6 +899,9 @@ if (nrow(detects_benicia)&gt;0) {
   plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
   text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
+## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
+## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageFHSR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1095,7 +1106,7 @@ NA
 </table>
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
-
+route_results_possible &lt;- F
 if (nrow(detects_study) == 0){
     results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NO DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
     colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
@@ -1179,86 +1190,99 @@ if (nrow(detects_study) == 0){
     ## now put in exceptions...fish that were seen in georgiana last
     study_tagcodes[study_tagcodes$last_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;), &quot;inp_final&quot;] &lt;- paste(&quot;A&quot;,study_tagcodes[study_tagcodes$last_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;), &quot;inp_part1&quot;], study_tagcodes[study_tagcodes$last_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;), &quot;inp_partB&quot;],&quot; 1 ;&quot;, sep = &quot;&quot;)
     
-    write.table(study_tagcodes$inp_final,&quot;WRinp_multistate.inp&quot;,row.names = F, col.names = F, quote = F)
+    ## At this point, some fish might not have been deemed to ever take a route based on last visit analysis. If so, model can&#39;t be run
     
-    WRinp &lt;- convert.inp(&quot;WRinp_multistate.inp&quot;)
-    
-    dp &lt;- process.data(WRinp, model=&quot;Multistrata&quot;) 
-    
-    ddl &lt;- make.design.data(dp)
-    
-    #### p ####
-    # Can&#39;t be seen at 2B or 3B or 4B (butte, tower or I80)
-    ddl$p$fix=NA
-    ddl$p$fix[ddl$p$stratum == &quot;B&quot; &amp; ddl$p$time %in% c(2,3,4)]=0
-    
-    #### Psi ####
-    # Only 1 transition allowed:
-    # from A to B at time interval 4 to 5
-    
-    ddl$Psi$fix=0
-    # A to B can only happen for interval 3-4
-    ddl$Psi$fix[ddl$Psi$stratum==&quot;A&quot;&amp;
-                  ddl$Psi$tostratum==&quot;B&quot; &amp; ddl$Psi$time==4]=NA
-    
-    #### Phi a.k.a. S ####
-    ddl$S$fix=NA
-    # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
-    ddl$S$fix[ddl$S$stratum==&quot;B&quot; &amp; ddl$S$time %in% c(1,2,3,4,5)]=1
-    
-    # For route A, fixing it to 1 for 5 (between two blw_georg lines)
-    ddl$S$fix[ddl$S$stratum==&quot;A&quot; &amp; ddl$S$time==5]=1
-    ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn&#39;t share the same intercept
-    
-    p.timexstratum=list(formula=~-1+stratum:time)
-    Psi.stratumxtime=list(formula=~-1+stratum:time)
-    S.stratumxtime=list(formula=~-1+stratum:time)
-    
-    ## Run model a first time
-    S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, silent = T, output = F)
-    
-    ## Identify any parameter estimates at 1, which would likely have bad SE estimates.
-    profile.intervals &lt;- which(S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$estimate %in% c(0,1) &amp; !S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$fixed == &quot;Fixed&quot;)
-    
-    ## Rerun model using profile interval estimation for the tricky parameters
-    S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, profile.int = profile.intervals, silent = T, output = F)
-    
-    results &lt;- S.timexstratum.p.timexstratum.Psi.timexstratum$results$real
-    
-    results_short &lt;- results[rownames(results) %in% c(&quot;S sA g1 c1 a0 o1 t1&quot;,
-                                                      &quot;S sA g1 c1 a1 o2 t2&quot;,
-                                                      &quot;S sA g1 c1 a2 o3 t3&quot;,
-                                                      &quot;S sA g1 c1 a3 o4 t4&quot;,
-                                                      &quot;p sA g1 c1 a1 o1 t2&quot;,
-                                                      &quot;p sA g1 c1 a2 o2 t3&quot;,
-                                                      &quot;p sA g1 c1 a3 o3 t4&quot;,
-                                                      &quot;p sA g1 c1 a4 o4 t5&quot;,
-                                                      &quot;p sB g1 c1 a4 o4 t5&quot;,
-                                                      &quot;Psi sA toB g1 c1 a3 o4 t4&quot;
-                                                      ),]
-    
-    
-    results_short &lt;- round(results_short[,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+    if(any(grepl(pattern = &quot;A&quot;, study_tagcodes$inp_final)==T) &amp; any(grepl(pattern = &quot;B&quot;, study_tagcodes$inp_final)==T)){
+     
+      write.table(study_tagcodes$inp_final,&quot;WRinp_multistate.inp&quot;,row.names = F, col.names = F, quote = F)
       
-    ## Now find estimate and CIs for AtoA route at junction
-    Psilist=get.real(S.timexstratum.p.timexstratum.Psi.timexstratum,&quot;Psi&quot;,vcv=TRUE)  
-    Psivalues=Psilist$estimates
-
-    routes &lt;- TransitionMatrix(Psivalues[Psivalues$time==4 &amp; Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
+      WRinp &lt;- convert.inp(&quot;WRinp_multistate.inp&quot;)
+      
+      dp &lt;- process.data(WRinp, model=&quot;Multistrata&quot;) 
+      
+      ddl &lt;- make.design.data(dp)
+      
+      #### p ####
+      # Can&#39;t be seen at 2B or 3B or 4B (butte, tower or I80)
+      ddl$p$fix=NA
+      ddl$p$fix[ddl$p$stratum == &quot;B&quot; &amp; ddl$p$time %in% c(2,3,4)]=0
+      
+      #### Psi ####
+      # Only 1 transition allowed:
+      # from A to B at time interval 4 to 5
+      
+      ddl$Psi$fix=0
+      # A to B can only happen for interval 3-4
+      ddl$Psi$fix[ddl$Psi$stratum==&quot;A&quot;&amp;
+                    ddl$Psi$tostratum==&quot;B&quot; &amp; ddl$Psi$time==4]=NA
+      
+      #### Phi a.k.a. S ####
+      ddl$S$fix=NA
+      # None in B for reaches 1,2,3,4 and fixing it to 1 for 5 (between two georg lines). All getting fixed to 1
+      ddl$S$fix[ddl$S$stratum==&quot;B&quot; &amp; ddl$S$time %in% c(1,2,3,4,5)]=1
+      
+      # For route A, fixing it to 1 for 5 (between two blw_georg lines)
+      ddl$S$fix[ddl$S$stratum==&quot;A&quot; &amp; ddl$S$time==5]=1
+      ## We use -1 at beginning of formula to remove intercept. This is because different routes probably shouldn&#39;t share the same intercept
+      
+      p.timexstratum=list(formula=~-1+stratum:time)
+      Psi.stratumxtime=list(formula=~-1+stratum:time)
+      S.stratumxtime=list(formula=~-1+stratum:time)
+      
+      ## Run model a first time
+      S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, silent = T, output = F)
+      
+      ## Identify any parameter estimates at 1, which would likely have bad SE estimates.
+      profile.intervals &lt;- which(S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$estimate %in% c(0,1) &amp; !S.timexstratum.p.timexstratum.Psi.timexstratum$results$real$fixed == &quot;Fixed&quot;)
+      
+      ## Rerun model using profile interval estimation for the tricky parameters
+      S.timexstratum.p.timexstratum.Psi.timexstratum=mark(dp,ddl, model.parameters=list(S=S.stratumxtime,p= p.timexstratum,Psi=Psi.stratumxtime), realvcv = T, profile.int = profile.intervals, silent = T, output = F)
+      
+      results &lt;- S.timexstratum.p.timexstratum.Psi.timexstratum$results$real
+      
+      results_short &lt;- results[rownames(results) %in% c(&quot;S sA g1 c1 a0 o1 t1&quot;,
+                                                        &quot;S sA g1 c1 a1 o2 t2&quot;,
+                                                        &quot;S sA g1 c1 a2 o3 t3&quot;,
+                                                        &quot;S sA g1 c1 a3 o4 t4&quot;,
+                                                        &quot;p sA g1 c1 a1 o1 t2&quot;,
+                                                        &quot;p sA g1 c1 a2 o2 t3&quot;,
+                                                        &quot;p sA g1 c1 a3 o3 t4&quot;,
+                                                        &quot;p sA g1 c1 a4 o4 t5&quot;,
+                                                        &quot;p sB g1 c1 a4 o4 t5&quot;,
+                                                        &quot;Psi sA toB g1 c1 a3 o4 t4&quot;
+                                                        ),]
+      
+      
+      results_short &lt;- round(results_short[,c(&quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)] * 100,1)
+        
+      ## Now find estimate and CIs for AtoA route at junction
+      Psilist=get.real(S.timexstratum.p.timexstratum.Psi.timexstratum,&quot;Psi&quot;,vcv=TRUE)  
+      Psivalues=Psilist$estimates
   
-  
-  
-  
-  
-    results_short$Measure &lt;- c(&quot;Survival from release to Butte City&quot;,&quot;Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)&quot;, &quot;Survival from TowerBridge to I80-50_Br&quot;, &quot;% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)&quot;,&quot;Detection probability at Butte City&quot;,
-                               &quot;Detection probability at TowerBridge&quot;, &quot;Detection probability at I80-50_Br&quot;, &quot;Detection probability at Blw_Georgiana&quot;, &quot;Detection probability at Georgiana Slough&quot;,
-                               &quot;Routing probability into Georgiana Slough (Conditional on fish arriving to junction)&quot;)
+      routes &lt;- TransitionMatrix(Psivalues[Psivalues$time==4 &amp; Psivalues$cohort==1,],vcv.real=Psilist$vcv.real)
     
-    results_short &lt;- results_short[,c(&quot;Measure&quot;, &quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)]
+    
+    
+    
+    
+      results_short$Measure &lt;- c(&quot;Survival from release to Butte City&quot;,&quot;Survival from Butte City to TowerBridge (minimum estimate since fish may have taken Yolo Bypass)&quot;, &quot;Survival from TowerBridge to I80-50_Br&quot;, &quot;% arrived from I80-50_Br to Georgiana Slough confluence (not survival because fish may have taken Sutter/Steam)&quot;,&quot;Detection probability at Butte City&quot;,
+                                 &quot;Detection probability at TowerBridge&quot;, &quot;Detection probability at I80-50_Br&quot;, &quot;Detection probability at Blw_Georgiana&quot;, &quot;Detection probability at Georgiana Slough&quot;,
+                                 &quot;Routing probability into Georgiana Slough (Conditional on fish arriving to junction)&quot;)
+      
+      results_short &lt;- results_short[,c(&quot;Measure&quot;, &quot;estimate&quot;, &quot;se&quot;, &quot;lcl&quot;, &quot;ucl&quot;)]
+      colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
+  
+      print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.2 Reach-specific survival and probability of entering Georgiana Slough&quot;) %&gt;%
+              kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+      
+      route_results_possible &lt;- T
+    
+    } else {
+        results_short &lt;- data.frame(&quot;Measure&quot;=NA, &quot;Estimate&quot;=&quot;NOT ENOUGH DETECTIONS YET&quot;, &quot;SE&quot;=NA, &quot;95% lower C.I.&quot;=NA, &quot;95% upper C.I.&quot;=NA)
     colnames(results_short) &lt;- c(&quot;Measure&quot;, &quot;Estimate&quot;, &quot;SE&quot;, &quot;95% lower C.I.&quot;, &quot;95% upper C.I.&quot;)
-
     print(kable(results_short, row.names = F, &quot;html&quot;, caption = &quot;3.2 Reach-specific survival and probability of entering Georgiana Slough&quot;) %&gt;%
             kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
+    }
   }
 }</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
@@ -1293,10 +1317,10 @@ Survival from release to Butte City
 100.0
 </td>
 <td style="text-align:right;">
-0.0
+3.9
 </td>
 <td style="text-align:right;">
-100.0
+0.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -1310,13 +1334,13 @@ Survival from Butte City to TowerBridge (minimum estimate since fish may have ta
 26.6
 </td>
 <td style="text-align:right;">
-1.4
+2.2
 </td>
 <td style="text-align:right;">
-24.0
+22.5
 </td>
 <td style="text-align:right;">
-29.3
+31.1
 </td>
 </tr>
 <tr>
@@ -1330,7 +1354,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+95.2
 </td>
 <td style="text-align:right;">
 100.0
@@ -1472,8 +1496,7 @@ rasterImage(georg, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
 if (nrow(detects_study) == 0){
     legend(x = 1.55,y = 1.6,legend =  &quot;No detections yet&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;) 
     legend(x = 1.55,y = 1.45,legend =  &quot;No detections yet&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;)
-}else if (nrow(test2[test2$general_location %in% c(&quot;Sac_BlwGeorgiana&quot;, &quot;Sac_BlwGeorgiana2&quot;),]) == 0 |
-   nrow(test2[test2$general_location %in% c(&quot;Georgiana_Slough1&quot;, &quot;Georgiana_Slough2&quot;),]) == 0){
+}else if (route_results_possible == F){
     legend(x = 1.55,y = 1.6,legend =  &quot;Too few detections&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;) 
     legend(x = 1.55,y = 1.45,legend =  &quot;Too few detections&quot;,col = &quot;white&quot;, box.col = &quot;light gray&quot;, bg = &quot;light gray&quot;) 
 }else{  
@@ -2167,7 +2190,7 @@ Benicia_west
 2020-04-15 14:24:30
 </td>
 <td style="text-align:left;">
-2020-04-19 16:38:21
+2020-04-19 16:38:20
 </td>
 <td style="text-align:left;">
 2020-04-24 19:29:24
@@ -2383,7 +2406,7 @@ Benicia_west
 2020-04-15 14:24:30
 </td>
 <td style="text-align:left;">
-2020-04-18 12:58:49
+2020-04-18 12:58:46
 </td>
 <td style="text-align:left;">
 2020-04-23 10:57:07

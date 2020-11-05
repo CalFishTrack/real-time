@@ -359,55 +359,13 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2020 Water Year Study Detections
+    2021 Water Year Study Detections
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="pageSRGS_2020.html">Wild green sturgeon</a>
-    </li>
-    <li>
-      <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
-    </li>
-    <li>
-      <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
-    </li>
-    <li>
-      <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
-    </li>
-    <li>
-      <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
-    </li>
-    <li>
-      <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
-    </li>
-    <li>
-      <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
-    </li>
-    <li>
-      <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
-    </li>
-    <li>
-      <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
-    </li>
-    <li>
-      <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
-    </li>
-    <li>
-      <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
-    </li>
-    <li>
-      <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+      <a href="pageCHLF_2021.html">Hatchery late-fall-run salmon</a>
     </li>
   </ul>
 </li>
@@ -506,6 +464,56 @@ div.tocify {
         </li>
       </ul>
     </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2020 Water Year</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="pageSRGS_2020.html">Wild green sturgeon</a>
+        </li>
+        <li>
+          <a href="pageCHLF_2020.html">Hatchery late-fall-run salmon</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_F2020.html">Mill/Deer Creek wild salmon, fall releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_F2020.html">Mill/Deer Creek wild steelhead, fall releases</a>
+        </li>
+        <li>
+          <a href="pageLSWR_2020.html">Hatchery winter-run salmon</a>
+        </li>
+        <li>
+          <a href="pageBCJSWR_2020.html">Battle Creek jump-start winter-run</a>
+        </li>
+        <li>
+          <a href="pageUCD_Rice_2020.html">Rice field reared hatchery fall-run</a>
+        </li>
+        <li>
+          <a href="pageSJSR_2020.html">Hatchery San Joaquin spring-run</a>
+        </li>
+        <li>
+          <a href="pageFHSR_2020.html">Hatchery Feather River spring-run</a>
+        </li>
+        <li>
+          <a href="pageMD_CH_W_S2020.html">Mill/Deer Creek wild salmon, spring releases</a>
+        </li>
+        <li>
+          <a href="pageMD_SH_W_S2020.html">Mill/Deer Creek wild steelhead, spring releases</a>
+        </li>
+        <li>
+          <a href="pageCNFH_FMR_2020.html">Hatchery fall-run Chinook salmon May Release</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_CHN_2020.html">Wild Putah Creek Chinook salmon</a>
+        </li>
+        <li>
+          <a href="pagePutahCk_PKM_2020.html">Wild Putah Creek Sacramento pikeminnow</a>
+        </li>
+        <li>
+          <a href="pageSEASON_2020.html">2020 SEASON SUMMARY</a>
+        </li>
+      </ul>
+    </li>
   </ul>
 </li>
 <li>
@@ -556,7 +564,7 @@ div.tocify {
 <div id="project-status" class="section level2">
 <h2>Project Status</h2>
 <p>Telemetry Study Template for this study can be found <a href="https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Deer_Creek_Steelhead_Smolt.pdf?raw=true">here</a></p>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 library(knitr)
 library(kableExtra)
@@ -753,7 +761,7 @@ MillCk_RST
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
 <p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study is complete, tags are no longer active</span>. All times in Pacific Standard Time.</em></strong></p>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
 
@@ -834,7 +842,7 @@ if (nrow(detects_butte) == 0){
 </p>
 </div>
 <p><br/></p>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
 
@@ -917,7 +925,7 @@ if (nrow(detects_tower) == 0){
 </p>
 </div>
 <p><br/></p>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_benicia &lt;- detects_study[detects_study$general_location %in% c(&quot;Benicia_west&quot;, &quot;Benicia_east&quot;),]
 
@@ -994,7 +1002,7 @@ if (nrow(detects_benicia)&gt;0) {
 <div id="survival-and-routing-probability" class="section level2">
 <h2><em>3. Survival and Routing Probability</em></h2>
 <hr />
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 study_count &lt;- nrow(study_tagcodes)
 detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
@@ -1141,7 +1149,7 @@ NA
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 route_results_possible &lt;- F
 if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
@@ -1365,11 +1373,8 @@ NA
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
-
-
-#Replace the directory and file information with your info
-georg &lt;- readPNG(&quot;../data/georg.png&quot;)
+<pre class="r"><code>download.file(&quot;https://raw.githubusercontent.com/CalFishTrack/real-time/master/data/georg.png&quot;,destfile = &quot;georg.png&quot;, quiet = T, mode = &quot;wb&quot;)
+georg &lt;- readPNG(&quot;georg.png&quot;)
 
 par(mar=c(2,0,0,0))
 #Set up the plot area
@@ -1390,7 +1395,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
 }  
   mtext(text = &quot;3.3 Routing Probabilities at Georgiana Slough Junction (with 95% C.I.s)&quot;, cex = 1.3, side = 1, line = 0.2, adj = 0)</code></pre>
 <p><img src="pageMD_SH_W_F2020_files/figure-html/figure%20of%20routing%20with%20pic-1.png" width="729.6" style="display: block; margin: auto auto auto 0;" /></p>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
   
 try(benicia &lt;- read.csv(&quot;benicia_surv.csv&quot;, stringsAsFactors = F))
 
@@ -1560,7 +1565,7 @@ NA
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 try(Delta &lt;- read.csv(&quot;Delta_surv.csv&quot;, stringsAsFactors = F))
 
@@ -1719,7 +1724,7 @@ NA
 <div id="detections-statistics-at-all-realtime-receivers" class="section level2">
 <h2><em>4. Detections statistics at all realtime receivers</em></h2>
 <hr />
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   &quot;No detections yet&quot;
@@ -1818,7 +1823,7 @@ figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$relea
 <p><br/></p>
 <div id="fish-arrivals-per-day-na-means-receivers-were-non-operational" class="section level3">
 <h3>4.3 Fish arrivals per day (“NA” means receivers were non-operational)</h3>
-<pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
+<pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
 
@@ -1846,7 +1851,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   
   beacon_by_day &lt;- merge(beacon_by_day, gen_locs[,c(&quot;location&quot;, &quot;general_location&quot;,&quot;rkm&quot;)], by = &quot;location&quot;, all.x = T)
 
-  arrivals_per_day &lt;- merge(beacon_by_day, arrivals_per_day, all.x = T, by = c(&quot;general_location&quot;, &quot;day&quot;))
+  arrivals_per_day &lt;- merge(unique(beacon_by_day[,c(&quot;general_location&quot;, &quot;day&quot;, &quot;rkm&quot;)]), arrivals_per_day, all.x = T, by = c(&quot;general_location&quot;, &quot;day&quot;))
   
   arrivals_per_day$day &lt;- factor(arrivals_per_day$day)
   
