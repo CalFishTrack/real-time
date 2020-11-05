@@ -628,15 +628,24 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 #detects_study$river_km &lt;- as.numeric(detects_study$river_km)
 ##################################################################################################################
 
-detects_study$Release &lt;- &quot;Release 1&quot;
-detects_study[detects_study$release_time &gt; as.POSIXct(&quot;2020-03-20&quot;), &quot;Release&quot;] &lt;- &quot;Release 2&quot;
-
-study_tagcodes &lt;- unique(detects_study[,c(&quot;TagCode&quot;, &quot;release_time&quot;, &quot;weight&quot;, &quot;length&quot;, &quot;release_rkm&quot;, &quot;release_location&quot;, &quot;Release&quot;)])
 
 
-if (nrow(study_tagcodes) == 0){
+
+if (nrow(detects_study) == 0){
   cat(&quot;Project has not yet begun&quot;)
 }else{
+  
+  
+  ########################################################################
+  #### ASSIGN RELEASE GROUPS HERE ####
+  #######################################################################
+  detects_study$Release &lt;- &quot;Release 1&quot;
+  detects_study[detects_study$release_time &gt; as.POSIXct(&quot;2020-03-20&quot;), &quot;Release&quot;] &lt;- &quot;Release 2&quot;
+  #######################################################################
+  
+  
+  study_tagcodes &lt;- unique(detects_study[,c(&quot;TagCode&quot;, &quot;release_time&quot;, &quot;weight&quot;, &quot;length&quot;, &quot;release_rkm&quot;, &quot;release_location&quot;, &quot;Release&quot;)])
+  
   cat(paste(&quot;Project began on &quot;, min(study_tagcodes$release_time), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
   
   release_stats &lt;- aggregate(list(First_release_time = study_tagcodes$release_time),
@@ -853,9 +862,6 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Bend Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -939,9 +945,6 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1014,9 +1017,6 @@ if (nrow(detects_benicia)&gt;0) {
   plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
   text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
 <div class="figure">
 <img src="pageLSWR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1031,7 +1031,6 @@ if (nrow(detects_benicia)&gt;0) {
 <hr />
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
-study_count &lt;- nrow(study_tagcodes)
 detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
 
 if (nrow(detects_tower) == 0){
@@ -1042,6 +1041,7 @@ if (nrow(detects_tower) == 0){
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
 } else {
   
+  study_count &lt;- nrow(study_tagcodes)
   ## Only do survival to Sac for now
   test &lt;- detects_study[which(detects_study$river_km &gt; 168 &amp; detects_study$river_km &lt; 175),]
   
@@ -1466,7 +1466,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-90.3
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -2828,15 +2828,12 @@ Benicia_west
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
-figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_time), units = &quot;days&quot;)) / 4))</code></pre>
 <p><br/></p>
 <div id="fish-arrivals-per-day-na-means-receivers-were-non-operational" class="section level3">
 <h3>4.3 Fish arrivals per day (“NA” means receivers were non-operational)</h3>
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
-
 if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   &quot;No detections yet&quot;
 } else {

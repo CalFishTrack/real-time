@@ -610,15 +610,22 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 #detects_study$river_km &lt;- as.numeric(detects_study$river_km)
 ##################################################################################################################
 
-detects_study$Release &lt;- &quot;MillCk_RST&quot;
-detects_study[detects_study$release_location == (&quot;DeerCk_RST&quot;), &quot;Release&quot;] &lt;- &quot;DeerCk_RST&quot;
-
-study_tagcodes &lt;- unique(detects_study[,c(&quot;TagCode&quot;, &quot;release_time&quot;, &quot;weight&quot;, &quot;length&quot;, &quot;release_rkm&quot;, &quot;release_location&quot;, &quot;Release&quot;)])
 
 
-if (nrow(study_tagcodes) == 0){
+if (nrow(detects_study) == 0){
   cat(&quot;Project has not yet begun&quot;)
 }else{
+  
+    
+  ########################################################################
+  #### ASSIGN RELEASE GROUPS HERE ####
+  #######################################################################
+  detects_study$Release &lt;- &quot;MillCk_RST&quot;
+  detects_study[detects_study$release_location == (&quot;DeerCk_RST&quot;), &quot;Release&quot;] &lt;- &quot;DeerCk_RST&quot;
+  #######################################################################
+  
+  study_tagcodes &lt;- unique(detects_study[,c(&quot;TagCode&quot;, &quot;release_time&quot;, &quot;weight&quot;, &quot;length&quot;, &quot;release_rkm&quot;, &quot;release_location&quot;, &quot;Release&quot;)])
+  
   cat(paste(&quot;Project began on &quot;, min(study_tagcodes$release_time), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
   
   release_stats &lt;- aggregate(list(First_release_time = study_tagcodes$release_time),
@@ -1004,7 +1011,6 @@ if (nrow(detects_benicia)&gt;0) {
 <hr />
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
-study_count &lt;- nrow(study_tagcodes)
 detects_tower &lt;- detects_study[detects_study$general_location == &quot;TowerBridge&quot;,]
 
 if (nrow(detects_tower) == 0){
@@ -1015,6 +1021,7 @@ if (nrow(detects_tower) == 0){
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;))
 } else {
   
+  study_count &lt;- nrow(study_tagcodes)
   ## Only do survival to Sac for now
   test &lt;- detects_study[which(detects_study$river_km &gt; 168 &amp; detects_study$river_km &lt; 175),]
   
@@ -1818,15 +1825,12 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   }
 }</code></pre>
 <p>[1] “No detections yet”</p>
-<pre class="r"><code>## Set fig height for next plot here, based on how long fish have been at large
-figheight &lt;- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_time), units = &quot;days&quot;)) / 4))</code></pre>
 <p><br/></p>
 <div id="fish-arrivals-per-day-na-means-receivers-were-non-operational" class="section level3">
 <h3>4.3 Fish arrivals per day (“NA” means receivers were non-operational)</h3>
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
-
 if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   &quot;No detections yet&quot;
 } else {

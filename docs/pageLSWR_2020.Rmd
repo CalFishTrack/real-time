@@ -115,15 +115,24 @@ colnames(detects_study)[which(colnames(detects_study) == "rkm")] <- "river_km"
 #detects_study$river_km <- as.numeric(detects_study$river_km)
 ##################################################################################################################
 
-detects_study$Release <- "Release 1"
-detects_study[detects_study$release_time > as.POSIXct("2020-03-20"), "Release"] <- "Release 2"
-
-study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
 
 
-if (nrow(study_tagcodes) == 0){
+
+if (nrow(detects_study) == 0){
   cat("Project has not yet begun")
 }else{
+  
+  
+  ########################################################################
+  #### ASSIGN RELEASE GROUPS HERE ####
+  #######################################################################
+  detects_study$Release <- "Release 1"
+  detects_study[detects_study$release_time > as.POSIXct("2020-03-20"), "Release"] <- "Release 2"
+  #######################################################################
+  
+  
+  study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
+  
   cat(paste("Project began on ", min(study_tagcodes$release_time), ", see tagging details below:", sep = ""))
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$release_time),
@@ -426,7 +435,6 @@ if (nrow(detects_benicia)>0) {
 
 try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
 
-study_count <- nrow(study_tagcodes)
 detects_tower <- detects_study[detects_study$general_location == "TowerBridge",]
 
 if (nrow(detects_tower) == 0){
@@ -437,6 +445,7 @@ if (nrow(detects_tower) == 0){
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
 } else {
   
+  study_count <- nrow(study_tagcodes)
   ## Only do survival to Sac for now
   test <- detects_study[which(detects_study$river_km > 168 & detects_study$river_km < 175),]
   
@@ -1078,9 +1087,6 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   }
 }
 
-## Set fig height for next plot here, based on how long fish have been at large
-figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_time), units = "days")) / 4))
-
 ```
 
 <br/>
@@ -1091,7 +1097,6 @@ figheight <- max(c(3,as.numeric(difftime(Sys.Date(), min(study_tagcodes$release_
 try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
 
 ## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
-
 if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   "No detections yet"
 } else {
@@ -1147,6 +1152,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   column_spec(1, bold = T, width_min = "75px")%>%
   scroll_box(height = "700px")
 }
+
 
 rm(list = ls())
 cleanup(ask = F)
