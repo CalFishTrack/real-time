@@ -47,6 +47,10 @@ library(lubridate)
 dirs <- list.dirs(path= "C:/Users/field/Desktop/ATS_Data", recursive = F)
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
+#***********************************************************************************************
+#### First load existing datasets to be used as inputs, and/or, to have data appended to it ####
+#***********************************************************************************************
+
 ATS_processed_files <- fread("ATS_processed_files.csv", stringsAsFactors = F)
 TECKNO_processed_files <- fread("TECKNO_processed_files.csv", stringsAsFactors = F, sep = ",")
 UCD_processed_files <- fread("UCD_processed_files.csv", stringsAsFactors = F)
@@ -81,10 +85,13 @@ false_detects$tag_loc <- paste(false_detects$TagCode, false_detects$general_loca
 detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
 detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
 
-#detects$DateTime_PST <- as.POSIXct(detects$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
-#detects_beacon$DateTime_PST <- as.POSIXct(detects_beacon$DateTime_PST, format = "%Y-%m-%d %H:%M:%OS ", tz = "Etc/GMT+8")
 detects$DateTime_PST <- ymd_hms(detects$DateTime_PST, tz = "Etc/GMT+8")
 detects_beacon$DateTime_PST <- ymd_hms(detects_beacon$DateTime_PST, tz = "Etc/GMT+8")
+
+
+#***********************************************************************************************
+#### 1. Remove old beacon detections ####
+#***********************************************************************************************
 
 ## At this point, let's remove any detects_beacon data that is older than 30 days and stick it in a weekly detects_beacon file. This will keep the amount of detections that gets uploaded into this script low so as to keep it running efficiently
 ## first, upload the time of last weekly data dump, and run this operation if it hasn't happened in a week
@@ -103,10 +110,18 @@ if(difftime(Sys.time(),weekly_dump, units = "days") > 7){
   write.csv(Sys.time(), "weekly_data_dump.csv", row.names = F)
 }
 
+#***********************************************************************************************
+#### 2. Strip location data from historical detections ####
+#***********************************************************************************************
+
 ## Now remove all gen loc data from detections in case genloc details have changed. We will add genloc data back in at the end of this code
 detects <- subset(detects, select= -c(location, general_location, latitude, longitude, rkm))
 detects_beacon <- subset(detects_beacon, select= -c(location, general_location, latitude, longitude, rkm))
 
+
+#***********************************************************************************************
+#### 3. Collect new datafile names ####
+#***********************************************************************************************
 
 ## Find all Teckno file names
 TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/field/Desktop/Tekno_data/Dropbox (Teknologic LLC)/Apps/SRCOM/NOAA.SC", full.names = T, recursive = T)), stringsAsFactors = F)
@@ -143,7 +158,11 @@ UCD_all_files <- as.data.frame(list(x=UCD_all_files[substr(UCD_all_files$x, ncha
 UCD_files <- as.data.frame(list(x=UCD_all_files[!UCD_all_files$x %in% UCD_processed_files$x,]), stringsAsFactors = F)
 
 
-#### Data massage ATS files first ####
+#***********************************************************************************************
+# 4. Data massage new detections if in standard format. Do this for ATS, Tekno, and UCD separately ####
+#***********************************************************************************************
+
+#### 4.a. Data massage ATS files first ####
 
 downloads_new_all <- data.frame()
 
@@ -289,6 +308,9 @@ if (nrow(ATS_files) > 0) {
         ## change Datetime_Orig with milliseconds shown (this turns the class into character)
         test4$DateTime_Orig <- format(test4$DateTime_Orig, "%Y-%m-%d %H:%M:%OS6")
         
+        ## add filename to each detection
+        test4$filename <- ATS_files[i,"shortname"]
+        
         detects_temp <- rbindlist(list(detects_temp, test4))
         
         
@@ -319,10 +341,22 @@ if (nrow(ATS_files) > 0) {
     ## A few receivers seem to have had temp sensors, so make NA
     #detects_temp[detects_temp$recv %in% c(17127, 17139, 17143, 17147, 18008, 18003, 17144, 18002, 18006, 18007, 18092), "Temp"] <- NA
     
+    
+    #***********************************************************************************************
+    # 5.a. Split detections based on whether they are from any of the known beacons, or other, append to respective dataset. Do this for ATS files first ####
+    #***********************************************************************************************
+    
+    
     ## Here, put only non-beacon detections in detection file
     detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon),"00CA","00C9", "F6AC", "006F", "006D"),]
     ## And put beacon detections into seperate file
     detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon),"00CA","00C9", "F6AC", "006F", "006D"),]
+    
+    
+    #***********************************************************************************************
+    # 6.a. Remove multipath detections for beacon detects. Do this for ATS files first ####
+    #***********************************************************************************************
+    
     
     ## Now remove multipath detections from detects_beacon_new
     ## First reorder the data since the above steps may have jumbled things
@@ -337,28 +371,38 @@ if (nrow(ATS_files) > 0) {
     ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
     detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
     
-    #detects_new <- merge(detects_new, coords, by = "recv", all.x = T)
     
-    #detects_new <- merge(detects_new, gen_locs, by = "recv", all.x = T)
+    #***********************************************************************************************
+    # 7.a. Bind new detection data to historic data. Do this for ATS files first ####
+    #***********************************************************************************************
+
     
-    detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
-    detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+    detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")])
+    detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")])
   }  
 }
 
 
 
-#######################################
-#### Now data massage TECKNO files ####
-#######################################
+#***********************************************************************************************
+#### 4.b. Now data massage TECKNO files ####
+#***********************************************************************************************
+
 
 
 
 
 if (nrow(TECKNO_files) > 0) {
+  
+  
+  ## First, find shortname for files
+  shortname <- regexpr(TECKNO_files$x, pattern = "NOAA.SC")[1]
+  TECKNO_files$shortname  <- substr(TECKNO_files$x, shortname+15, nchar(TECKNO_files$x))
+  
   downloads_new2 <- data.frame()
+  
   for (i in 1:nrow(TECKNO_files)) {
-    test <- try(read.csv(TECKNO_files[i,], header = F, stringsAsFactors = F ), silent = T) 
+    test <- try(read.csv(TECKNO_files[i,"x"], header = F, stringsAsFactors = F ), silent = T) 
     if (inherits(test, "try-error") | ifelse(is.null(ncol(test)) ==T, TRUE, ncol(test) < 18)) {
       next
     } else {
@@ -369,7 +413,7 @@ if (nrow(TECKNO_files) > 0) {
       sun_volts <- max(test[1:2,"V17"])
       bat_volts <- max(test[1:2,"V18"])
       if(nrow(test1)>0){
-        downloads_new2 <- rbindlist(list(downloads_new2, data.frame(list(filename = TECKNO_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
+        downloads_new2 <- rbindlist(list(downloads_new2, data.frame(list(filename = TECKNO_files[i,"shortname"], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
       }
     }
   }
@@ -391,7 +435,7 @@ if (nrow(TECKNO_files) > 0) {
   #pb <- txtProgressBar(min = 0, max = nrow(TECKNO_files), style = 3)
   
   for (i in 1:nrow(TECKNO_files)) {
-    res <- try(read.csv(TECKNO_files[i,], header = F), silent = T) 
+    res <- try(read.csv(TECKNO_files[i,"x"], header = F), silent = T) 
     if (inherits(res, "try-error")) {
       corrupted <- strsplit(TECKNO_files[i,], "/")
       corrupted2 <- unlist(lapply(corrupted, tail, 1))
@@ -399,12 +443,13 @@ if (nrow(TECKNO_files) > 0) {
       ## Also make corrupted downloads more palateable
       next
     } else {
-      start <- nchar(read.csv(TECKNO_files[i,],stringsAsFactors = F, header = F)$V5)
+      start <- nchar(read.csv(TECKNO_files[i,"x"],stringsAsFactors = F, header = F)$V5)
       start <- head(which(start==4),1)
       if (length(start) > 0) {
-        test <- read.csv(TECKNO_files[i,], skip = start-1, header = F, stringsAsFactors = F )
+        test <- read.csv(TECKNO_files[i,"x"], skip = start-1, header = F, stringsAsFactors = F )
         test1 <- test[nchar(test$V5)==4,]
-        detects_temp <- rbindlist(list(detects_temp, test1[,1:9]))
+        test1$filename <- TECKNO_files[i,"shortname"]
+        detects_temp <- rbindlist(list(detects_temp, test1[,1:10]))
         
       }    
     }
@@ -412,7 +457,7 @@ if (nrow(TECKNO_files) > 0) {
   }
   #close(pb)
   
-  colnames(detects_temp) <- c("recv", "V2", "DateTime_Orig", "dec_seconds", "TagCode", "V6", "V7", "V8", "V9")
+  colnames(detects_temp) <- c("recv", "V2", "DateTime_Orig", "dec_seconds", "TagCode", "V6", "V7", "V8", "V9", "filename")
   detects_temp <- detects_temp[!detects_temp$V2 == "N",]
   ## In this step, append datetime to milliseconds, but make sure the 6 decimal places are represented for all cases, even when there are trailering zeros
   detects_temp$DateTime_Orig <- paste(detects_temp$DateTime_Orig, substr(formatC(as.numeric(detects_temp$dec_seconds),format='f', digits=6 ),2,8), sep = "")
@@ -423,10 +468,21 @@ if (nrow(TECKNO_files) > 0) {
   ## Add column for temperature
   detects_temp$Temp <- NA
   
+  
+  #***********************************************************************************************
+  # 5.b. Split detections based on whether they are from any of the known beacons, or other, append to respective dataset. Do this for Tekno files now ####
+  #***********************************************************************************************
+    
+  
   ## Here, put only non-beacon detections in detection file
   detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon),"00CA","00C9", "F6AC", "006F", "006D"),]
   ## And put beacon detections into seperate file
   detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon),"00CA","00C9", "F6AC", "006F", "006D"),]
+  
+  
+  #***********************************************************************************************
+  # 6.b. Remove multipath detections for beacon detects. Do this for Teckno files now ####
+  #***********************************************************************************************
   
   ## Now remove multipath detections from detects_beacon_new
   ## First reorder the data since the above steps may have jumbled things
@@ -441,30 +497,45 @@ if (nrow(TECKNO_files) > 0) {
   ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
   detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
   
+  
+  #***********************************************************************************************
+  # 7.b. Bind new detection data to historic data. Do this for Tekno files now ####
+  #***********************************************************************************************
+
+  
   ## Now append these to existing datasets
-  detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
-  detects_beacon <- rbindlist(list(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")]))
+  detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")]))
+  detects_beacon <- rbindlist(list(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")]))
   
 }
 
 
-#######################################
-#### Now data massage UCD files ####
-#######################################
+#***********************************************************************************************
+#### 4.c. Now data massage UCD files ####
+#***********************************************************************************************
+
+
+
 if (nrow(UCD_files) > 0) {
+  
+  ## First, find shortname for files
+  shortname <- regexpr(UCD_files$x, pattern = "UCD_files")[1]
+  UCD_files$shortname  <- substr(UCD_files$x, shortname+10, nchar(UCD_files$x))
+  
   downloads_new3 <- data.frame()
+  
   for (i in 1:nrow(UCD_files)) {
-    test <- try(read.csv(UCD_files[i,], header = F, stringsAsFactors = F ), silent = T) 
+    test <- try(read.csv(UCD_files[i,"x"], header = F, stringsAsFactors = F ), silent = T) 
     if (inherits(test, "try-error")) {
       next
     } else {
       
-      hour <- substr(UCD_files[i,], nchar(UCD_files[i,])-21, nchar(UCD_files[i,])-10)
-      recv <- substr(UCD_files[i,], nchar(UCD_files[i,])-28, nchar(UCD_files[i,])-23)
+      hour <- substr(UCD_files[i,"x"], nchar(UCD_files[i,"x"])-21, nchar(UCD_files[i,"x"])-10)
+      recv <- substr(UCD_files[i,"x"], nchar(UCD_files[i,"x"])-28, nchar(UCD_files[i,"x"])-23)
       ## Get volts, sometimes in row 1 or 2
       sun_volts <- NA
       bat_volts <- NA
-      downloads_new3 <- rbindlist(list(downloads_new3, data.frame(list(filename = UCD_files[i,], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
+      downloads_new3 <- rbindlist(list(downloads_new3, data.frame(list(filename = UCD_files[i,"shortname"], recv=recv, hour=hour, sun_volts = sun_volts, bat_volts = bat_volts), stringsAsFactors = F)))
     }
   }
   
@@ -483,27 +554,28 @@ if (nrow(UCD_files) > 0) {
     detects_temp <- data.frame()
     
     for (i in 1:nrow(UCD_files)) {
-      res <- try(read.csv(UCD_files[i,], header = F), silent = T) 
+      res <- try(read.csv(UCD_files[i,"x"], header = F), silent = T) 
       if (inherits(res, "try-error")) {
-        corrupted <- strsplit(UCD_files[i,], "/")
+        corrupted <- strsplit(UCD_files[i,"x"], "/")
         corrupted2 <- unlist(lapply(corrupted, tail, 1))
-        corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,]))
+        corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,"x"]))
         ## Also make corrupted downloads more palateable
         next
       } else if (ncol(res)!= 3){
         corrupted <- strsplit(UCD_files[i,], "/")
         corrupted2 <- unlist(lapply(corrupted, tail, 1))
-        corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,]))
+        corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 5, filename = UCD_files[i,"x"]))
         ## Also make corrupted downloads more palateable
         next
       } else {
+        res$filename <- UCD_files[i,"shortname"]
         detects_temp <- rbindlist(list(detects_temp, res))
       }
       
     }
     
     
-    colnames(detects_temp) <- c("recv", "DateTime_Orig", "TagCode")
+    colnames(detects_temp) <- c("recv", "DateTime_Orig", "TagCode","filename")
     ## Make a POSIX class, note that UCD detections are in GMT, will need to convert to local time
     detects_temp$DateTime_PST <- as.POSIXct(detects_temp$DateTime_Orig, format = "%Y-%m-%d %H:%M:%OS", tz = "GMT")
     attributes(detects_temp$DateTime_PST)$tzone <- "Etc/GMT+8"
@@ -511,10 +583,21 @@ if (nrow(UCD_files) > 0) {
     ## Add column for temperature
     detects_temp$Temp <- NA
     
+    #***********************************************************************************************
+    # 5.c. Split detections based on whether they are from any of the known beacons, or other, append to respective dataset. Do this for UCD files now ####
+    #***********************************************************************************************
+   
+    
     ## Here, put only non-beacon detections in detection file
     detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "006D", "F6AC", "00CA", "00C9"),]
     ## And put beacon detections into seperate file
     detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon), "006F", "F6AC", "006D", "00CA", "00C9"),]
+    
+    
+    #***********************************************************************************************
+    # 6.c. Remove multipath detections for beacon detects. Do this for UCD files now ####
+    #***********************************************************************************************
+
     
     ## Now remove multipath detections from detects_beacon_new
     ## First reorder the data since the above steps may have jumbled things
@@ -529,17 +612,35 @@ if (nrow(UCD_files) > 0) {
     ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
     detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
     
+    
+    #***********************************************************************************************
+    # 7.c. Bind new detection data to historic data. Do this for UCD files now ####
+    #***********************************************************************************************
+
+    
+    
     ## Now append these to existing datasets
-    detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
-    detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp")])
+    detects <- rbind(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")])
+    detects_beacon <- rbind(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")])
     
   }
 }
 
 
+
+#***********************************************************************************************
+#### 8. Remove duplicate detections from both detects and beacon detects ####
+#***********************************************************************************************
+
+
 ## Now remove duplicate detections that may have occured when an hourly file was inadvertantly uploaded twice
 detects <- detects[!duplicated(detects[,c("recv", "DateTime_Orig", "TagCode")])]
 detects_beacon <- detects_beacon[!duplicated(detects_beacon[,c("recv", "DateTime_Orig", "TagCode")])]
+
+
+#***********************************************************************************************
+#### 9. Associate (merge) location to both detects and beacon detects ####
+#***********************************************************************************************
 
 ## Now merge location data back with detections and detects_beacon
 
@@ -564,21 +665,12 @@ for (i in 1:nrow(gen_locs)){
 }
 
 
-gap_percent <- aggregate(list(total_files = downloads$start), by = list(location = downloads$location), FUN = length) 
-gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(location = downloads$location), FUN = min), by = "location", all.y = T)
-## Some receivers turned hourly recording off soon after deployment, meaning there is an initial gap in the data, so I'm setting the true start time to when it started uninterrupted recording (i.e. after the gap)
-gap_percent[gap_percent$location == "I80-50_Br1", "recv_start"] <- as.POSIXct("2018-05-14 10:00:00")
-gap_percent[gap_percent$location == "RT_OldRiver", "recv_start"] <- as.POSIXct("2018-04-18 15:00:00")
-gap_percent[gap_percent$location == "GeorgSlRT_1.2", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
-gap_percent[gap_percent$location == "GeorgSlRT_1.1", "recv_start"] <- as.POSIXct("2018-04-17 4:00:00")
-gap_percent[gap_percent$location == "BeniciaRT_14", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
-gap_percent[gap_percent$location == "BeniciaRT_02", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
-gap_percent[gap_percent$location == "DCCRT_1", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
-gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
 
+#***********************************************************************************************
+#### 10. Remove multipath detections from non-beacon detections, apply basic 3 detects in 6 mins filter ####
+#***********************************************************************************************
 
-
-## Now remove multipaths from detects_final
+## First remove multipaths
 ## Now create two columns with time in hours between the previous and next detection, for each detection
 ## first order data appropriately
 
@@ -605,6 +697,8 @@ detects[which(detects$general_location != shift(detects$general_location, fill =
 detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
 detects[which(detects$TagCode != shift(detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
 
+
+## Now apply 3 detects in 6 min filter
 ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 6 minute span (this seems like a good cutoff) (within 3 minutes before and 3 minutes after). We call this "filter_lag", that way it can be adjusted per studyID when necessary (in our case, it has been for green sturgeon)
 ## Using 179 seconds rather than 180 seconds for 3min filter to get rid of a particularly pervasive false detection
 detects$before_and_after_valid <- 0
@@ -628,7 +722,13 @@ detects$time_from_previous <- NULL
 detects$before_and_after_valid <- NULL
 
 
-#### Now remove shed tags ####
+
+#***********************************************************************************************
+#### 11. Remove shed tags from non-beacon detections ####
+#***********************************************************************************************
+
+
+
 ## first summarize by movement to find shed tags
 detects <- detects[order(detects$TagCode, detects$DateTime_PST),]
 detects$mov_count <- 0 
@@ -701,7 +801,10 @@ shed_new$move <- NULL
 write.csv(shed_new,file = "shed_tags.csv", row.names = F)
 
 
-#### Now summarize beacon detects by day ####
+#***********************************************************************************************
+#### 12. Create daily beacon detection summary per recv ####
+#***********************************************************************************************
+
 
 #beacon_by_day <- aggregate(detects_beacon1$DateTime_PST, by = list(recv = detects_beacon1$recv,location = detects_beacon1$location, TagCode = detects_beacon1$TagCode, day = format(detects_beacon1$DateTime_PST, format = "%Y-%m-%d")), FUN = length)
 detects_beacon$day <- format(detects_beacon$DateTime_PST, format = "%Y-%m-%d")
@@ -711,7 +814,12 @@ detects_beacon$day <- NULL
 
 beacon_by_day_new$day <- as.Date(beacon_by_day_new$day)
 
-## now merge with all the beacon_by_day records, making sure to overwrite the ones from the last ~30 days
+
+
+#***********************************************************************************************
+#### 13. Remove latest 5 weeks of historic beacon by day, and bind with freshly calculated 5-week daily summaries ####
+#***********************************************************************************************
+
 
 ## First, find the records in beacon_by_day that are also in beacon_by_day_new
 remove <- match(do.call("paste", beacon_by_day_new[, c("location", "recv", "TagCode", "day")]), do.call("paste", beacon_by_day[, c("location", "recv", "TagCode", "day")]))
@@ -722,7 +830,8 @@ beacon_by_day <- beacon_by_day[-remove[is.na(remove)==F],]
 ## Make sure beacon_by_day$day stays as a date format, this can get stripped when beacon_by_day is reduced to zero rows
 beacon_by_day$day <- as.Date(beacon_by_day$day)
 
-## Now merge the two datasets together
+
+## Now bind the two datasets together
 beacon_by_day <- rbindlist(list(beacon_by_day, beacon_by_day_new))
 
 ## In this step, associate the correct beacon to the correct recv at that given time, this allows for inseason changes
@@ -736,6 +845,26 @@ for (i in 1:nrow(beacon_deployments)){
 beacon_by_day <- unique(beacon_by_day)
 ## now write this new beacon_by_day file
 fwrite(beacon_by_day, "beacon_by_day.csv", row.names = F)
+
+
+#***********************************************************************************************
+#### 14. Associate correct beacon and estimate daily detection efficiency per recv ####
+#***********************************************************************************************
+
+
+## Here find gaps in service based on deployment records alone
+gap_percent <- aggregate(list(total_files = downloads$start), by = list(location = downloads$location), FUN = length) 
+gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(location = downloads$location), FUN = min), by = "location", all.y = T)
+## Some receivers turned hourly recording off soon after deployment, meaning there is an initial gap in the data, so I'm setting the true start time to when it started uninterrupted recording (i.e. after the gap)
+gap_percent[gap_percent$location == "I80-50_Br1", "recv_start"] <- as.POSIXct("2018-05-14 10:00:00")
+gap_percent[gap_percent$location == "RT_OldRiver", "recv_start"] <- as.POSIXct("2018-04-18 15:00:00")
+gap_percent[gap_percent$location == "GeorgSlRT_1.2", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
+gap_percent[gap_percent$location == "GeorgSlRT_1.1", "recv_start"] <- as.POSIXct("2018-04-17 4:00:00")
+gap_percent[gap_percent$location == "BeniciaRT_14", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
+gap_percent[gap_percent$location == "BeniciaRT_02", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
+gap_percent[gap_percent$location == "DCCRT_1", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
+gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
+
 
 ## Now remove days when there wasn't a full day of beacon detections yet
 #beacon_by_day <- beacon_by_day[is.na(beacon_by_day$beacon)==F,]
@@ -779,6 +908,13 @@ efficiency$all_time_efficiency <- round(efficiency$all_time_efficiency,1)
 efficiency$last_week_efficiency <- round(efficiency$last_week_efficiency,1)
 
 
+
+#***********************************************************************************************
+#### 15. Split off all detections of known fish in system, if detections fall between release date and expected battery death. Do this one at a time per StudyID ####
+#***********************************************************************************************
+
+
+
 detects <- detects[order(detects$general_location, detects$TagCode, detects$DateTime_PST),]
 
 #### Now run detection filter per study ID, and save as seperate csvs, but also as one combined one for ERDDAP
@@ -786,6 +922,7 @@ study_detections <- NULL
 
 for (k in unique(tagcodes$StudyID)){
   studycodes <- tagcodes[tagcodes$StudyID == k,]
+  
   ## First, select only detections of correct tagcodes per study
   temp_detects <- as.data.frame(detects[detects$TagCode %in% studycodes$TagID_Hex,])
   ## Now remove detections that occurred on 4/1/19 at 17135
@@ -799,59 +936,14 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects$tag_end <- temp_detects$RelDT + (temp_detects$tag_life*24*60*60)*1.5
     temp_detects <- temp_detects[temp_detects$DateTime_PST < temp_detects$tag_end,]
   }
-  # ## Currently, all data has filter of 3 detections within 10 minutes. But since last 15 minutes of every recv detection history is also kept, we might as well rerun the filter to remove these detections
-  # if(nrow(temp_detects) > 0){
-  #   ## Now create two columns with time in hours between the previous and next detection, for each detection
-  #   ## Now reorder the data since the above steps may have jumbled things
-  #   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
-  #   ## Now estimate the time in secs between the previous and next detection, for each detection.
-  #   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
-  #   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
-  #   ## Now make NA the time diff values when it's between 2 different gen locs or tagcodes
-  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  #   temp_detects[which(temp_detects$general_location != shift(temp_detects$general_location, fill = NA, type = "lead")), "time_to_next"] <- NA
-  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  #   temp_detects[which(temp_detects$TagCode != shift(temp_detects$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
-  #   
-  #   
-  #   
-  #   ## Now mark tag detections that have a detection both before and after from the same tag at the same gen loc within 10 minute span (this seems like a good cutoff) (within 5 minutes before and 5 minutes after).
-  #   temp_detects$before_and_after_valid <- 0
-  #   temp_detects[is.na(temp_detects$time_to_next) == F & is.na(temp_detects$time_from_previous) == F & temp_detects$time_to_next < (300) & temp_detects$time_from_previous < (300),"before_and_after_valid"] <- 1
-  #   
-  #   ## now determine unique gen loc visits based on the before_after_valid criteria. Two zeros in a row means a new visit
-  #   temp_detects$prev_before_after_valid <- shift(temp_detects$before_and_after_valid, fill = NA, type = "lag")
-  #   
-  #   ## Create a counter that says whether to tick visit_num up by one
-  #   temp_detects$visit_step <- 0
-  #   temp_detects[which(temp_detects$before_and_after_valid == 0 & temp_detects$prev_before_after_valid == 0),"visit_step"] <- 1
-  #   
-  #   ## just do cumulative sum of the visit step to get visit num
-  #   temp_detects$visit_num <- cumsum(temp_detects$visit_step)
-  #   ## Now repeat estimation of time to next and time from previous, but setting visit_num changes to NA now
-  #   temp_detects <- temp_detects[order(temp_detects$TagCode, temp_detects$general_location, temp_detects$DateTime_PST),]
-  #   ## Now estimate the time in secs between the previous and next detection, for each detection.
-  #   temp_detects$time_to_next <- as.numeric(difftime(shift(temp_detects$DateTime_PST, fill = NA, type = "lead"), temp_detects$DateTime_PST, units = "secs"))
-  #   temp_detects$time_from_previous <- as.numeric(difftime(temp_detects$DateTime_PST, shift(temp_detects$DateTime_PST, fill = NA, type = "lag"),  units = "secs"))
-  #   ## Now make NA the time diff values when it's between 2 different visits or tagcodes
-  #   temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lag")), "time_from_previous"] <- NA
-  #   temp_detects[which(temp_detects$visit_num != shift(temp_detects$visit_num, fill = NA, type = "lead")), "time_to_next"] <- NA
-  #   
-  #   
-  #   ## now estimate the time elapsed between first and last detection of a visit in secs
-  #   min_max_diff <- aggregate(list(minmaxdiff = temp_detects$DateTime_PST), by = list(temp_detects$TagCode, temp_detects$visit_num), function(x){as.numeric(difftime(max(x), min(x), units = "secs"))})
-  #   
-  #   ## Also include number of detections per visit
-  #   min_max_diff <- merge(min_max_diff,aggregate(list(count = temp_detects$DateTime_PST), by = list(temp_detects$TagCode, temp_detects$visit_num), length))
-  #   min_max_diff$ping_density <- min_max_diff$count / min_max_diff$minmaxdiff
-  #   ## remove less than 3 pings per visits (these are detections from last 15 minutes that weren't removed in the original 10min window filter)
-  #   min_max_diff <- min_max_diff[min_max_diff$count>2,]
-  #   temp_detects <- temp_detects[temp_detects$visit_num %in% min_max_diff$Group.2,]
-  # }
-  # if(nrow(temp_detects) > 0){
-  #   ## Now remove any visit that has a tag density of less than 4 pings per PRI*16.6 AND less than 5 detections total
-  #   temp_detects <- temp_detects[!temp_detects$visit_num %in% min_max_diff[min_max_diff$ping_density < (4/(temp_detects$PRI_nominal*16.6)) & min_max_diff$count < 5, "Group.2"],]
-  # }
+
+  
+  
+  #***********************************************************************************************
+  #### 16. Apply more stringent detection filters. Do this one at a time per StudyID ####
+  #***********************************************************************************************
+
+  #### 16.a. First: “Detection density filter”: Once potentially valid fish detections have been determined and assigned to a specific fish, any 3 consecutive tag detections at an individual receiver must occur in a time window shorter than (Pulse Rate Interval (PRI) x 1.3 x 12)+ 1 seconds ####
   
   if(nrow(temp_detects) > 0){
     ## Now create two columns with time in hours between the previous and next detection, for each detection
@@ -879,6 +971,10 @@ for (k in unique(tagcodes$StudyID)){
     ## Remove detects that are not part of at least one train of 3 valid detections
     temp_detects <- temp_detects[temp_detects$part_of_valid_3 >0,]
   }
+  
+  
+  #### 16.b. Second: “PRI filter”: the PRI from the previous detection and the PRI to the next detection on an individual receiver is estimated for each detection of a potentially valid fish visit. At least one of the PRIs must be within 20% of the tag’s programmed PRI AND the standard deviation of the two PRIs must be smaller than 0.025. ####
+  
   
   if(nrow(temp_detects) > 0){
     ## Now recalculate diff times
@@ -941,7 +1037,10 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects <- temp_detects[which(temp_detects$two_good_PRIS > 0 & temp_detects$PRI.sd == T),]
   }
   
-    ## Now redo the tag density (3 pings within PRI*1.3*12+1) since some pings will have been removed by the PRI filter above
+  
+    #### 16.c. Third: “Detection density filter” (as in 16.a) is run again now that PRI filter has removed some detections ####
+  
+
   if(nrow(temp_detects) > 0){
     ## Now create two columns with time in hours between the previous and next detection, for each detection
     ## Now reorder the data since the above steps may have jumbled things
@@ -969,17 +1068,32 @@ for (k in unique(tagcodes$StudyID)){
     temp_detects <- temp_detects[temp_detects$part_of_valid_3 >0,]
   }
   
-  ## Now remove less than 4 detects per visit
+    
+  #### 16.d. Fourth: Now remove less than 4 detects per visit ####
+  
+  
+  
   if(nrow(temp_detects) > 0){  
     detects_per_visit_num <- aggregate(temp_detects$DateTime_PST, by = list(visit_num = temp_detects$visit_num), FUN = length)
     
     temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 4, "visit_num"],]
   }
   
-  ## Now remove manually identified false detections that were missed by the filter
+  
+  #### 16.e. Last: a backdoor to manually remove detections that slipped through the cracks if necessary. Not currently used ####
+  
+  
+
   false_detects_temp <- false_detects[false_detects$StudyID == k,]
   temp_detects$tag_loc <- paste(temp_detects$TagCode, temp_detects$general_location, sep = "-")
   temp_detects <- temp_detects[!temp_detects$tag_loc %in% false_detects_temp$tag_loc,]
+  
+  
+  
+  #***********************************************************************************************
+  #### Export detections per studyID ####
+  #***********************************************************************************************
+  
   
   ## Now remove RelDT, PRI, tag_life, genloctag, and other unnecessary columns
   temp_detects <- temp_detects[, names(temp_detects) %in% c("TagCode" ,"location","recv","DateTime_Orig", "DateTime_PST", "general_location", "latitude", "longitude", "rkm")]
@@ -991,7 +1105,15 @@ for (k in unique(tagcodes$StudyID)){
   temp_detects$TagCode <- as.character(temp_detects$TagCode)
   fwrite(temp_detects, paste(getwd(),"/Study_detection_files/", paste("detects",k,sep = "_"),".csv", sep = ""), row.names = F, quote = T)
 }
-#### Now export study_detections
+
+
+
+#***********************************************************************************************
+#### Now export all study_detections together "study_detections.csv" ####
+#***********************************************************************************************
+
+
+
 ## But first change column name for studyid
 colnames(study_detections)[1] <- "Study_ID"
 ## Now bring in studies that had zero detections whatsoever
@@ -1002,6 +1124,13 @@ study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagC
 
 study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
 fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "recv", "location", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc", "tag_life")], "study_detections.csv", row.names = F)
+
+
+
+#***********************************************************************************************
+#### Export all other products here ####
+#***********************************************************************************************
+
 
 
 latest <- as.character(round.POSIXt(max(downloads$end, na.rm = T), units = "hour"))
@@ -1024,15 +1153,14 @@ file.remove(remove_these)
 write.csv(corrupted_downloads, "corrupted_downloads.csv", row.names = F)
 
 ATS_processed_files <- rbindlist(list(ATS_processed_files, ATS_files[names(ATS_processed_files)]))
-
 ATS_processed_files <- as.data.frame(list(x=ATS_processed_files[!ATS_processed_files$x %in% remove_these,]), stringsAsFactors = F )
-
 fwrite(ATS_processed_files, "ATS_processed_files.csv", row.names = F)
-TECKNO_processed_files <- rbindlist(list(TECKNO_processed_files, TECKNO_files))
+
+TECKNO_processed_files <- rbindlist(list(TECKNO_processed_files, data.frame(TECKNO_files[,"x"])))
 TECKNO_processed_files$x <- as.character(TECKNO_processed_files$x)
 fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F, quote = T)  
 
-UCD_processed_files <- rbindlist(list(UCD_processed_files, UCD_files))
+UCD_processed_files <- rbindlist(list(UCD_processed_files, data.frame(UCD_files[,"x"])))
 UCD_processed_files$x <- as.character(UCD_processed_files$x)
 fwrite(UCD_processed_files, "UCD_processed_files.csv", row.names = F, quote = T) 
 
