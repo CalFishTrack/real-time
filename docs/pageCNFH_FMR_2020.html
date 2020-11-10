@@ -617,15 +617,15 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 ##################################################################################################################
 #### TO RUN THE FOLLOWING CODE CHUNKS FROM HERE ON DOWN USING R ERDDAP, UN-COMMENT THESE NEXT 9 LINES OF CODE ####
 ##################################################################################################################
-#cache_delete_all()
-#varnames = &quot;time,latitude,longitude,TagCode,general_location,river_km,local_time,Study_ID,release_time,weight,length,release_rkm,release_location,recv,location,tag_life&quot;
-#query=paste(&#39;&amp;&#39;,&quot;Study_ID&quot;,&#39;=&quot;&#39;,study,&#39;&quot;&#39;,sep = &#39;&#39;)
-#datafile=URLencode(paste(&quot;http://oceanview.pfeg.noaa.gov/erddap/tabledap/&quot;,&quot;FEDcalFishTrack&quot;,&quot;.csv?&quot;,varnames,query,sep = &#39;&#39;))
-#detects_study &lt;- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
-#detects_study &lt;- detects_study[-1,]
-#detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$local_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
-#detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%dT%H:%M:%S&quot;)
-#detects_study$river_km &lt;- as.numeric(detects_study$river_km)
+cache_delete_all()
+varnames = &quot;time,latitude,longitude,TagCode,general_location,river_km,local_time,Study_ID,release_time,weight,length,release_rkm,release_location,recv,location,tag_life&quot;
+query=paste(&#39;&amp;&#39;,&quot;Study_ID&quot;,&#39;=&quot;&#39;,study,&#39;&quot;&#39;,sep = &#39;&#39;)
+datafile=URLencode(paste(&quot;http://oceanview.pfeg.noaa.gov/erddap/tabledap/&quot;,&quot;FEDcalFishTrack&quot;,&quot;.csv?&quot;,varnames,query,sep = &#39;&#39;))
+detects_study &lt;- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
+detects_study &lt;- detects_study[-1,]
+detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$local_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
+detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
+detects_study$river_km &lt;- as.numeric(detects_study$river_km)
 #################################################################################################################
 
 
@@ -711,7 +711,7 @@ Number_fish_released
 <th style="text-align:left;">
 Release_location
 </th>
-<th style="text-align:right;">
+<th style="text-align:left;">
 Release_rkm
 </th>
 <th style="text-align:right;">
@@ -739,8 +739,8 @@ Week 1
 <td style="text-align:left;">
 RBDD_Rel
 </td>
-<td style="text-align:right;">
-461.570
+<td style="text-align:left;">
+461.57
 </td>
 <td style="text-align:right;">
 89.7
@@ -765,7 +765,7 @@ Week 2
 <td style="text-align:left;">
 RBDD_Rel
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 461.579
 </td>
 <td style="text-align:right;">
@@ -1462,7 +1462,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-97.1
+100.0
 </td>
 <td style="text-align:right;">
 100.0
