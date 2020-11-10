@@ -119,9 +119,15 @@ colnames(detects_study)[which(colnames(detects_study) == "rkm")] <- "river_km"
 
 
 if (nrow(detects_study) == 0){
-  cat("Project has not yet begun")
+  cat("Study has not yet begun")
 }else{
   
+  if (min(detects_study$release_time) > Sys.time()){
+    cat("Study has not yet begun, below data is a placeholder:")
+  }
+  if (min(detects_study$release_time) < Sys.time()){
+    cat(paste("Study began on ", min(detects_study$release_time), ", see tagging details below:", sep = ""))
+  }
   
   ########################################################################
   #### ASSIGN RELEASE GROUPS HERE ####
@@ -132,8 +138,6 @@ if (nrow(detects_study) == 0){
   
   
   study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
-  
-  cat(paste("Project began on ", min(study_tagcodes$release_time), ", see tagging details below:", sep = ""))
   
   release_stats <- aggregate(list(First_release_time = study_tagcodes$release_time),
                              by= list(Release = study_tagcodes$Release),
@@ -190,7 +194,11 @@ if (nrow(detects_study) == 0){
 ***
 ## _2. Real-time Fish Detections_
 ***
-***`r anicon::nia("Study is complete, tags are no longer active", size = 1, colour = "red")`. All times in Pacific Standard Time.***
+***`r if (nrow(detects_study) == 0){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
+      }else if (min(detects_study$release_time) > Sys.time()){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
+      }else if (max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)) < Sys.Date()) { anicon::nia(paste("Study was completed on",max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5))), size = 1, colour = "red")
+      }else{anicon::nia(paste("Study is in progress. Data current as of", latest), size = 1, colour = "red")
+      }`. All times in Pacific Standard Time.***
 
 ```{r print figure of fish detections at Butte, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', fig.cap="2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge"}
 

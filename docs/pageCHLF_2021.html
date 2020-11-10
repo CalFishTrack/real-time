@@ -26,6 +26,7 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/font-awesome-animation-1.0/font-awesome-animation-emi.css" rel="stylesheet" />
 <script src="site_libs/fontawesome-5.0.13/js/fontawesome-all.min.js"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -629,9 +630,15 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 
 
 if (nrow(detects_study) == 0){
-  cat(&quot;Project has not yet begun&quot;)
+  cat(&quot;Study has not yet begun&quot;)
 }else{
   
+  if (min(detects_study$release_time) &gt; Sys.time()){
+    cat(&quot;Study has not yet begun, below data is a placeholder:&quot;)
+  }
+  if (min(detects_study$release_time) &lt; Sys.time()){
+    cat(paste(&quot;Study began on &quot;, min(detects_study$release_time), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
+  }
   
   ########################################################################
   #### ASSIGN RELEASE GROUPS HERE ####
@@ -641,8 +648,7 @@ if (nrow(detects_study) == 0){
   #######################################################################
   
   study_tagcodes &lt;- unique(detects_study[,c(&quot;TagCode&quot;, &quot;release_time&quot;, &quot;weight&quot;, &quot;length&quot;, &quot;release_rkm&quot;, &quot;release_location&quot;, &quot;Release&quot;)])
-  
-  cat(paste(&quot;Project began on &quot;, min(study_tagcodes$release_time), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
+
   
   release_stats &lt;- aggregate(list(First_release_time = study_tagcodes$release_time),
                              by= list(Release = study_tagcodes$Release),
@@ -692,7 +698,65 @@ if (nrow(detects_study) == 0){
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 
 }                       </code></pre>
-<pre><code>## Project has not yet begun</code></pre>
+<pre><code>## Study has not yet begun, below data is a placeholder:</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+Release
+</th>
+<th style="text-align:left;">
+First_release_time
+</th>
+<th style="text-align:left;">
+Last_release_time
+</th>
+<th style="text-align:right;">
+Number_fish_released
+</th>
+<th style="text-align:left;">
+Release_location
+</th>
+<th style="text-align:right;">
+Release_rkm
+</th>
+<th style="text-align:right;">
+Mean_length
+</th>
+<th style="text-align:right;">
+Mean_weight
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Release 1
+</td>
+<td style="text-align:left;">
+2020-12-08 18:00:00
+</td>
+<td style="text-align:left;">
+2020-12-08 18:00:00
+</td>
+<td style="text-align:right;">
+645
+</td>
+<td style="text-align:left;">
+BattleCk_CNFH_Rel
+</td>
+<td style="text-align:right;">
+517.344
+</td>
+<td style="text-align:right;">
+142
+</td>
+<td style="text-align:right;">
+34
+</td>
+</tr>
+</tbody>
+</table>
 <p><br/></p>
 <hr />
 </div>

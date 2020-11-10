@@ -632,9 +632,15 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 
 
 if (nrow(detects_study) == 0){
-  cat(&quot;Project has not yet begun&quot;)
+  cat(&quot;Study has not yet begun&quot;)
 }else{
   
+  if (min(detects_study$release_time) &gt; Sys.time()){
+    cat(&quot;Study has not yet begun, below data is a placeholder:&quot;)
+  }
+  if (min(detects_study$release_time) &lt; Sys.time()){
+    cat(paste(&quot;Study began on &quot;, min(detects_study$release_time), &quot;, see tagging details below:&quot;, sep = &quot;&quot;))
+  }
   
   ########################################################################
   #### ASSIGN RELEASE GROUPS HERE ####
@@ -696,7 +702,7 @@ if (nrow(detects_study) == 0){
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 
 }                       </code></pre>
-<pre><code>## Project began on 2020-03-11 03:10:00, see tagging details below:</code></pre>
+<pre><code>## Study began on 2020-03-11 03:10:00, see tagging details below:Project began on 2020-03-11 03:10:00, see tagging details below:</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <thead>
 <tr>
@@ -787,7 +793,7 @@ Caldwell_Park_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study is complete, tags are no longer active</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study was completed on 2020-07-04</span>. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
@@ -1466,7 +1472,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+90.3
 </td>
 <td style="text-align:right;">
 100.0
