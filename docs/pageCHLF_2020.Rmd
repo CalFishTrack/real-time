@@ -148,7 +148,7 @@ if (nrow(study_tagcodes) == 0){
 ***
 ***`r anicon::nia("Study is complete, tags are no longer active.", size = 1, colour = "red")`. All times in Pacific Standard Time.***
 
-```{r print figure of fish detections at Butte, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', fig.cap="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City"}
+```{r print figure of fish detections at Butte, message = FALSE, warning = F, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', fig.cap="2.1 Detections at Butte City Bridge versus Sacramento River flows at Butte City"}
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 

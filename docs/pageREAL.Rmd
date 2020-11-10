@@ -1123,6 +1123,7 @@ study_detections <- merge(study_detections, all_studies, all.y = T)
 study_detections <- merge(study_detections, tagcodes, by.x = c("Study_ID", "TagCode"), by.y = c("StudyID", "TagID_Hex"), all.y = T) 
 
 study_detections$DateTime_PST <- format(study_detections$DateTime_PST, "%Y-%m-%d %H:%M:%S")
+study_detections$RelDT <- format(study_detections$RelDT, "%Y-%m-%d %H:%M:%S")
 fwrite(study_detections[, c("Study_ID", "TagCode", "DateTime_PST", "recv", "location", "general_location", "latitude", "longitude", "rkm", "RelDT", "Weight", "Length", "Rel_rkm", "Rel_loc", "tag_life")], "study_detections.csv", row.names = F)
 
 

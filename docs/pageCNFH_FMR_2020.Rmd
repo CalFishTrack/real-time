@@ -93,7 +93,7 @@ study <- "CNFH_FMR_2020"
 detects_study <- fread("study_detections.csv", stringsAsFactors = F)
 detects_study <- as.data.frame(detects_study[detects_study$Study_ID == study,])
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
-detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%dT%H:%M:%S")
+detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
 
 colnames(detects_study)[which(colnames(detects_study) == "Weight")] <- "weight"
 colnames(detects_study)[which(colnames(detects_study) == "Length")] <- "length"

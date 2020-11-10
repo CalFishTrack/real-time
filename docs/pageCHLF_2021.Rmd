@@ -92,8 +92,8 @@ study <- "ColemanLateFall_2021"
 
 detects_study <- fread("study_detections.csv", stringsAsFactors = F)
 detects_study <- as.data.frame(detects_study[detects_study$Study_ID == study,])
-detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
-detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%dT%H:%M:%S")
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
+detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
 
 colnames(detects_study)[which(colnames(detects_study) == "Weight")] <- "weight"
 colnames(detects_study)[which(colnames(detects_study) == "Length")] <- "length"
@@ -194,7 +194,7 @@ if (nrow(detects_study) == 0){
 ***
 ***`r if (nrow(detects_study) == 0){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
       }else if (min(detects_study$release_time) > Sys.time()){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
-      }else if (max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)) < Sys.Date()) { anicon::nia(paste("Study was completed on",max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5))), size = 1, colour = "red")
+      }else if (max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)) < Sys.Date()) { anicon::nia(paste("Study is complete, all tags are no longer active as of",max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5))), size = 1, colour = "red")
       }else{anicon::nia(paste("Study is in progress. Data current as of", latest), size = 1, colour = "red")
       }`. All times in Pacific Standard Time.***
       

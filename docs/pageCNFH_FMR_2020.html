@@ -606,7 +606,7 @@ study &lt;- &quot;CNFH_FMR_2020&quot;
 detects_study &lt;- fread(&quot;study_detections.csv&quot;, stringsAsFactors = F)
 detects_study &lt;- as.data.frame(detects_study[detects_study$Study_ID == study,])
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
-detects_study$release_time &lt;- as.POSIXct(detects_study$RelDT, format = &quot;%Y-%m-%dT%H:%M:%S&quot;)
+detects_study$release_time &lt;- as.POSIXct(detects_study$RelDT, format = &quot;%Y-%m-%d %H:%M:%S&quot;, tz=&quot;Etc/GMT+8&quot;)
 
 colnames(detects_study)[which(colnames(detects_study) == &quot;Weight&quot;)] &lt;- &quot;weight&quot;
 colnames(detects_study)[which(colnames(detects_study) == &quot;Length&quot;)] &lt;- &quot;length&quot;
@@ -692,7 +692,7 @@ if (nrow(detects_study) == 0){
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 
 }                       </code></pre>
-<pre><code>## Project began on 2020-05-14 17:20:00, see tagging details below:</code></pre>
+<pre><code>## Project began on 2020-05-14 09:20:00, see tagging details below:</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <thead>
 <tr>
@@ -728,10 +728,10 @@ Mean_weight
 Week 1
 </td>
 <td style="text-align:left;">
-2020-05-14 16:20:00
+2020-05-14 09:20:00
 </td>
 <td style="text-align:left;">
-2020-05-14 16:20:00
+2020-05-14 09:20:00
 </td>
 <td style="text-align:right;">
 400
@@ -754,10 +754,10 @@ RBDD_Rel
 Week 2
 </td>
 <td style="text-align:left;">
-2020-05-21 17:15:00
+2020-05-21 10:15:00
 </td>
 <td style="text-align:left;">
-2020-05-21 17:15:00
+2020-05-21 10:15:00
 </td>
 <td style="text-align:right;">
 323
@@ -1462,7 +1462,7 @@ Survival from TowerBridge to I80-50_Br
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+97.1
 </td>
 <td style="text-align:right;">
 100.0
@@ -1513,7 +1513,7 @@ Detection probability at TowerBridge
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+97.1
 </td>
 <td style="text-align:right;">
 100.0
@@ -1564,7 +1564,7 @@ Detection probability at Georgiana Slough
 0.0
 </td>
 <td style="text-align:right;">
-100.0
+72.6
 </td>
 <td style="text-align:right;">
 100.0
@@ -2884,6 +2884,35 @@ Benicia West
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
+2020-05-14
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
 <tr>
 <td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
 2020-05-15
@@ -5211,36 +5240,6 @@ NA
 <tr>
 <td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
 2020-08-01
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-NA
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;min-width: 50px; border-left:1px solid;border-right:1px solid;min-width: 75px; font-weight: bold;">
-2020-08-02
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>

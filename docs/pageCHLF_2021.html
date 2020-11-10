@@ -605,8 +605,8 @@ study &lt;- &quot;ColemanLateFall_2021&quot;
 
 detects_study &lt;- fread(&quot;study_detections.csv&quot;, stringsAsFactors = F)
 detects_study &lt;- as.data.frame(detects_study[detects_study$Study_ID == study,])
-detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
-detects_study$release_time &lt;- as.POSIXct(detects_study$RelDT, format = &quot;%Y-%m-%dT%H:%M:%S&quot;)
+detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, tz=&quot;Etc/GMT+8&quot;)
+detects_study$release_time &lt;- as.POSIXct(detects_study$RelDT, format = &quot;%Y-%m-%d %H:%M:%S&quot;, tz=&quot;Etc/GMT+8&quot;)
 
 colnames(detects_study)[which(colnames(detects_study) == &quot;Weight&quot;)] &lt;- &quot;weight&quot;
 colnames(detects_study)[which(colnames(detects_study) == &quot;Length&quot;)] &lt;- &quot;length&quot;
@@ -734,10 +734,10 @@ Mean_weight
 Release 1
 </td>
 <td style="text-align:left;">
-2020-12-08 18:00:00
+2020-12-08 10:00:00
 </td>
 <td style="text-align:left;">
-2020-12-08 18:00:00
+2020-12-08 10:00:00
 </td>
 <td style="text-align:right;">
 645
