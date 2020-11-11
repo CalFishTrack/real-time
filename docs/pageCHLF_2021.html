@@ -624,7 +624,7 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 #detects_study &lt;- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
 #detects_study &lt;- detects_study[-1,]
 #detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$local_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
-#detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%dT%H:%M:%S&quot;)
+#detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 #detects_study$river_km &lt;- as.numeric(detects_study$river_km)
 ##################################################################################################################
 

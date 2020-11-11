@@ -102,7 +102,7 @@ colnames(detects_study)[which(colnames(detects_study) == "rkm")] <- "river_km"
 #detects_study <- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
 #detects_study <- detects_study[-1,]
 #detects_study$DateTime_PST <- as.POSIXct(detects_study$local_time, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
-#detects_study$release_time <- as.POSIXct(detects_study$release_time, format = "%Y-%m-%dT%H:%M:%S")
+#detects_study$release_time <- as.POSIXct(detects_study$release_time, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 #detects_study$river_km <- as.numeric(detects_study$river_km)
 ##################################################################################################################
 
