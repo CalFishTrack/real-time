@@ -437,9 +437,7 @@ if (nrow(TECKNO_files) > 0) {
   for (i in 1:nrow(TECKNO_files)) {
     res <- try(read.csv(TECKNO_files[i,"x"], header = F), silent = T) 
     if (inherits(res, "try-error")) {
-      corrupted <- strsplit(TECKNO_files[i,], "/")
-      corrupted2 <- unlist(lapply(corrupted, tail, 1))
-      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = corrupted2, download_attempts = 3, filename = TECKNO_files[i,]))
+      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = TECKNO_files[i,"shortname"], download_attempts = 3, filename = TECKNO_files[i,"x"]))
       ## Also make corrupted downloads more palateable
       next
     } else {
