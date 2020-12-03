@@ -102,10 +102,12 @@ For viewing fish survival and movement predictions based on current river condit
 
 <br />
 
-## Related Publications
+## Related Reports and Publications
 
 Ammann, A.J. Factors affecting detection probability and range of transmitters and receivers designed for the Juvenile Salmon Acoustic Telemetry System. Environ Biol Fish 103, 625–634 (2020). https://doi.org/10.1007/s10641-020-00987-4
 
 Notch, J.J., McHuron, A.S., Michel, C.J. et al. Outmigration survival of wild Chinook salmon smolts through the Sacramento River during historic drought and high water conditions. Environ Biol Fish 103, 561–576 (2020). https://doi.org/10.1007/s10641-020-00952-1
+
+[Notch, J., R. Robinson, T. Pham, R. Logston, A. McHuron, A. Ammann, C. Michel. 2020. Enhanced Acoustic Tagging, Analysis, and Real-Time Monitoring of Wild and Hatchery Salmonids in the Sacramento River Valley – 2019 annual report. Report prepared by University of California – Santa Cruz for the U.S. Bureau of Reclamation under contract USDI/BOR# R18AC00039.](https://github.com/CalFishTrack/real-time/blob/master/data/UCSC_AT_BOR yearly_report_2019_final.pdf?raw=true)
 
 <br />
