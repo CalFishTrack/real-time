@@ -1204,7 +1204,8 @@ leaflet(data = gen_locs[is.na(gen_locs$stop),]) %>%
 gen_locs <- gen_locs[order(gen_locs$rkm, decreasing = T),]
 
 kable(gen_locs[is.na(gen_locs$stop),c("recv", "location", "general_location", "latitude", "longitude", "rkm")], align = "c", row.names = F,  "html") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")%>%
+    scroll_box(height = "400px")
 
 
 ````
@@ -1222,7 +1223,8 @@ if (nrow(downloads_new_all) > 0) {
   downloads_new_all <- downloads_new_all[,c("recv", "start", "end", "location",
                                             "sun_volts", "bat_volts")]
   kable(downloads_new_all, align = "c", row.names = F,  "html") %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left") %>%
+    scroll_box(height = "300px")
 } else {
   "No new downloads"
 }
@@ -1309,7 +1311,8 @@ gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$Active, gen_loc_stats$rkm, de
 
 
 kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_time_efficiency", "last_download", "Active")], align = "c", row.names = F,  "html") %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")%>%
+    scroll_box(height = "400px")
 
 
 ```
@@ -1321,7 +1324,7 @@ kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_t
 
 <br/>
 
-```{r print heatmap of detection efficiency, warning=FALSE, message=FALSE, fig.width = 10}
+```{r print heatmap of detection efficiency, warning=FALSE, message=FALSE, fig.width = 10, fig.height = 8}
 
 
 library(ggplot2)
