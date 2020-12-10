@@ -182,8 +182,7 @@ if (nrow(ATS_files) > 0) {
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 7, nrows = 1, header = F)
         recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
-      }  
-      if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
+      }else if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
         recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, nrows = 1, header = F)
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 13, nrows = 1, header = F)
       }else{
@@ -237,8 +236,7 @@ if (nrow(ATS_files) > 0) {
     if (file.info(ATS_files[i,"x"])$size >0){
       if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == "Site") {
         test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 9, header = T,  row.names=NULL)
-      }  
-      if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
+      }else if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
         test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 16, header = T,  row.names=NULL)
       }else{
         test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
