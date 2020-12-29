@@ -698,7 +698,7 @@ if (nrow(detects_study) == 0){
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 
 }                       </code></pre>
-<pre><code>## Study has not yet begun, below data is a placeholder:</code></pre>
+<pre><code>## Study began on 2020-12-29 10:00:00, see tagging details below:</code></pre>
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <thead>
 <tr>
@@ -763,7 +763,7 @@ BattleCk_CNFH_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study has not yet begun</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study is in progress. Data current as of 2020-12-29 09:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
