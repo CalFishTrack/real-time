@@ -186,8 +186,8 @@ if (nrow(ATS_files) > 0) {
         recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, nrows = 1, header = F)
         hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 13, nrows = 1, header = F)
       }else{
-        recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
-        hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 19, nrows = 1, header = F)
+        recv <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 2, nrows = 1, header = F)
+        hour <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 6, nrows = 1, header = F)
       }
       hour <- substr(hour, start = 13, stop = 31)
       recv <- as.data.frame(strsplit(as.character(recv),": "), stringsAsFactors = F)[2,]
@@ -239,7 +239,7 @@ if (nrow(ATS_files) > 0) {
       }else if (substr(read.csv(ATS_files[i,"x"], nrows = 1, header = F)[,1] , 1,4) == " Num") {
         test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 16, header = T,  row.names=NULL)
       }else{
-        test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 22, header = T,  row.names=NULL)
+        test <- read.csv(ATS_files[i,"x"], stringsAsFactors = F, skip = 7, header = T,  row.names=NULL)
       }
       
       if(colnames(test)[1] != "Internal"){
