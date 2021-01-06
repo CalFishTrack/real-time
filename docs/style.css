@@ -1,4 +1,8 @@
 /*----------------NAVBAR ---------------*/
 .navbar-default {
-	font-size: 14px;
+	display: inline-block; /* to display the menu items as blocks in same line */
+	text-align: center; /* center align the text within the block */
+	width: 10%; /* set each block a width */
+	vertical-align: middle; /* align the contents to middle vertically */
+	white-space:nowrap;
 }
