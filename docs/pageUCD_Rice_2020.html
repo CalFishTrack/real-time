@@ -84,6 +84,7 @@ h6 {
 }
 </style>
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -368,7 +369,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2021 Water Year Study Detections
+    2021 WY Study Detections
      
     <span class="caret"></span>
   </a>
@@ -389,7 +390,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Archive Study Pages
+    Archived Study Pages
      
     <span class="caret"></span>
   </a>
@@ -526,7 +527,10 @@ div.tocify {
   </ul>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/">Telemetry Data Explorer</a>
+</li>
+<li>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">Delta STARS simulations</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -953,9 +957,10 @@ if (nrow(detects_benicia)&gt;0) {
   plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
   text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <div class="figure">
 <img src="pageUCD_Rice_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">

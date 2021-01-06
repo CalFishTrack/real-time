@@ -73,6 +73,7 @@ h6 {
 }
 </style>
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -357,7 +358,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2021 Water Year Study Detections
+    2021 WY Study Detections
      
     <span class="caret"></span>
   </a>
@@ -378,7 +379,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Archive Study Pages
+    Archived Study Pages
      
     <span class="caret"></span>
   </a>
@@ -515,7 +516,10 @@ div.tocify {
   </ul>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/">Telemetry Data Explorer</a>
+</li>
+<li>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">Delta STARS simulations</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -717,7 +721,7 @@ BattleCkColeman
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2>Real-time Fish Detections</h2>
-<p><strong><em>Data current as of <span style="color:red">2020-11-04 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em>Data current as of <span style="color:red">2021-01-05 13:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <br/>
 <center>
 <div id="detections-at-butte-city-bridge-versus-sacramento-river-flows-at-butte-city" class="section level4">
@@ -811,9 +815,10 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Butte City&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <p><img src="pageSLPRFR_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -900,9 +905,10 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <p><img src="pageSLPRFR_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" width="960" /></p>
 <p><br/> <br/></p>
 <center>
@@ -974,9 +980,10 @@ if (nrow(detects_benicia)&gt;0) {
 }else{
   print(&quot;No detections at Benicia yet&quot;)
 }</code></pre>
-<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt to
-## redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as well. Please
-## do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an error.</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <p><img src="pageSLPRFR_2019_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" width="960" /></p>
 <p><br/> <br/></p>
 </center>
@@ -1355,7 +1362,7 @@ Survival from release to Butte City
 17.2
 </td>
 <td style="text-align:right;">
-32.0
+32.1
 </td>
 <td style="text-align:right;">
 92.4
@@ -1655,19 +1662,19 @@ Detection efficiency (%)
 ALL
 </td>
 <td style="text-align:right;">
-18.3
+18.2
 </td>
 <td style="text-align:right;">
 1.6
 </td>
 <td style="text-align:right;">
-15.5
+15.3
 </td>
 <td style="text-align:right;">
-21.7
+21.5
 </td>
 <td style="text-align:right;">
-93.4
+93.3
 </td>
 </tr>
 <tr>
@@ -1675,16 +1682,16 @@ ALL
 Downstream
 </td>
 <td style="text-align:right;">
-16.7
+16.4
 </td>
 <td style="text-align:right;">
-2.2
+2.1
 </td>
 <td style="text-align:right;">
-12.9
+12.6
 </td>
 <td style="text-align:right;">
-21.3
+21.0
 </td>
 <td style="text-align:right;">
 NA
@@ -2007,16 +2014,16 @@ Benicia_east
 2019-04-19 01:10:29
 </td>
 <td style="text-align:left;">
-2019-04-25 03:05:08
+2019-04-25 02:46:09
 </td>
 <td style="text-align:left;">
 2019-05-02 06:19:28
 </td>
 <td style="text-align:right;">
-103
+102
 </td>
 <td style="text-align:right;">
-17.14
+16.97
 </td>
 <td style="text-align:right;">
 52.240
@@ -2030,16 +2037,16 @@ Benicia_west
 2019-04-18 16:47:05
 </td>
 <td style="text-align:left;">
-2019-04-25 04:39:12
+2019-04-25 04:07:17
 </td>
 <td style="text-align:left;">
 2019-05-02 06:24:24
 </td>
 <td style="text-align:right;">
-106
+105
 </td>
 <td style="text-align:right;">
-17.64
+17.47
 </td>
 <td style="text-align:right;">
 52.040
@@ -2246,16 +2253,16 @@ Benicia_east
 2019-04-19 01:10:29
 </td>
 <td style="text-align:left;">
-2019-04-25 06:56:31
+2019-04-25 06:17:48
 </td>
 <td style="text-align:left;">
 2019-04-29 15:18:37
 </td>
 <td style="text-align:right;">
-45
+44
 </td>
 <td style="text-align:right;">
-14.95
+14.62
 </td>
 <td style="text-align:right;">
 52.240
@@ -2269,16 +2276,16 @@ Benicia_west
 2019-04-18 16:47:05
 </td>
 <td style="text-align:left;">
-2019-04-25 06:14:28
+2019-04-25 05:03:40
 </td>
 <td style="text-align:left;">
 2019-04-29 15:21:34
 </td>
 <td style="text-align:right;">
-47
+46
 </td>
 <td style="text-align:right;">
-15.61
+15.28
 </td>
 <td style="text-align:right;">
 52.040

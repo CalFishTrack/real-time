@@ -84,6 +84,7 @@ h6 {
 }
 </style>
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -368,7 +369,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2021 Water Year Study Detections
+    2021 WY Study Detections
      
     <span class="caret"></span>
   </a>
@@ -389,7 +390,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Archive Study Pages
+    Archived Study Pages
      
     <span class="caret"></span>
   </a>
@@ -526,7 +527,10 @@ div.tocify {
   </ul>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/">Telemetry Data Explorer</a>
+</li>
+<li>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">Delta STARS simulations</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -617,15 +621,15 @@ colnames(detects_study)[which(colnames(detects_study) == &quot;rkm&quot;)] &lt;-
 ##################################################################################################################
 #### TO RUN THE FOLLOWING CODE CHUNKS FROM HERE ON DOWN USING R ERDDAP, UN-COMMENT THESE NEXT 9 LINES OF CODE ####
 ##################################################################################################################
-cache_delete_all()
-varnames = &quot;time,latitude,longitude,TagCode,general_location,river_km,local_time,Study_ID,release_time,weight,length,release_rkm,release_location,recv,location,tag_life&quot;
-query=paste(&#39;&amp;&#39;,&quot;Study_ID&quot;,&#39;=&quot;&#39;,study,&#39;&quot;&#39;,sep = &#39;&#39;)
-datafile=URLencode(paste(&quot;http://oceanview.pfeg.noaa.gov/erddap/tabledap/&quot;,&quot;FEDcalFishTrack&quot;,&quot;.csv?&quot;,varnames,query,sep = &#39;&#39;))
-detects_study &lt;- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
-detects_study &lt;- detects_study[-1,]
-detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$local_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
-detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
-detects_study$river_km &lt;- as.numeric(detects_study$river_km)
+#cache_delete_all()
+#varnames = &quot;time,latitude,longitude,TagCode,general_location,river_km,local_time,Study_ID,release_time,weight,length,release_rkm,release_location,recv,location,tag_life&quot;
+#query=paste(&#39;&amp;&#39;,&quot;Study_ID&quot;,&#39;=&quot;&#39;,study,&#39;&quot;&#39;,sep = &#39;&#39;)
+#datafile=URLencode(paste(&quot;http://oceanview.pfeg.noaa.gov/erddap/tabledap/&quot;,&quot;FEDcalFishTrack&quot;,&quot;.csv?&quot;,varnames,query,sep = &#39;&#39;))
+#detects_study &lt;- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
+#detects_study &lt;- detects_study[-1,]
+#detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$local_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
+#detects_study$release_time &lt;- as.POSIXct(detects_study$release_time, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
+#detects_study$river_km &lt;- as.numeric(detects_study$river_km)
 #################################################################################################################
 
 
@@ -711,7 +715,7 @@ Number_fish_released
 <th style="text-align:left;">
 Release_location
 </th>
-<th style="text-align:left;">
+<th style="text-align:right;">
 Release_rkm
 </th>
 <th style="text-align:right;">
@@ -739,8 +743,8 @@ Week 1
 <td style="text-align:left;">
 RBDD_Rel
 </td>
-<td style="text-align:left;">
-461.57
+<td style="text-align:right;">
+461.570
 </td>
 <td style="text-align:right;">
 89.7
@@ -765,7 +769,7 @@ Week 2
 <td style="text-align:left;">
 RBDD_Rel
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 461.579
 </td>
 <td style="text-align:right;">
@@ -858,6 +862,10 @@ if (nrow(detects_butte) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Bend Bridge&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <div class="figure">
 <img src="pageCNFH_FMR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Butte-1.png" alt="2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -941,6 +949,10 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <div class="figure">
 <img src="pageCNFH_FMR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1013,6 +1025,10 @@ if (nrow(detects_benicia)&gt;0) {
   plot(1:2, type = &quot;n&quot;, xlab = &quot;&quot;,xaxt = &quot;n&quot;, yaxt = &quot;n&quot;, ylab = &quot;Number of fish arrivals per day&quot;)
   text(1.5,1.5, labels = &quot;NO DETECTIONS YET&quot;, cex = 2)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <div class="figure">
 <img src="pageCNFH_FMR_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">

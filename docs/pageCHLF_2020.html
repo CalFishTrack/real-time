@@ -84,6 +84,7 @@ h6 {
 }
 </style>
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -368,7 +369,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2021 Water Year Study Detections
+    2021 WY Study Detections
      
     <span class="caret"></span>
   </a>
@@ -389,7 +390,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Archive Study Pages
+    Archived Study Pages
      
     <span class="caret"></span>
   </a>
@@ -526,7 +527,10 @@ div.tocify {
   </ul>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/">Telemetry Data Explorer</a>
+</li>
+<li>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">Delta STARS simulations</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -721,9 +725,9 @@ BattleCk_CNFH
 <pre class="r"><code>setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;))
 
 library(CDECRetrieve)
-library(reshape2)</code></pre>
-<pre><code>## Warning: package &#39;reshape2&#39; was built under R version 3.6.3</code></pre>
-<pre class="r"><code>detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_ColemanLateFall_2020.csv&quot;, sep = &quot;&quot;))
+library(reshape2)
+
+detects_study &lt;- fread(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products\\Study_detection_files\\detects_ColemanLateFall_2020.csv&quot;, sep = &quot;&quot;))
 detects_study$DateTime_PST &lt;- as.POSIXct(detects_study$DateTime_PST, format = &quot;%Y-%m-%d %H:%M:%S&quot;, &quot;Etc/GMT+8&quot;)
 
 if(nrow(detects_study)&gt;0){
@@ -883,6 +887,10 @@ if (nrow(detects_tower) == 0){
   axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
   mtext(&quot;Flow (cfs) at Wilkins Slough&quot;, side=4, line=3, cex=1.5, col=&quot;blue&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <div class="figure">
 <img src="pageCHLF_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Tower-1.png" alt="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -953,6 +961,10 @@ if (nrow(detects_benicia)&gt;0) {
 }else{
   print(&quot;No detections at Benicia yet&quot;)
 }</code></pre>
+<pre><code>## Warning in dcast(tagcount, Day ~ Release): The dcast generic in data.table has been passed a data.frame and will attempt
+## to redirect to the reshape2::dcast; please note that reshape2 is deprecated, and this redirection is now deprecated as
+## well. Please do this redirection yourself like reshape2::dcast(tagcount). In the next version, this warning will become an
+## error.</code></pre>
 <div class="figure">
 <img src="pageCHLF_2020_files/figure-html/print%20figure%20of%20fish%20detections%20at%20Benicia-1.png" alt="2.3 Detections at Benicia Bridge" width="960" style="background-color: #000000; padding:3px" />
 <p class="caption">
@@ -1457,7 +1469,7 @@ Detection probability at Georgiana Slough
 0.0
 </td>
 <td style="text-align:right;">
-96.2
+100.0
 </td>
 <td style="text-align:right;">
 100.0
@@ -2723,10 +2735,10 @@ Benicia West
 42
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-219
+365
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-264
+330
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -2755,10 +2767,10 @@ Benicia West
 15
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-570
+950
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-764
+955
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -2770,7 +2782,7 @@ Benicia West
 24
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-68
+85
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 32
@@ -2791,10 +2803,10 @@ Benicia West
 30
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-147
+245
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-204
+255
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -2806,7 +2818,7 @@ Benicia West
 150
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-280
+350
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 184
@@ -2827,10 +2839,10 @@ Benicia West
 3
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-21
+35
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-28
+35
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -2842,7 +2854,7 @@ Benicia West
 84
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-188
+235
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 120
@@ -2863,22 +2875,22 @@ Benicia West
 15
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-21
+35
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+30
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 24
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-24
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-56
+70
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 40
@@ -2890,7 +2902,7 @@ Benicia West
 32
 </td>
 <td style="text-align:center;">
-32
+44
 </td>
 </tr>
 <tr>
@@ -2901,10 +2913,10 @@ Benicia West
 12
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-33
+55
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-48
+60
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -2916,7 +2928,7 @@ Benicia West
 6
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-24
+30
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 8
@@ -2928,7 +2940,7 @@ Benicia West
 224
 </td>
 <td style="text-align:center;">
-232
+319
 </td>
 </tr>
 <tr>
@@ -2939,22 +2951,22 @@ Benicia West
 3
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-9
+15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+15
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 12
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-12
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-32
+40
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 16
@@ -2966,7 +2978,7 @@ Benicia West
 56
 </td>
 <td style="text-align:center;">
-56
+77
 </td>
 </tr>
 <tr>
@@ -2989,7 +3001,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-16
+20
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3000,7 +3012,7 @@ Benicia West
 96
 </td>
 <td style="text-align:center;">
-88
+121
 </td>
 </tr>
 <tr>
@@ -3012,7 +3024,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3032,7 +3044,7 @@ Benicia West
 80
 </td>
 <td style="text-align:center;">
-64
+88
 </td>
 </tr>
 <tr>
@@ -3042,21 +3054,21 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-9
+15
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-16
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-</td>
-<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+20
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+</td>
+<td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3067,7 +3079,7 @@ Benicia West
 40
 </td>
 <td style="text-align:center;">
-48
+66
 </td>
 </tr>
 <tr>
@@ -3077,10 +3089,10 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-6
+10
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-8
+10
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3100,7 +3112,7 @@ Benicia West
 56
 </td>
 <td style="text-align:center;">
-56
+77
 </td>
 </tr>
 <tr>
@@ -3110,10 +3122,10 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-3
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3133,7 +3145,7 @@ Benicia West
 16
 </td>
 <td style="text-align:center;">
-16
+22
 </td>
 </tr>
 <tr>
@@ -3155,7 +3167,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3166,7 +3178,7 @@ Benicia West
 24
 </td>
 <td style="text-align:center;">
-24
+33
 </td>
 </tr>
 <tr>
@@ -3198,7 +3210,7 @@ Benicia West
 16
 </td>
 <td style="text-align:center;">
-24
+33
 </td>
 </tr>
 <tr>
@@ -3230,7 +3242,7 @@ Benicia West
 40
 </td>
 <td style="text-align:center;">
-32
+44
 </td>
 </tr>
 <tr>
@@ -3261,7 +3273,7 @@ Benicia West
 40
 </td>
 <td style="text-align:center;">
-40
+55
 </td>
 </tr>
 <tr>
@@ -3271,10 +3283,10 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-3
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3294,7 +3306,7 @@ Benicia West
 8
 </td>
 <td style="text-align:center;">
-16
+22
 </td>
 </tr>
 <tr>
@@ -3304,10 +3316,10 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-3
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3326,7 +3338,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;">
-8
+11
 </td>
 </tr>
 <tr>
@@ -3357,7 +3369,7 @@ Benicia West
 8
 </td>
 <td style="text-align:center;">
-8
+11
 </td>
 </tr>
 <tr>
@@ -3420,7 +3432,7 @@ Benicia West
 16
 </td>
 <td style="text-align:center;">
-16
+22
 </td>
 </tr>
 <tr>
@@ -3501,7 +3513,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -3598,7 +3610,7 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;">
-8
+11
 </td>
 </tr>
 <tr>
@@ -4019,7 +4031,6 @@ Benicia West
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-NA
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 NA
@@ -4046,10 +4057,10 @@ NA
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-2
+3
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -4119,7 +4130,7 @@ NA
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -4296,7 +4307,7 @@ NA
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -4423,7 +4434,7 @@ NA
 24
 </td>
 <td style="text-align:center;">
-24
+33
 </td>
 </tr>
 <tr>
@@ -4483,7 +4494,7 @@ NA
 8
 </td>
 <td style="text-align:center;">
-8
+11
 </td>
 </tr>
 <tr>
@@ -4522,10 +4533,10 @@ NA
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-2
+3
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
@@ -4814,10 +4825,10 @@ NA
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-3
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
-4
+5
 </td>
 <td style="text-align:center;min-width: 50px; border-left:1px solid;border-right:1px solid;">
 </td>
