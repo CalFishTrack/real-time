@@ -84,6 +84,7 @@ h6 {
 }
 </style>
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -368,7 +369,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    2021 Water Year Study Detections
+    2021 WY Study Detections
      
     <span class="caret"></span>
   </a>
@@ -389,7 +390,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Archive Study Pages
+    Archived Study Pages
      
     <span class="caret"></span>
   </a>
@@ -526,7 +527,10 @@ div.tocify {
   </ul>
 </li>
 <li>
-  <a href="http://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">STARS shiny app</a>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/">Telemetry Data Explorer</a>
+</li>
+<li>
+  <a href="https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/">Delta STARS simulations</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -763,7 +767,7 @@ BattleCk_CNFH_Rel
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study is in progress. Data current as of 2021-01-05 13:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study is in progress. Data current as of 2021-01-05 16:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
