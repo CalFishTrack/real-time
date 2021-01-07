@@ -15,7 +15,11 @@ navbar:
     href: pageDEPLOY.html
   - text: Download data
     href: pageRealtime_download.html
-  - text: Archived Study Pages
+  - text: Data Explorer
+    href: https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/        
+  - text: STARS simulations
+    href: https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
+  - text: Archived Studies
     menu:
     - text: 2018 Water Year
       menu:
@@ -99,12 +103,8 @@ navbar:
         href: pagePutahCk_PKM_2020.html
       - text: 2020 SEASON SUMMARY
         href: pageSEASON_2020.html
-  - text: Telemetry Data Explorer
-    href: https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/        
-  - text: Delta STARS simulations
-    href: https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack/
 output:
   html_document:
     lib_dir: site_libs
-    self_contained: no
+    css: style.css
 
