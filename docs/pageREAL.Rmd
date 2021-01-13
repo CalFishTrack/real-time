@@ -247,9 +247,14 @@ if (nrow(ATS_files) > 0) {
         test[,ncol(test)] <- NULL
       }
       ## Find file end, if it exists (if it doesn't, file is corrupted, see below)
-      end1 <- head(grep("--", test[,1]),1)
-      end2 <- head(grep("File End", test[,1]),1)
-      end_final <- head(grep(".-- Done", test[,1]),1)
+      ## Only do this for modem downloaded files. Assume that SD-card downloaded files are complete
+      if (any(grepl(x = test$Internal, pattern = "Modem"))){
+        end1 <- head(grep("--", test[,1]),1)
+        end2 <- head(grep("File End", test[,1]),1)
+        end_final <- head(grep(".-- Done", test[,1]),1)
+      }else{
+        end_final <- nrow(test)
+      }
     }
     
     ## This is another error catcher for weird ATS files that are corrupted
