@@ -101,7 +101,7 @@ unique_fish_v_recvs <- tabledap('FED_JSATS_detects', url = "https://oceanview.pf
 #### The following code snippets can help with simple data manipulations, analyses, and visualizations once you've imported your data in R ####
 
 ## First, lets format time so R reads it as a Posixct time
-dat$local_time <- as.POSIXct(dat$local_time, origin = '1970-01-01', format = "%d-%b-%Y %H:%M:%S", tz = "Etc/GMT+8")
+dat$local_time <- as.POSIXct(dat$local_time, origin = '1970-01-01', format = "%Y-%m-%d %H:%M:%OS", tz = "Etc/GMT+8")
 
 #### Associate detection data to tagging data ####
 dat_fish <- merge(dat, fish, by = c("fish_id", "study_id"))

@@ -1151,12 +1151,12 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   crosstab[is.na(crosstab)] <- ""
   crosstab[crosstab==0] <- NA
   crosstab <- as.data.frame.matrix(crosstab)
-  colnames(crosstab) <- c("Butte Br", "Tower Br", "I8050 Br", "Old River", "Middle River", "CVP Tanks", "Georg Slough1", "Sac_Blw Georg1", "Georg Slough2", "Sac_Blw Georg2", "Benicia East", "Benicia West")
+  #colnames(crosstab) <- c("Butte Br", "Tower Br", "I8050 Br", "Old River", "Middle River", "CVP Tanks", "Georg Slough1", "Sac_Blw Georg1", "Georg Slough2", "Sac_Blw Georg2", "Benicia East", "Benicia West")
 
  kable(crosstab, align = "c") %>%
   kable_styling(c("striped", "condensed"), font_size = 11, full_width = F, position = "left") %>%
   #row_spec(0, angle = -45) %>%
-  column_spec(column = 1:12,width_min = "50px",border_left = T, border_right = T) %>%
+  column_spec(column = 1:ncol(crosstab),width_min = "50px",border_left = T, border_right = T) %>%
   column_spec(1, bold = T, width_min = "75px")%>%
   scroll_box(height = "700px")
 }
