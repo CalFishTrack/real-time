@@ -755,6 +755,50 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
 
 ```
 
+```{r compare STARs to empirical routing estimate, fig.align="left", fig.height = 7, fig.width = 7.6, out.extra='style="background-color: #000000; padding:3px"',  fig.cap="3.4 STARS prediction vs. empirical estimate of Routing Probability at Georgiana Slough Junction", warning=F, message=F}
+
+
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
+  plot(1:2, type = "n",xaxt = "n", yaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
+  text(1.5,1.5, labels = "NO DETECTIONS YET", cex = 2)
+}else if (route_results_possible == F){
+  plot(1:2, type = "n",xaxt = "n", yaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
+  text(1.5,1.5, labels = "TOO FEW DETECTIONS", cex = 2)
+}else{  
+
+library(repmis)
+
+source_data("https://code.usgs.gov/crrl_qfes/Enhanced_Acoustic_Telemetry_Project/raw/master/EAT_data_2020.Rdata?raw=True")
+
+## first, find min and max arrivals at georg for a study
+min_georg <- as.Date(format(min(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
+max_georg <- as.Date(format(max(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
+
+psi_study <- psi_GeoCond[psi_GeoCond$Date <= max_georg & psi_GeoCond$Date >=min_georg,]
+
+plot(psi_study$Date, psi_study$psi_geo.50, ylim = c(0,1), type = "n", xaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
+polygon(c(psi_study$Date, rev(psi_study$Date)), 
+        c(psi_study$psi_geo.10,rev(psi_study$psi_geo.90)), density = 200, col ='grey90')
+lines(psi_study$Date, psi_study$psi_geo.50, lty = 3)
+points(mean(psi_study$Date), tail(results_short$Estimate,1)/100, pch = 16, cex = 1.3)
+arrows(mean(psi_study$Date), tail(results_short$`95% lower C.I.`,1)/100, mean(psi_study$Date), tail(results_short$`95% upper C.I.`,1)/100, length=0.05, angle=90, code=3)
+axis(side=1, at=psi_study$Date, labels=format(psi_study$Date, '%b-%d'))
+legend("topright", legend = c('STARS daily predictions during study (w/ 90% CI)', 'Empirical estimate over study period (w/ 95% CI)'), 
+       bty = "n",
+       col = c("black","black"),
+       lty = c(3,1),
+       fill = c("grey90", NA),
+       border = c(NA,NA),
+       pch = c(NA,16),
+       seg.len =0.8,
+       cex= 1.2
+)
+
+}  
+
+
+```
+
 
 ```{r print table of survival to Benicia, message = FALSE, results= "asis", warning=FALSE}
 
@@ -767,12 +811,12 @@ detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_
 if (nrow(detects_benicia) == 0){
   WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
-  print(kable(WR.surv1, row.names = F, "html", caption = "3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))  
 }else if (length(table(detects_benicia$general_location)) == 1){
    WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
-  print(kable(WR.surv1, row.names = F, "html", caption = "3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
 } else {
   
@@ -855,7 +899,7 @@ if (nrow(detects_benicia) == 0){
   WR.surv1 <- WR.surv
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
 
-  print(kable(WR.surv1, row.names = F, "html", caption = "3.4 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))    
   
   
@@ -889,7 +933,7 @@ try(Delta <- read.csv("Delta_surv.csv", stringsAsFactors = F))
 if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
     results_short <- data.frame("Measure"=NA, "Estimate"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
-    print(kable(results_short, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
+    print(kable(results_short, row.names = F, "html", caption = "3.6 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
 }else{
   ## Only do survival to Georg split for now
@@ -899,7 +943,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
      nrow(test4[test4$general_location =="Benicia_east",]) == 0){
     results_short <- data.frame("Measure"=NA, "Estimate"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA)
     colnames(results_short) <- c("Measure", "Estimate", "SE", "95% lower C.I.", "95% upper C.I.")
-    print(kable(results_short, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
+    print(kable(results_short, row.names = F, "html", caption = "3.6 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
 
   }else{
@@ -971,7 +1015,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   WR.surv1 <- WR.surv
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.")
 
-  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.6 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))  
   
   if(exists("Delta")==T){
