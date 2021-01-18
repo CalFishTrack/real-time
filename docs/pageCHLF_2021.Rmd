@@ -774,9 +774,9 @@ source_data("https://code.usgs.gov/crrl_qfes/Enhanced_Acoustic_Telemetry_Project
 min_georg <- as.Date(format(min(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
 max_georg <- as.Date(format(max(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
 
-psi_study <- psi_GeoCond[psi_GeoCond$Date <= max_georg & psi_GeoCond$Date >=min_georg,]
+psi_study <- psi_GeoCond[psi_GeoCond$Date <= max_georg & psi_GeoCond$Date >=min_georg-1,]
 
-plot(psi_study$Date, psi_study$psi_geo.50, ylim = c(0,1), type = "n", xaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
+plot(psi_study$Date, psi_study$psi_geo.50, ylim = c(0,1), xlim = c(min_georg, max_georg), type = "n", xaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
 polygon(c(psi_study$Date, rev(psi_study$Date)), 
         c(psi_study$psi_geo.10,rev(psi_study$psi_geo.90)), density = 200, col ='grey90')
 lines(psi_study$Date, psi_study$psi_geo.50, lty = 3)
