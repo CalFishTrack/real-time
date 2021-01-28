@@ -1,0 +1,16 @@
+base
+methods
+datasets
+utils
+grDevices
+graphics
+stats
+knitr
+kableExtra
+lubridate
+data.table
+ggplot2
+scales
+viridisLite
+viridis
+forcats
