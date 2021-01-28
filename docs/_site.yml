@@ -9,6 +9,8 @@ navbar:
     menu:
     - text: Hatchery late-fall-run salmon
       href: pageCHLF_2021.html
+    - text: Hatchery winter-run salmon
+      href: pageLSWR_2021.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
