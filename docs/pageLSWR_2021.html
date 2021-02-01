@@ -706,7 +706,7 @@ if (nrow(detects_study) == 0){
   
   release_stats &lt;- release_stats[order(release_stats$First_release_time),]
   
-  kable(release_stats, format = &quot;html&quot;) %&gt;%
+  kable(release_stats, format = &quot;html&quot;, row.names = F) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 
 }                       </code></pre>
@@ -714,8 +714,6 @@ if (nrow(detects_study) == 0){
 <table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
 <thead>
 <tr>
-<th style="text-align:left;">
-</th>
 <th style="text-align:left;">
 Release
 </th>
@@ -745,9 +743,6 @@ Mean_weight
 <tbody>
 <tr>
 <td style="text-align:left;">
-2
-</td>
-<td style="text-align:left;">
 Thiamine Boost
 </td>
 <td style="text-align:left;">
@@ -774,9 +769,6 @@ Caldwell_Park_Rel
 </tr>
 <tr>
 <td style="text-align:left;">
-3
-</td>
-<td style="text-align:left;">
 Thiamine Control
 </td>
 <td style="text-align:left;">
@@ -802,9 +794,6 @@ Caldwell_Park_Rel
 </td>
 </tr>
 <tr>
-<td style="text-align:left;">
-1
-</td>
 <td style="text-align:left;">
 Release 3
 </td>

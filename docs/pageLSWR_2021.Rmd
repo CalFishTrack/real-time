@@ -186,7 +186,7 @@ if (nrow(detects_study) == 0){
   
   release_stats <- release_stats[order(release_stats$First_release_time),]
   
-  kable(release_stats, format = "html") %>%
+  kable(release_stats, format = "html", row.names = F) %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")
 
 }                       
