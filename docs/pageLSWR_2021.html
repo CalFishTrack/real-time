@@ -26,6 +26,7 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/font-awesome-animation-1.0/font-awesome-animation-emi.css" rel="stylesheet" />
 <script src="site_libs/fontawesome-5.0.13/js/fontawesome-all.min.js"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -703,18 +704,141 @@ if (nrow(detects_study) == 0){
   
   release_stats$Last_release_time &lt;- format(release_stats$Last_release_time, tz = &quot;Etc/GMT+8&quot;)
   
+  release_stats &lt;- release_stats[order(release_stats$First_release_time),]
+  
   kable(release_stats, format = &quot;html&quot;) %&gt;%
           kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;, &quot;bordered&quot;), full_width = F, position = &quot;left&quot;)
 
 }                       </code></pre>
-<pre><code>## Study has not yet begun</code></pre>
+<pre><code>## Study began on 2021-01-30 14:30:00, see tagging details below:</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive table-bordered" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Release
+</th>
+<th style="text-align:left;">
+First_release_time
+</th>
+<th style="text-align:left;">
+Last_release_time
+</th>
+<th style="text-align:right;">
+Number_fish_released
+</th>
+<th style="text-align:left;">
+Release_location
+</th>
+<th style="text-align:right;">
+Release_rkm
+</th>
+<th style="text-align:right;">
+Mean_length
+</th>
+<th style="text-align:right;">
+Mean_weight
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+Thiamine Boost
+</td>
+<td style="text-align:left;">
+2021-01-30 14:30:00
+</td>
+<td style="text-align:left;">
+2021-01-30 14:30:00
+</td>
+<td style="text-align:right;">
+134
+</td>
+<td style="text-align:left;">
+Caldwell_Park_Rel
+</td>
+<td style="text-align:right;">
+551.28
+</td>
+<td style="text-align:right;">
+87.4
+</td>
+<td style="text-align:right;">
+7.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+Thiamine Control
+</td>
+<td style="text-align:left;">
+2021-01-30 14:31:00
+</td>
+<td style="text-align:left;">
+2021-01-30 14:31:00
+</td>
+<td style="text-align:right;">
+130
+</td>
+<td style="text-align:left;">
+Caldwell_Park_Rel
+</td>
+<td style="text-align:right;">
+551.28
+</td>
+<td style="text-align:right;">
+86.9
+</td>
+<td style="text-align:right;">
+7.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+Release 3
+</td>
+<td style="text-align:left;">
+2021-01-30 17:30:00
+</td>
+<td style="text-align:left;">
+2021-01-30 17:30:00
+</td>
+<td style="text-align:right;">
+290
+</td>
+<td style="text-align:left;">
+Caldwell_Park_Rel
+</td>
+<td style="text-align:right;">
+551.28
+</td>
+<td style="text-align:right;">
+90.0
+</td>
+<td style="text-align:right;">
+8.1
+</td>
+</tr>
+</tbody>
+</table>
 <p><br/></p>
 <hr />
 </div>
 <div id="real-time-fish-detections" class="section level2">
 <h2><em>2. Real-time Fish Detections</em></h2>
 <hr />
-<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study has not yet begun</span>. All times in Pacific Standard Time.</em></strong></p>
+<p><strong><em><span class=" faa-flash animated " style=" color:red; display: -moz-inline-stack; display: inline-block; transform: rotate(0deg);">Study is in progress. Data current as of 2021-02-01 14:00:00</span>. All times in Pacific Standard Time.</em></strong></p>
 <pre class="r"><code>try(setwd(paste(file.path(Sys.getenv(&quot;USERPROFILE&quot;),&quot;Desktop&quot;,fsep=&quot;\\&quot;), &quot;\\Real-time data massaging\\products&quot;, sep = &quot;&quot;)))
 
 detects_butte &lt;- detects_study[detects_study$general_location == &quot;ButteBrRT&quot;,]
