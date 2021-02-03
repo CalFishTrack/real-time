@@ -33,9 +33,10 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 `r anicon::nia("New Updates", size = 2)`
 
-1. [New acoustic telemetry data explorer Shiny App 1/8/2021](https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/)
-2. [New webpage created for hatchery late-fall-run Chinook salmon release 1/4/2021](https://calfishtrack.github.io/real-time/pageCHLF_2021.html)
-3. [The STARS shinyapp has been updated to include two new changes: 5-day ahead forecasted river flows, and the ability to download a table of model predictions 10/21/2020](https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack)
+1. [New webpage created for hatchery winter-run Chinook salmon release 2/1/2021](https://calfishtrack.github.io/real-time/pageLSWR_2021.html)
+2. [New acoustic telemetry data explorer Shiny App 1/8/2021](https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/)
+3. [New webpage created for hatchery late-fall-run Chinook salmon release 1/4/2021](https://calfishtrack.github.io/real-time/pageCHLF_2021.html)
+4. [The STARS shinyapp has been updated to include two new changes: 5-day ahead forecasted river flows, and the ability to download a table of model predictions 10/21/2020](https://oceanview.pfeg.noaa.gov/shiny/FED/CalFishTrack)
 
 
 </div>
