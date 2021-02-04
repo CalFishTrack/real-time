@@ -730,7 +730,15 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
 
 ```{r figure of routing with pic, fig.align="left", fig.height = 7, fig.width = 7.6}
 
-download.file("https://raw.githubusercontent.com/CalFishTrack/real-time/master/data/georg.png",destfile = "georg.png", quiet = T, mode = "wb")
+
+##____________________________________________________________________________
+## If you don't have access to local files, uncomment and run next lines of code
+
+#download.file("https://raw.githubusercontent.com/CalFishTrack/real-time/master/data/georg.png",destfile = "georg.png", quiet = T, mode = "wb")
+
+##________________________________________________________________________________
+
+
 georg <- readPNG("georg.png")
 
 par(mar=c(2,0,0,0))
@@ -765,37 +773,41 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   plot(1:2, type = "n",xaxt = "n", yaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
   text(1.5,1.5, labels = "TOO FEW DETECTIONS", cex = 2)
 }else{  
-
-library(repmis)
-
-source_data("https://code.usgs.gov/crrl_qfes/Enhanced_Acoustic_Telemetry_Project/raw/master/EAT_data_2020.Rdata?raw=True")
-
-## first, find min and max arrivals at georg for a study
-min_georg <- as.Date(format(min(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
-max_georg <- as.Date(format(max(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
-
-psi_study <- psi_GeoCond[psi_GeoCond$Date <= max_georg & psi_GeoCond$Date >=min_georg-1,]
-
-plot(psi_study$Date, psi_study$psi_geo.50, ylim = c(0,1), xlim = c(min_georg, max_georg), type = "n", xaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
-polygon(c(psi_study$Date, rev(psi_study$Date)), 
-        c(psi_study$psi_geo.10,rev(psi_study$psi_geo.90)), density = 200, col ='grey90')
-lines(psi_study$Date, psi_study$psi_geo.50, lty = 3)
-points(mean(psi_study$Date), tail(results_short$Estimate,1)/100, pch = 16, cex = 1.3)
-arrows(mean(psi_study$Date), tail(results_short$`95% lower C.I.`,1)/100, mean(psi_study$Date), tail(results_short$`95% upper C.I.`,1)/100, length=0.05, angle=90, code=3)
-axis(side=1, at=psi_study$Date, labels=format(psi_study$Date, '%b-%d'))
-legend("topright", legend = c('STARS daily predictions during study (w/ 90% CI)', 'Empirical estimate over study period (w/ 95% CI)'), 
-       bty = "n",
-       col = c("black","black"),
-       lty = c(3,1),
-       fill = c("grey90", NA),
-       border = c(NA,NA),
-       pch = c(NA,16),
-       seg.len =0.8,
-       cex= 1.2
-)
-
+  
+  library(repmis)
+  
+  trytest <- try(source_data("https://code.usgs.gov/crrl_qfes/Enhanced_Acoustic_Telemetry_Project/raw/master/EAT_data_2020.Rdata?raw=True"))
+  
+  if (inherits(trytest, "try-error")){
+    plot(1:2, type = "n",xaxt = "n", yaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
+    text(1.5,1.5, labels = "ERROR DOWNLOADING STARS PREDICTIONS", cex = 2)
+  }else{
+  
+    ## first, find min and max arrivals at georg for a study
+    min_georg <- as.Date(format(min(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
+    max_georg <- as.Date(format(max(test2[test2$general_location %in% c("Sac_BlwGeorgiana", "Sac_BlwGeorgiana2","Georgiana_Slough1", "Georgiana_Slough2"),"DateTime_PST"]), "%Y-%m-%d"))
+    
+    psi_study <- psi_GeoCond[psi_GeoCond$Date <= max_georg & psi_GeoCond$Date >=min_georg-1,]
+    
+    plot(psi_study$Date, psi_study$psi_geo.50, ylim = c(0,1), xlim = c(min_georg, max_georg), type = "n", xaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
+    polygon(c(psi_study$Date, rev(psi_study$Date)), 
+            c(psi_study$psi_geo.10,rev(psi_study$psi_geo.90)), density = 200, col ='grey90')
+    lines(psi_study$Date, psi_study$psi_geo.50, lty = 3)
+    points(mean(psi_study$Date), tail(results_short$Estimate,1)/100, pch = 16, cex = 1.3)
+    arrows(mean(psi_study$Date), tail(results_short$`95% lower C.I.`,1)/100, mean(psi_study$Date), tail(results_short$`95% upper C.I.`,1)/100, length=0.05, angle=90, code=3)
+    axis(side=1, at=psi_study$Date, labels=format(psi_study$Date, '%b-%d'))
+    legend("topright", legend = c('STARS daily predictions during study (w/ 90% CI)', 'Empirical estimate over study period (w/ 95% CI)'), 
+           bty = "n",
+           col = c("black","black"),
+           lty = c(3,1),
+           fill = c("grey90", NA),
+           border = c(NA,NA),
+           pch = c(NA,16),
+           seg.len =0.8,
+           cex= 1.2
+    )
+  }
 }  
-
 
 ```
 
