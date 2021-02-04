@@ -780,7 +780,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   
   if (inherits(trytest, "try-error")){
     plot(1:2, type = "n",xaxt = "n", yaxt = "n", xlab = "Range of days study fish were present at Georgiana Sl Junction", ylab = "Routing probability into Georgiana Slough at the junction")
-    text(1.5,1.5, labels = "ERROR DOWNLOADING STARS PREDICTIONS", cex = 2)
+    text(1.5,1.5, labels = "ERROR DOWNLOADING STARS", cex = 2)
   }else{
   
     ## first, find min and max arrivals at georg for a study
