@@ -1077,7 +1077,7 @@ for (k in unique(tagcodes$StudyID)){
   if(nrow(temp_detects) > 0){  
     detects_per_visit_num <- aggregate(temp_detects$DateTime_PST, by = list(visit_num = temp_detects$visit_num), FUN = length)
     
-    temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 4, "visit_num"],]
+    temp_detects <- temp_detects[temp_detects$visit_num %in% detects_per_visit_num[detects_per_visit_num$x > 3, "visit_num"],]
   }
   
   
