@@ -179,7 +179,7 @@ if (nrow(detects_benicia)>0) {
   rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$Release))])
   
   tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release = detects_benicia$Release ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ Release)
+  tagcount1 <- reshape2::dcast(tagcount, Day ~ Release)
                     
   daterange1 <- merge(daterange, tagcount1, all.x=T)
   
@@ -255,7 +255,7 @@ if (nrow(detects_benicia) == 0){
   
   ## Create inp for survival estimation
   
-  inp <- as.data.frame(dcast(test3, TagCode ~ rkm, fun.aggregate = length))
+  inp <- as.data.frame(reshape2::dcast(test3, TagCode ~ rkm, fun.aggregate = length))
   
   ## Sort columns by river km in descending order
   # Count number of genlocs

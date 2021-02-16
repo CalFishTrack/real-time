@@ -97,7 +97,7 @@ benicia <- merge(benicia, tol_released)
 benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
 ## Now subset to only be WY2020 fish. This usually removes green sturgeon too
-benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01",]
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01" & benicia_rel$RelDT < "2020-12-01",]
 ## Remove any steelhead releases
 benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
 ### Combine sutter bypass releases
@@ -134,7 +134,7 @@ ay <- list(
 p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
   xlim(range(wlk_flow$datetime)) +
   geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
-  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= .)) +
+  geom_point(data = benicia_rel, size=2, position = pd, stroke = 1.5, aes(colour= .)) +
   boolScale +
   labs(x="Release Date", size = 8) +
   labs(y="% Survival to Benicia Bridge", size = 8) +  
@@ -184,7 +184,7 @@ benicia <- merge(benicia, tol_released)
 benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
 ## Now subset to only be WY2019 fish
-benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01",]
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2020-01-01" & benicia_rel$RelDT < "2020-12-01",]
 ## Remove any steelhead releases
 benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
 ### Combine sutter bypass releases
@@ -223,7 +223,7 @@ ay <- list(
 p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
   xlim(range(wlk_flow$datetime)) +
   geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
-  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= .)) +
+  geom_point(data = benicia_rel, size=2, position = pd, stroke = 1.5, aes(colour= .)) +
   boolScale +
   labs(x="Release Date", size = 8) +
   labs(y="% through-Delta Survival", size = 8) +  

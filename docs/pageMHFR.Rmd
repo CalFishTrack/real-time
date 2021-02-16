@@ -125,7 +125,7 @@ if (nrow(detects_study)>0) {
   rels_no_detects <- as.character(rels[!(rels %in% unique(detects_study$RelDT))])
   
   tagcount <- aggregate(list(unique_tags = detects_study$TagCode), by = list(Day = detects_study$Day, RelDT = detects_study$RelDT ), FUN = function(x){length(unique(x))})
-  tagcount1 <- dcast(tagcount, Day ~ RelDT)
+  tagcount1 <- reshape2::dcast(tagcount, Day ~ RelDT)
                     
   daterange1 <- merge(daterange, tagcount1, all.x=T)
   

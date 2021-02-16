@@ -89,7 +89,7 @@ ay <- list(
 p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
   xlim(range(wlk_flow$datetime)) +
   geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
-  geom_point(data = benicia_rel, size=4, position = pd, stroke = 1.5, aes(colour= data_quality)) +
+  geom_point(data = benicia_rel, size=2, position = pd, stroke = 1.5, aes(colour= data_quality)) +
   boolScale +
   labs(x="Release Date", size = 8) +
   labs(y="% Survival to Benicia Bridge", size = 8) +  
@@ -102,7 +102,8 @@ p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = St
         axis.title.y.right = element_text(color = "blue"),
         axis.text.y.right = element_text(color = "blue"),
         panel.background = element_rect(fill = "white", colour = "black"),
-        legend.position="bottom")
+        legend.position="bottom",
+        panel.border = element_rect(colour = "black", fill=NA))
 
 ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
   add_annotations( text="Data status", xref="paper", yref="paper",
