@@ -127,11 +127,14 @@ detects_beacon <- subset(detects_beacon, select= -c(location, general_location, 
 TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/field/Desktop/Tekno_data/Dropbox (Teknologic LLC)/Apps/SRCOM", full.names = T, recursive = T)), stringsAsFactors = F)
 ## Select only newest TECKNO files for massaging
 TECKNO_files <- as.data.frame(list(x=TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,]), stringsAsFactors = F)
+TECKNO_files$start_nchar_date <- nchar(TECKNO_files$x)-23
+TECKNO_files$stop_nchar_date <- nchar(TECKNO_files$x)-14
 ## Also, remove all the older files that google drive messed up
-TECKNO_files$dayes <- as.Date(apply(data.frame(TECKNO_files$x, stringsAsFactors = F), MARGIN = 1, FUN = substr, nchar(TECKNO_files$x)-23, nchar(TECKNO_files$x)-14), "%Y_%m_%d")
+TECKNO_files$dayes <- as.Date(substr(TECKNO_files$x, TECKNO_files$start_nchar_date, TECKNO_files$stop_nchar_date),"%Y_%m_%d")
 TECKNO_files <- TECKNO_files[TECKNO_files$dayes > "2020-12-31",]
 TECKNO_files$dayes <- NULL
-
+TECKNO_files$start_nchar_date <- NULL
+TECKNO_files$stop_nchar_date <- NULL
 
 ## Remove bad files that don't contain real data from list for processing
 bad_files <- read.csv("C:/Users/field/Desktop/Real-time data massaging/products/bad_files.csv", colClasses = "character")
@@ -440,7 +443,7 @@ if (nrow(TECKNO_files) > 0) {
   for (i in 1:nrow(TECKNO_files)) {
     res <- try(read.csv(TECKNO_files[i,"x"], header = F), silent = T) 
     if (inherits(res, "try-error")) {
-      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = TECKNO_files[i,"shortname"], download_attempts = 3, filename = TECKNO_files[i,"x"]))
+      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = TECKNO_files[i,"shortname"], download_attempts = 5, filename = TECKNO_files[i,"x"]))
       ## Also make corrupted downloads more palateable
       next
     } else {
