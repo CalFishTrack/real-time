@@ -124,12 +124,12 @@ detects_beacon <- subset(detects_beacon, select= -c(location, general_location, 
 #***********************************************************************************************
 
 ## Find all Teckno file names
-TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/field/Desktop/Tekno_data/Dropbox (Teknologic LLC)/Apps/SRCOM/NOAA.SC", full.names = T, recursive = T)), stringsAsFactors = F)
+TECKNO_all_files <- as.data.frame(list(x=dir(pattern = "*.txt", path = "C:/Users/field/Desktop/Tekno_data/Dropbox (Teknologic LLC)/Apps/SRCOM", full.names = T, recursive = T)), stringsAsFactors = F)
 ## Select only newest TECKNO files for massaging
 TECKNO_files <- as.data.frame(list(x=TECKNO_all_files[!TECKNO_all_files$x %in% TECKNO_processed_files$x,]), stringsAsFactors = F)
 ## Also, remove all the older files that google drive messed up
-TECKNO_files$dayes <- as.Date(apply(data.frame(TECKNO_files$x, stringsAsFactors = F), MARGIN = 1, FUN = substr, 93, 102), "%Y_%m_%d")
-TECKNO_files <- TECKNO_files[TECKNO_files$dayes > "2019-02-10",]
+TECKNO_files$dayes <- as.Date(apply(data.frame(TECKNO_files$x, stringsAsFactors = F), MARGIN = 1, FUN = substr, nchar(TECKNO_files$x)-23, nchar(TECKNO_files$x)-14), "%Y_%m_%d")
+TECKNO_files <- TECKNO_files[TECKNO_files$dayes > "2020-12-31",]
 TECKNO_files$dayes <- NULL
 
 
