@@ -1330,7 +1330,7 @@ kable(gen_loc_stats[,c("location",  "recv_start", "last_week_efficiency", "all_t
 
 <br/>
 
-```{r print heatmap of detection efficiency, warning=FALSE, message=FALSE, fig.width = 10, fig.height = 8}
+```{r print heatmap of detection efficiency, warning=FALSE, message=FALSE, fig.width = 10, fig.height = 10}
 
 
 library(ggplot2)
