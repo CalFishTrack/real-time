@@ -133,7 +133,7 @@ if (nrow(detects_study) == 0){
   #### ASSIGN RELEASE GROUPS HERE ####
   #######################################################################
     detects_study$Release <- "Release 1"
-  #detects_study[detects_study$release_time > as.POSIXct("2021-03-09"), "Release"] <- "Release 2"
+    detects_study[detects_study$release_time > as.POSIXct("2021-03-09"), "Release"] <- "Release 2"
   #######################################################################
   
   study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
