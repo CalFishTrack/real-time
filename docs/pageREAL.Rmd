@@ -1204,7 +1204,7 @@ leaflet(data = gen_locs[is.na(gen_locs$stop),]) %>%
 
 <br/>
 
-## Active Realtime receiver sites
+## Deployed Realtime receiver sites
 ``` {r print site stats, echo=FALSE, warning=FALSE}
 
 gen_locs <- gen_locs[order(gen_locs$rkm, decreasing = T),]
