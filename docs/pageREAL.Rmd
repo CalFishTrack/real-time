@@ -1399,16 +1399,18 @@ if (nrow(volt.files_2weeks) >0){
       volt.files_2weeks[i,"IP"] <- substr(test[2,],5,nchar(test[2,]))
     }
   }
-  volt.files_2weeks <- merge(volt.files_2weeks, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP")
+  volt.files_2weeks <- merge(volt.files_2weeks, IPs[,c("RECV", "TCP_IP")], by.x = "IP", by.y = "TCP_IP", all.x = T)
   
-  volt.files_2weeks <- volt.files_2weeks[,c("Datetime", "Volts", "RECV")]
+  volt.files_2weeks <- volt.files_2weeks[,c("Datetime", "Volts", "RECV","IP")]
 } else{
-  volt.files_2weeks <- data.frame("Datetime" = as.character(), "Volts" = numeric(), "RECV" = character(), stringsAsFactors = F)
+  volt.files_2weeks <- data.frame("Datetime" = as.character(), "Volts" = numeric(), "RECV" = character(),"TCP_IP" = character(), stringsAsFactors = F)
   volt.files_2weeks$Datetime <- as.POSIXct(volt.files_2weeks$Datetime)
 }
 
 ## Get last 2 weeks of Teknos
 volt.teknos <- downloads[downloads$recv %in% c(157002,157003,157004,157005) & downloads$end > (Sys.time() - 60*60*24*14), c("end", "bat_volts", "recv") ]
+
+volt.teknos$IPs <- NA
 
 colnames(volt.teknos) <- colnames(volt.files_2weeks)
 
