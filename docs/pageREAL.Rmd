@@ -633,13 +633,18 @@ if (nrow(UCD_files) > 0) {
 
 
 #***********************************************************************************************
-#### 8. Remove duplicate detections from both detects and beacon detects ####
+#### 8. Remove duplicate detections from both detects and beacon detects, and remove detections that are happening in future ####
+#### future detections sometimes happen on ATS receivers a few minutes before midnight ####
 #***********************************************************************************************
 
 
 ## Now remove duplicate detections that may have occured when an hourly file was inadvertantly uploaded twice
 detects <- detects[!duplicated(detects[,c("recv", "DateTime_Orig", "TagCode")])]
 detects_beacon <- detects_beacon[!duplicated(detects_beacon[,c("recv", "DateTime_Orig", "TagCode")])]
+
+## remove future detects. If anyone accidentally deploys an ATS receiver in GMT, this could cause problems, but perhaps that is good, it avoids having bad detections added to the website and the issue will become obvious on the realtime efficiency heatmap
+detects <- detects[detects$DateTime_PST < Sys.time(),]
+detects_beacon <- detects_beacon[detects_beacon$DateTime_PST < Sys.time(),]
 
 
 #***********************************************************************************************
@@ -857,43 +862,42 @@ fwrite(beacon_by_day, "beacon_by_day.csv", row.names = F)
 
 
 ## Here find gaps in service based on deployment records alone
-gap_percent <- aggregate(list(total_files = downloads$start), by = list(location = downloads$location), FUN = length) 
-gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(location = downloads$location), FUN = min), by = "location", all.y = T)
-## Some receivers turned hourly recording off soon after deployment, meaning there is an initial gap in the data, so I'm setting the true start time to when it started uninterrupted recording (i.e. after the gap)
-gap_percent[gap_percent$location == "I80-50_Br1", "recv_start"] <- as.POSIXct("2018-05-14 10:00:00")
-gap_percent[gap_percent$location == "RT_OldRiver", "recv_start"] <- as.POSIXct("2018-04-18 15:00:00")
-gap_percent[gap_percent$location == "GeorgSlRT_1.2", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
-gap_percent[gap_percent$location == "GeorgSlRT_1.1", "recv_start"] <- as.POSIXct("2018-04-17 4:00:00")
-gap_percent[gap_percent$location == "BeniciaRT_14", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
-gap_percent[gap_percent$location == "BeniciaRT_02", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
-gap_percent[gap_percent$location == "DCCRT_1", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
-gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
+# gap_percent <- aggregate(list(total_files = downloads$start), by = list(location = downloads$location), FUN = length) 
+# gap_percent <- merge(gap_percent,aggregate(list(recv_start = downloads$start), by = list(location = downloads$location), FUN = min), by = "location", all.y = T)
+# ## Some receivers turned hourly recording off soon after deployment, meaning there is an initial gap in the data, so I'm setting the true start time to when it started uninterrupted recording (i.e. after the gap)
+# gap_percent[gap_percent$location == "I80-50_Br1", "recv_start"] <- as.POSIXct("2018-05-14 10:00:00")
+# gap_percent[gap_percent$location == "RT_OldRiver", "recv_start"] <- as.POSIXct("2018-04-18 15:00:00")
+# gap_percent[gap_percent$location == "GeorgSlRT_1.2", "recv_start"] <- as.POSIXct("2018-04-17 9:00:00")
+# gap_percent[gap_percent$location == "GeorgSlRT_1.1", "recv_start"] <- as.POSIXct("2018-04-17 4:00:00")
+# gap_percent[gap_percent$location == "BeniciaRT_14", "recv_start"] <- as.POSIXct("2018-04-24 18:00:00")
+# gap_percent[gap_percent$location == "BeniciaRT_02", "recv_start"] <- as.POSIXct("2018-04-25 17:00:00")
+# gap_percent[gap_percent$location == "DCCRT_1", "recv_start"] <- as.POSIXct("2018-05-16 12:00:00")
+# gap_percent[gap_percent$location == "GeorgSlRT_2.1", "recv_start"] <- as.POSIXct("2018-05-22 16:00:00")
 
 
-## Now remove days when there wasn't a full day of beacon detections yet
-#beacon_by_day <- beacon_by_day[is.na(beacon_by_day$beacon)==F,]
+
 ## Now subset to only look at data for the correct beacon for that day
 beacon_by_day <- beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),]
 ## Remove detections at receivers that didn't have beacons yet but detected other's beacons
 #beacon_by_day <- beacon_by_day[-which(beacon_by_day$location == "GeorgSlRT_1.1" & beacon_by_day$day < as.Date("2018-06-19")),]
 #beacon_by_day <- beacon_by_day[-which(beacon_by_day$recv %in% c(17136,17139,17140,17142) & beacon_by_day$day < as.Date("2018-06-19")),]
 ## now put in NAs for days when no beacons were deployed at receivers
-beacon_by_day_add <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
+#beacon_by_day_add <- as.data.frame(rbind(cbind("BlGeorg_RT1.2", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("BlGeorg_RT1.1", seq.Date(from = as.Date("2018-04-16"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.2", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day")), cbind("GeorgSlRT_1.1", seq.Date(from = as.Date("2018-04-17"),to = as.Date("2018-06-18"), by = "day"))), stringsAsFactors = F)
 ## Massage these records for binding with beacon_by_day
-colnames(beacon_by_day_add) <- c("location", "day")
-beacon_by_day_add$day <- as.Date(as.numeric(beacon_by_day_add$day), origin = "1970-01-01")
-beacon_by_day <- bind_rows(beacon_by_day, beacon_by_day_add)
+#colnames(beacon_by_day_add) <- c("location", "day")
+#beacon_by_day_add$day <- as.Date(as.numeric(beacon_by_day_add$day), origin = "1970-01-01")
+#beacon_by_day <- bind_rows(beacon_by_day, beacon_by_day_add)
 ## Now bring in recv_start for next step
-beacon_by_day <- merge(beacon_by_day, gap_percent[, c("location", "recv_start")], all.x = T)
+#beacon_by_day <- merge(beacon_by_day, gap_percent[, c("location", "recv_start")], all.x = T)
 ## now remove detections that occured  before the official start time (see above note about receivers shutting off soon after deployment)
-beacon_by_day <- beacon_by_day[which(beacon_by_day$day > beacon_by_day$recv_start),]
+#beacon_by_day <- beacon_by_day[which(beacon_by_day$day > beacon_by_day$recv_start),]
 
-## now associate these beacon_by_day records with gap_percent
-gap_percent <- merge(gap_percent, aggregate(list(day_count = beacon_by_day$day), by = list(location = beacon_by_day$location), FUN = length), by = "location", all.x = T)
-## Estimate how many hours and days have elapsed
-gap_percent$num_of_days <- round(difftime(Sys.time(), gap_percent$recv_start, units = "d"), 0)
-## Now estimate the number of days with no beacon detections
-gap_percent$percent_downtime <- 100-round(gap_percent$day_count/as.numeric(gap_percent$num_of_days)*100,1)
+# ## now associate these beacon_by_day records with gap_percent
+# gap_percent <- merge(gap_percent, aggregate(list(day_count = beacon_by_day$day), by = list(location = beacon_by_day$location), FUN = length), by = "location", all.x = T)
+# ## Estimate how many hours and days have elapsed
+# gap_percent$num_of_days <- round(difftime(Sys.time(), gap_percent$recv_start, units = "d"), 0)
+# ## Now estimate the number of days with no beacon detections
+# gap_percent$percent_downtime <- 100-round(gap_percent$day_count/as.numeric(gap_percent$num_of_days)*100,1)
 
 ## Estimate daily detection efficiency
 beacon_by_day <- merge(beacon_by_day,unique(beacon_deployments[,c("beacon", "beacon_PRI")]), by = "beacon", all.x = T)
@@ -1300,18 +1304,18 @@ Additionally, a shed tag algorithm is used to remove detections for any tag that
 
 ```{r print table of detection efficiency}
 
-last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max)
+last_download <- aggregate(list(last_download = downloads$end), by = list(location = downloads$location), FUN = max, na.rm =T)
 
 gen_loc_stats <- merge(unique(gen_locs[,c("location", "rkm")]), last_download, by = "location", all.x = T)
 
 gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$rkm, decreasing = T),]
 
-gen_loc_stats <- merge(gen_loc_stats, gap_percent[c("location", "recv_start", "percent_downtime")], by = "location")
+gen_loc_stats <- merge(gen_loc_stats, aggregate(list(recv_start = gen_locs$start), by = list(location = gen_locs$location), min, na.rm = T), by = "location")
 
 gen_loc_stats <- merge(gen_loc_stats, efficiency, by = "location", all.x= T)
 
 gen_loc_stats$Active <- "No"
-gen_loc_stats[as.numeric(difftime(Sys.time(), gen_loc_stats$last_download, units = "days")) < 7, "Active"] <- "Yes"
+gen_loc_stats[which(as.numeric(difftime(Sys.time(), gen_loc_stats$last_download, units = "days")) < 7), "Active"] <- "Yes"
 
 gen_loc_stats <- gen_loc_stats[order(gen_loc_stats$Active, gen_loc_stats$rkm, decreasing = T),]
 
