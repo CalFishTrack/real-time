@@ -1073,7 +1073,7 @@ if (nrow(detects_study) == 0){
   beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
   beacon_by_day$day <- as.Date(beacon_by_day$day)
   
-  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d"))
+  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d", tz = "Etc/GMT+8"))
   
   arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
   arrivals_per_day$day <- as.Date(arrivals_per_day$day)

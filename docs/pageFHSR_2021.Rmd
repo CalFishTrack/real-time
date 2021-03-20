@@ -47,7 +47,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/FeatherRiver_BC_Beach5.JPG"))#, 
+htmltools::img(src = knitr::image_uri("../data/Feather1.JPG"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
@@ -1090,7 +1090,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   
   gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
   
-  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d"))
+  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d", tz = "Etc/GMT+8"))
   
   arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
   arrivals_per_day$day <- as.Date(arrivals_per_day$day)
