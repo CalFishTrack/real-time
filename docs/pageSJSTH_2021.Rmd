@@ -132,7 +132,7 @@ if (nrow(detects_study) == 0){
   ########################################################################
   #### ASSIGN RELEASE GROUPS HERE ####
   #######################################################################
-    detects_study$Release <- "Release 1"
+    detects_study$Release <- detects_study$release_location
     #detects_study[detects_study$release_time > as.POSIXct("2021-03-09") & detects_study$release_time < as.POSIXct("2021-03-17"), "Release"] <- "Release 2"
     #detects_study[detects_study$release_time > as.POSIXct("2021-03-17"), "Release"] <- "Release 3"
   #######################################################################
