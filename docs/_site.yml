@@ -17,6 +17,8 @@ navbar:
       href: pageFHSR_2021.html
     - text: San Joaquin River steelhead
       href: pageSJSTH_2021.html
+    - text: Hatchery fall-run net-pen paired release
+      href: pageSLPRFR_2021.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
