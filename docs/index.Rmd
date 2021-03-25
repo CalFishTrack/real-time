@@ -33,11 +33,11 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 `r anicon::nia("New Updates", size = 2)`
 
-1. [New webpage created for Feather River Hatchery Spring-run Chinook salmon releases 3/19/2021](https://calfishtrack.github.io/real-time/pageFHSR_2021.html)
-2. [New webpage created for Battle Creek jump-start hatchery winter-run Chinook salmon releases 3/8/2021](https://calfishtrack.github.io/real-time/pageBCJSWR_2021.html)
-3. [New webpage created for hatchery winter-run Chinook salmon release 2/1/2021](https://calfishtrack.github.io/real-time/pageLSWR_2021.html)
-4. [New acoustic telemetry data explorer Shiny App 1/8/2021](https://oceanview.pfeg.noaa.gov/shiny/FED/telemetry/)
-5. [New webpage created for hatchery late-fall-run Chinook salmon release 1/4/2021](https://calfishtrack.github.io/real-time/pageCHLF_2021.html)
+1. [New webpage created for Hatchery Fall-run Chinook salmon Paired Net-Pen On-site releases 3/24/2021](https://calfishtrack.github.io/real-time/pageSLPRFR_2021.html)
+2. [New webpage created for 6-Year Study San Joaquin River Steelhead releases 3/23/2021](https://calfishtrack.github.io/real-time/pageSJSTH_2021.html)
+3. [New webpage created for Feather River Hatchery Spring-run Chinook salmon releases 3/19/2021](https://calfishtrack.github.io/real-time/pageFHSR_2021.html)
+4. [New webpage created for Battle Creek jump-start hatchery winter-run Chinook salmon releases 3/8/2021](https://calfishtrack.github.io/real-time/pageBCJSWR_2021.html)
+5. [New webpage created for hatchery winter-run Chinook salmon release 2/1/2021](https://calfishtrack.github.io/real-time/pageLSWR_2021.html)
 
 
 

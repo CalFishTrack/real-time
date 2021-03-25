@@ -197,6 +197,7 @@ if (nrow(detects_study) == 0){
 ***
 ## _2. Real-time Fish Detections_
 ***
+
 ***`r if (nrow(detects_study) == 0){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
       }else if (min(detects_study$release_time) > Sys.time()){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
       }else if (max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)) < Sys.Date()) { anicon::nia(paste("Study is complete, all tags are no longer active as of",max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5))), size = 1, colour = "red")
