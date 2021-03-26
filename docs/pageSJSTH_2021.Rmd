@@ -65,7 +65,7 @@ htmltools::img(src = knitr::image_uri("../data/Turner.JPG"))#,
 ## _1. Project Status_
 ***
 
-Telemetry Study Template for this study can be found [here]
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry Study Summary Framework_SJ_Steelhead_2021.pdf?raw=true)
 
 ```{r print table with fish release details, warning= F, message = F}
 
