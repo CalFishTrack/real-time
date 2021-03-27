@@ -82,8 +82,8 @@ shed$min <- as.POSIXct(shed$min)
 false_detects <- read.csv("false_detects.csv", stringsAsFactors = F)
 false_detects$tag_loc <- paste(false_detects$TagCode, false_detects$general_location, sep = "-")
 
-detects <- fread("detects_final.csv", stringsAsFactors = FALSE)
-detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE)
+detects <- fread("detects_final.csv", stringsAsFactors = FALSE,colClasses = c(DateTime_PST = "character", DateTime_Orig = "character"))
+detects_beacon <- fread("detects_beacon.csv", stringsAsFactors = FALSE,colClasses = c(DateTime_PST = "character", DateTime_Orig = "character"))
 
 detects$DateTime_PST <- ymd_hms(detects$DateTime_PST, tz = "Etc/GMT+8")
 detects_beacon$DateTime_PST <- ymd_hms(detects_beacon$DateTime_PST, tz = "Etc/GMT+8")
