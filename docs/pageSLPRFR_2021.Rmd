@@ -55,7 +55,7 @@ htmltools::img(src = knitr::image_uri("../data/TurkeyBeach.jpg"))#,
 <br/>
 <br/>
 
-# **Hatchery Fall-run Chinook salmon Paired Net-Pen On-site Release**
+# **Hatchery Fall-run Chinook salmon Paired Release**
 
 ## 2020-2021 Season (PROVISIONAL DATA)
 
@@ -90,7 +90,7 @@ library(rerddap)
 study <- "USFWS_FCSPairedNetPen_2021"
 ##################################################################################################################
 
-detects_study <- fread("study_detections.csv", stringsAsFactors = F)
+detects_study <- fread("study_detections.csv", stringsAsFactors = F, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 detects_study <- as.data.frame(detects_study[detects_study$Study_ID == study,])
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
 detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
@@ -134,7 +134,7 @@ if (nrow(detects_study) == 0){
   #######################################################################
     detects_study$Release <- "Upstream"
     #detects_study[detects_study$release_time > as.POSIXct("2021-03-09") & detects_study$release_time < as.POSIXct("2021-03-17"), "Release"] <- "Release 2"
-    #detects_study[detects_study$release_time > as.POSIXct("2021-03-17"), "Release"] <- "Release 3"
+    detects_study[detects_study$release_time > as.POSIXct("2021-03-25"), "Release"] <- "Downstream"
   #######################################################################
   
   study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
