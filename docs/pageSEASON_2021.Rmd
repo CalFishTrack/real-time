@@ -1,0 +1,279 @@
+---
+title: CalFishTrack
+
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    includes:
+      in_header: GA_Script.html
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#library(tidyr)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+library(data.table)
+library(ggplot2)
+#library(xtable)
+#library(prettydoc)
+library(scales)
+library(viridis)
+library(forcats)
+```
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+```
+
+<style>
+p.caption {
+  font-size: 2em;
+}
+caption {
+      font-size: 2em;
+}
+</style>
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
+```{r logos, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:0px; width:200px;')
+```
+
+<br/>
+<br/>
+
+# *Water Year 2021 Survival Summary*
+
+<br/>
+
+```{r pull in latest data download time}
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+latest <- read.csv("latest_download.csv", stringsAsFactors = F)
+```
+
+***`r anicon::nia(paste("Study is in progress. Data current as of", latest), size = 1, colour = "red")`
+. All times in Pacific Standard Time.***
+
+<br>
+
+## 1.1 Survival to Benicia for all major Chinook salmon tagging efforts (n > 100). 
+Hover cursor over points to see release group.
+```{r print plot of season total survival, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE}
+library(CDECRetrieve)
+library(plotly)
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F)
+benicia$RelDT <- as.POSIXct(benicia$RelDT)
+tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F, colClasses=c("TagID_Hex"="character"))
+tol_released <- aggregate(list(total_released = tagcodes$TagID_Hex), by = list(StudyID = tagcodes$StudyID), FUN = length)
+benicia <- merge(benicia, tol_released)
+## Now remove any release smaller than 100
+benicia <- benicia[benicia$total_released >99,]
+benicia_rel <- benicia[benicia$Release != "ALL",]
+## Now subset to only be WY2020 fish. This usually removes green sturgeon too
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2021-01-01" & benicia_rel$RelDT < "2021-12-01",]
+## Remove any steelhead releases
+benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
+### Combine sutter bypass releases
+#benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
+#benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
+## Label "ALL" release for any study with just 1 record
+benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
+wlk_flow <- as.data.frame(cdec_query("WLK", "41", "D", as.Date(min(benicia_rel$RelDT))-7, max(as.Date(max(benicia_rel$RelDT))+14, min(Sys.Date(), as.Date("2021-06-15")))))
+wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
+wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
+wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
+benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
+## do this cuz can't get rid of legend title in ggplotly
+benicia_rel$. <- benicia_rel$data_quality
+
+## Now plot
+
+library(ggplot2)
+
+pd <- position_dodge(1)
+boolColors <- as.character(c("final"="black", "tentative"="gray"))
+boolScale <- scale_colour_manual(name=".", values=boolColors)
+
+ay <- list(
+  overlaying = "y",
+  nticks = 5,
+  color = "blue",
+  side = "right",
+  title = "7-day moving average of Flow (cfs) at Wilkins Slough",
+  automargin = TRUE
+)
+
+p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
+  xlim(range(wlk_flow$datetime)) +
+  geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
+  geom_point(data = benicia_rel, size=2, position = pd, stroke = 1.5, aes(colour= .)) +
+  boolScale +
+  labs(x="Release Date", size = 8) +
+  labs(y="% Survival to Benicia Bridge", size = 8) +  
+  theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "light grey"),
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #axis.text.x=element_blank(),
+        #axis.ticks.x=element_blank(),
+        axis.line.y.right = element_line(color = "blue"), 
+        axis.title.y.right = element_text(color = "blue"),
+        axis.text.y.right = element_text(color = "blue"),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        legend.position="top",
+        panel.border = element_rect(colour = "black", fill=NA))
+
+ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
+  add_annotations( text="Data status", xref="paper", yref="paper",
+                   x=0.25, xanchor="left",
+                   y=-0.26, yanchor="bottom",    # Same y as legend below
+                   legendtitle=TRUE, showarrow=FALSE ) %>%
+  add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "blue"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
+  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2), margin=list(
+  l = 50,
+  r = 100,
+  b = 50,
+  t = 50
+))
+       
+
+```
+
+
+<br>
+
+## 1.2 Through-Delta survival (City of Sacramento to Benicia) for all major Chinook salmon tagging efforts (n > 100).
+Hover cursor over points to see release group.
+```{r print plot of season total delta survival,fig.height = 6, fig.width = 6, out.extra='style="background-color: #000000; padding:3px"', echo = FALSE, warning=FALSE, message = FALSE, }
+library(CDECRetrieve)
+library(plotly)
+
+setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
+
+benicia <- read.csv("Delta_surv.csv", stringsAsFactors = F)
+benicia$RelDT <- as.POSIXct(benicia$RelDT)
+benicia <- merge(benicia, tol_released)
+## Now remove any release smaller than 100
+benicia <- benicia[benicia$total_released >99,]
+benicia_rel <- benicia[benicia$Release != "ALL",]
+## Now subset to only be WY2019 fish
+benicia_rel <- benicia_rel[benicia_rel$RelDT > "2021-01-01" & benicia_rel$RelDT < "2021-12-01",]
+## Remove any steelhead releases
+benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
+### Combine sutter bypass releases
+#benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
+#benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
+## Label "ALL" release for any study with just 1 record
+benicia_rel[benicia_rel$StudyID %in% names(which(table(benicia_rel$StudyID) ==1)),"Release"] <- "ALL"
+## download data from a week before first release, to current day (or 6/15, whichever comes first)
+wlk_flow <- as.data.frame(cdec_query("RVB", "25", "D", as.Date(min(benicia_rel$RelDT))-7, max(as.Date(max(benicia_rel$RelDT))+14, min(Sys.Date(), as.Date("2021-06-15")))))
+wlk_flow$parameter_value <- (wlk_flow$parameter_value - 32) * 5/9
+wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
+wlk_flow$ma <- c(ma(wlk_flow$parameter_value, n=7)[-(1:6)], rep(NA,6))
+wlk_flow <- wlk_flow[is.na(wlk_flow$ma) == F,]
+benicia_rel$datetime <- as.Date(benicia_rel$RelDT)
+## do this cuz can't get rid of legend title in ggplotly
+benicia_rel$. <- benicia_rel$data_quality
+
+## Now plot
+
+library(ggplot2)
+
+pd <- position_dodge(1)
+boolColors <- as.character(c("final"="black", "tentative"="gray"))
+boolScale <- scale_colour_manual(name=".", values=boolColors)
+
+ay <- list(
+  overlaying = "y",
+  nticks = 5,
+  color = "red",
+  side = "right",
+  title = "7-day moving average of Temperature (C) at Rio Vista",
+  automargin = TRUE
+)
+
+p <- ggplot(data = benicia_rel, mapping = aes(x=datetime, y=estimate, label = StudyID, text = Release)) +
+  xlim(range(wlk_flow$datetime)) +
+  geom_errorbar(aes(ymin=lcl, ymax=ucl), colour="black", width=.1, position=pd) +
+  geom_point(data = benicia_rel, size=2, position = pd, stroke = 1.5, aes(colour= .)) +
+  boolScale +
+  labs(x="Release Date", size = 8) +
+  labs(y="% through-Delta Survival", size = 8) +  
+  theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "light grey"),
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #axis.text.x=element_blank(),
+        #axis.ticks.x=element_blank(),
+        axis.line.y.right = element_line(color = "red"), 
+        axis.title.y.right = element_text(color = "red"),
+        axis.text.y.right = element_text(color = "red"),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        legend.position="top",
+        panel.border = element_rect(colour = "black", fill=NA))
+
+ggplotly(p, tooltip = c("StudyID", "Release", "estimate"), width = 800, height = 600) %>%
+  add_annotations( text="Data status", xref="paper", yref="paper",
+                   x=0.25, xanchor="left",
+                   y=-0.26, yanchor="bottom",    # Same y as legend below
+                   legendtitle=TRUE, showarrow=FALSE ) %>%
+  add_lines(x=~as.numeric(wlk_flow$datetime), y=~wlk_flow$ma, line = list(color = "red"), yaxis="y2", showlegend=FALSE, inherit=FALSE) %>%
+  layout(yaxis2 = ay, legend = list(orientation = "h",x = 0.4, y = -0.2), margin=list(
+  l = 50,
+  r = 100,
+  b = 50,
+  t = 50
+))
+       
+
+```
+
+<br/>
+<br/>
+
+## 1.3 Historic survival to Benicia estimates (PROVISIONAL DATA)
+Click to expand
+```{r Benicia survival pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/Survival_to_Benicia.png"))
+
+```
+
+<br/>
+<br/>
+
+## 1.4 Historic through-Delta survival estimates (PROVISIONAL DATA)
+Click to expand
+```{r Delta survival pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/Delta_surv1.png"))
+```
+
+
+

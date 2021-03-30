@@ -19,6 +19,8 @@ navbar:
       href: pageSJSTH_2021.html
     - text: Hatchery fall-run paired release
       href: pageSLPRFR_2021.html
+    - text: 2021 SEASON SUMMARY
+      href: pageSEASON_2021.html
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers

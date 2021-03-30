@@ -239,6 +239,9 @@ if (nrow(detects_benicia)>0) {
     }
   }
   
+  ## reorder columns in alphabetical order so its coloring in barplots is consistent
+  daterange1 <- daterange1[,order(colnames(daterange1))]
+    
   #daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
   daterange2 <- daterange1
   

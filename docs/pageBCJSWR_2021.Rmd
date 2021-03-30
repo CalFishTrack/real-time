@@ -252,6 +252,9 @@ if (nrow(detects_butte) == 0){
     }
   }
   
+  ## reorder columns in alphabetical order so its coloring in barplots is consistent
+  daterange1 <- daterange1[,order(colnames(daterange1))]
+    
   daterange2 <- merge(daterange1, BTC_flow_day, by = "Day", all.x = T)
   
   rownames(daterange2) <- daterange2$Day
@@ -333,7 +336,10 @@ if (nrow(detects_tower) == 0){
       names(daterange1)[names(daterange1) == 'x'] <- paste(i)
     }
   }
-
+  
+  ## reorder columns in alphabetical order so its coloring in barplots is consistent
+  daterange1 <- daterange1[,order(colnames(daterange1))]
+  
   daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
 
   rownames(daterange2) <- daterange2$Day
@@ -400,6 +406,9 @@ if (nrow(detects_benicia)>0) {
     }
   }
   
+  ## reorder columns in alphabetical order so its coloring in barplots is consistent
+  daterange1 <- daterange1[,order(colnames(daterange1))]
+    
   #daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
   daterange2 <- daterange1
   
