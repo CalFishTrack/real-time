@@ -202,6 +202,86 @@ if (nrow(detects_study) == 0){
       }else if (max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)) < Sys.Date()) { anicon::nia(paste("Study is complete, all tags are no longer active as of",max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5))), size = 1, colour = "red")
       }else{anicon::nia(paste("Study is in progress. Data current as of", latest), size = 1, colour = "red")
       }`. All times in Pacific Standard Time.***
+
+```{r print map of fish detections, message = FALSE, results= "asis", warning=FALSE, fig.cap="2.1 Map of unique fish detections at operational realtime detection locations"}
+
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+
+## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
+  "No detections yet"
+} else {
+  arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+    
+  beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
+  beacon_by_day$day <- as.Date(beacon_by_day$day)
+  
+  gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+  
+  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d", tz = "Etc/GMT+8"))
+  
+  arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day <- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)))
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$release_time)) & beacon_by_day$day <= endtime,]  
+  
+  beacon_by_day <- merge(beacon_by_day, gen_locs[,c("location", "general_location","rkm")], by = "location", all.x = T)
+
+  arrivals_per_day <- merge(unique(beacon_by_day[,c("general_location", "day", "rkm")]), arrivals_per_day, all.x = T, by = c("general_location", "day"))
+  
+  arrivals_per_day$day <- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day <- arrivals_per_day[!arrivals_per_day$general_location == "Bench_test",]
+  arrivals_per_day <- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+
+  ## Remove sites that were not operation the whole time
+  gen_locs_days_in_oper <- aggregate(list(days_in_oper = arrivals_per_day$day), by = list(general_location = arrivals_per_day$general_location), FUN = length)
+  gen_locs_days_in_oper <- gen_locs_days_in_oper[gen_locs_days_in_oper$days_in_oper == max(gen_locs_days_in_oper$days_in_oper),]
+  
+  arrivals_per_day_in_oper <- arrivals_per_day[arrivals_per_day$general_location %in% gen_locs_days_in_oper$general_location,]
+  fish_per_site <- aggregate(list(fish_count = arrivals_per_day_in_oper$New_arrivals), by = list(general_location = arrivals_per_day_in_oper$general_location), FUN = sum, na.rm = T)
+  
+  active_gen_locs <- gen_locs[is.na(gen_locs$stop),]
+  active_gen_locs <- active_gen_locs[active_gen_locs$general_location %in% fish_per_site$general_location,]
+  ## estimate mean lat and lons for each genloc
+  gen_locs_mean_coords <- aggregate(list(latitude = active_gen_locs$latitude), by = list(general_location = active_gen_locs$general_location), FUN = mean)
+  gen_locs_mean_coords <- merge(gen_locs_mean_coords, aggregate(list(longitude = active_gen_locs$longitude), by = list(general_location = active_gen_locs$general_location), FUN = mean))
+  
+  fish_per_site <- merge(fish_per_site, gen_locs_mean_coords)
+  
+  library(leaflet)
+  library(maps)
+  library(htmlwidgets)
+  library(leaflet.extras)
+
+  icons <- awesomeIcons(iconColor = "lightblue",
+                      #library = "ion",
+                      text = fish_per_site$fish_count)
+  
+  leaflet(data = fish_per_site) %>%
+      # setView(-72.14600, 43.82977, zoom = 8) %>% 
+      addProviderTiles("Esri.WorldStreetMap", group = "Map") %>%
+      addProviderTiles("Esri.WorldImagery", group = "Satellite") %>% 
+      addProviderTiles("Esri.WorldShadedRelief", group = "Relief") %>%
+      # Marker data are from the sites data frame. We need the ~ symbols
+      # to indicate the columns of the data frame.
+      addMarkers(~longitude, ~latitude, label = ~fish_count, group = "Receiver Sites", popup = ~general_location, labelOptions = labelOptions(noHide = T, textsize = "15px")) %>% 
+      #addAwesomeMarkers(~longitude, ~latitude, icon = icons, labelOptions(textsize = "15px")) %>%
+      addScaleBar(position = "bottomleft") %>%
+      addLayersControl(
+          baseGroups = c("Street Map", "Satellite", "Relief"),
+          options = layersControlOptions(collapsed = FALSE))
+}
+
+```
+
+<br/>  
       
 ```{r print figure of fish detections at Tower, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"',fig.cap="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough"}
 

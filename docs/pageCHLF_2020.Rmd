@@ -155,7 +155,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(CDECRetrieve)
 library(reshape2)
 
-detects_study <- fread(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products\\Study_detection_files\\detects_ColemanLateFall_2020.csv", sep = ""))
+detects_study <- fread(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products\\Study_detection_files\\detects_ColemanLateFall_2020.csv", sep = ""), colClasses = c(DateTime_PST = "character", RelDT = "character"))
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 
 if(nrow(detects_study)>0){

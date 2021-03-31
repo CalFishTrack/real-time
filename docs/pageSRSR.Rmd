@@ -320,7 +320,7 @@ library(data.table)
 library(RMark)
 
 test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE)
-gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
 tagcodes$RelDT <- as.POSIXct(tagcodes$RelDT, format = "%m/%d/%Y %I:%M:%S %p", tz = "Etc/GMT+8")
@@ -422,7 +422,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 library(data.table)
 library(RMark)
 
-test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE)
+test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
@@ -603,7 +603,7 @@ library(RMark)
 
 setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = ""))
 
-test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE)
+test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)
@@ -716,7 +716,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 library(data.table)
 
-test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE)
+test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_RBDD-2018.csv", stringsAsFactors = FALSE, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)

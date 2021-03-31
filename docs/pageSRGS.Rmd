@@ -168,7 +168,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 
 library(data.table)
 
-test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = FALSE)
+test <- fread("C:/Users/field/Desktop/Real-time data massaging/products/Study_detection_files/detects_Juv_Green_Sturgeon_2017.csv", stringsAsFactors = FALSE, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 
 tagcodes <- read.csv("qry_HexCodes.txt", stringsAsFactors = F)

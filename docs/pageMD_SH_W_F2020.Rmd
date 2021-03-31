@@ -81,7 +81,7 @@ library(rerddap)
 study <- "MillDeerCK_SH_Wild_F2020"
 ##################################################################################################################
 
-detects_study <- fread("study_detections.csv", stringsAsFactors = F)
+detects_study <- fread("study_detections.csv", stringsAsFactors = F, colClasses = c(DateTime_PST = "character", RelDT = "character"))
 detects_study <- as.data.frame(detects_study[detects_study$Study_ID == study,])
 detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
 detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
