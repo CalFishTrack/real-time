@@ -274,8 +274,8 @@ if (nrow(ATS_files) > 0) {
       ## We do this at the end so we don't delete files when prototyping this ATS code segment
       downloads_new1 <- downloads_new1[!downloads_new1$filename == ATS_files[i,"shortname"],]
       if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
-        corrupted_downloads[corrupted_downloads$V1 == ATS_files[i, "shortname"], "download_attempts"] <- 
-          as.numeric(corrupted_downloads[corrupted_downloads$V1 == ATS_files[i, "shortname"], "download_attempts"])+1
+        corrupted_downloads[which(corrupted_downloads$V1 == ATS_files[i, "shortname"]), "download_attempts"] <- 
+          as.numeric(corrupted_downloads[which(corrupted_downloads$V1 == ATS_files[i, "shortname"]), "download_attempts"])+1
       }else{
         corrupted_downloads <- rbind(corrupted_downloads, cbind(V1 = ATS_files[i, "shortname"], download_attempts = 1, filename = ATS_files[i,"x"]))
       }
@@ -284,7 +284,7 @@ if (nrow(ATS_files) > 0) {
       
       ## if a previously corrupted file did finally get read correctly, remove it from the corrupted file
       if(ATS_files[i, "shortname"] %in% corrupted_downloads$V1){
-        corrupted_downloads <- corrupted_downloads[!corrupted_downloads$V1 == ATS_files[i, "shortname"],] 
+        corrupted_downloads <- corrupted_downloads[!which(corrupted_downloads$V1 == ATS_files[i, "shortname"]),] 
       }
       ## Now data massage
       test$recv <- substr(ATS_files[i,"x"], nchar(ATS_files[i,"x"])-22, nchar(ATS_files[i,"x"])-18)
