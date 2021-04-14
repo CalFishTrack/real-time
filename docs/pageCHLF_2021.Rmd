@@ -1026,6 +1026,7 @@ if (nrow(detects_benicia) == 0){
 }
 ```
 
+
 ```{r print table of through-Delta survival, message = FALSE, results= "asis", warning=FALSE}
 try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
 
@@ -1037,8 +1038,8 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
     print(kable(results_short, row.names = F, "html", caption = "3.6 Minimum through-Delta survival: City of Sacramento to Benicia (using CJS survival model)") %>%
             kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
 }else{
-  ## Only do survival to Georg split for now
-  test4 <- detects_study[detects_study$general_location %in% c("I80-50_Br", "Benicia_west", "Benicia_east"),]
+  
+  test4 <- detects_study[detects_study$general_location %in% c("TowerBridge", "I80-50_Br", "Benicia_west", "Benicia_east"),]
  
   if(nrow(test4[test4$general_location =="Benicia_west",]) == 0 |
      nrow(test4[test4$general_location =="Benicia_east",]) == 0){
@@ -1051,7 +1052,9 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   
   inp <- as.data.frame(reshape2::dcast(test4, TagCode ~ general_location, fun.aggregate = length))
   
-  ## Sort columns by river km in descending order
+  ## add together detections at Tower and I80 to ensure good detection entering Delta
+  inp$`I80-50_Br` <- inp$`I80-50_Br` + inp$TowerBridge
+  ## Sort columns by river km in descending order, this also removes TowerBridge, no longer needed
   inp <- inp[,c("TagCode","I80-50_Br", "Benicia_east", "Benicia_west")]
   
   # Count number of genlocs
@@ -1067,51 +1070,101 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   
   inp <- cbind(inp, inp2)
   groups <- as.character(sort(unique(inp$Release)))
+  groups_w_detects <- names(table(detects_study[which(detects_study$river_km < 53),"Release"]))
 
   inp[,groups] <- 0
   for (i in groups) {
     inp[as.character(inp$Release) == i, i] <- 1
   }
+
+  inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""),sep="")
+  # if(length(groups) > 1){
+  #   inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
+  # }else{
+  #   inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",inp[,groups]," ;",sep = "")
+  # }
+  
+  
   
   if(length(groups) > 1){
-    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",apply(inp[,groups], 1, paste, collapse=" ")," ;",sep = "")
-  }else{
-    inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""), " ",inp[,groups]," ;",sep = "")
-  }
-  
-  
-  write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
-  
-  if(length(groups) > 1){
-  
-    WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
-    WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+  ## make sure factor levels have a release that has detections first. if first release in factor order has zero #detectins, model goes haywire
+    inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = inp$Release, stringsAsFactors = F)
+
+    WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
     
     WR.ddl <- make.design.data(WR.process)
     
     WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
     
-    WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    inp.df <- inp.df[inp.df$rel %in% groups_w_detects,]
+    inp.df$rel <- factor(inp.df$rel, levels = groups_w_detects)
+    if(length(groups_w_detects) > 1){
+      WR.process <- process.data(inp.df, model="CJS", begin.time=1, groups = "rel") 
     
-    WR.surv <- round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1)
-    WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=2,to=length(groups)*3,by = 3),c("estimate", "se", "lcl", "ucl")] * 100,1))
+      WR.ddl <- make.design.data(WR.process)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    }else{  
+      WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
+    
+      WR.ddl <- make.design.data(WR.process)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    }
+    WR.surv <- cbind(Release = "ALL",round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1))
+    WR.surv.rel <- cbind(Release = groups_w_detects, round(WR.mark.rel$results$real[seq(from=2,to=length(groups_w_detects)*3,by = 3),c("estimate", "se", "lcl", "ucl")] * 100,1))
+    WR.surv.rel <- merge(WR.surv.rel, data.frame(Release = groups), all.y = T)
+    WR.surv.rel[is.na(WR.surv.rel$estimate),"estimate"] <- 0
+    WR.surv <- rbind(WR.surv, WR.surv.rel)
     
   }else{
-    
-    WRinp <- convert.inp("WRinp.inp")
-    WR.process <- process.data(WRinp, model="CJS", begin.time=1) 
+    inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, stringsAsFactors = F)
+
+    WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
     
       
     WR.ddl <- make.design.data(WR.process)
     
     WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
 
-    WR.surv <- round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1)
+    WR.surv <- cbind(Release = c("ALL", groups),round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1))
     
   }
+
+#   
+#   
+# #  write.table(inp$inp_final,"WRinp.inp",row.names = F, col.names = F, quote = F)
+#   
+#   if(length(groups) > 1){
+#     
+#     inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = factor(inp$Release, levels = names(sort(table(test$Release),decreasing = T))), stringsAsFactors = F)
+# 
+#     WRinp <- convert.inp("WRinp.inp", group.df=data.frame(rel=groups))
+#     WR.process <- process.data(WRinp, model="CJS", begin.time=1, groups = "rel") 
+#     
+#     WR.ddl <- make.design.data(WR.process)
+#     
+#     WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+#     
+#     WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+#     
+#     WR.surv <- round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1)
+#     WR.surv <- rbind(WR.surv, round(WR.mark.rel$results$real[seq(from=2,to=length(groups)*3,by = 3),c("estimate", "se", "lcl", "ucl")] * 100,1))
+#     
+#   }else{
+#     
+#     WRinp <- convert.inp("WRinp.inp")
+#     WR.process <- process.data(WRinp, model="CJS", begin.time=1) 
+#     
+#       
+#     WR.ddl <- make.design.data(WR.process)
+#     
+#     WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+# 
+#     WR.surv <- round(WR.mark.all$results$real[2,c("estimate", "se", "lcl", "ucl")] * 100,1)
+#     
+#   }
   
     
-  WR.surv <- cbind(Release = c("ALL", groups), WR.surv)
+#  WR.surv <- cbind(Release = c("ALL", groups), WR.surv)
 
   WR.surv1 <- WR.surv
   colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.")

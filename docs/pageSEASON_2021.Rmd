@@ -97,10 +97,11 @@ benicia <- merge(benicia, tol_released)
 ## Now remove any release smaller than 100
 benicia <- benicia[benicia$total_released >99,]
 benicia_rel <- benicia[benicia$Release != "ALL",]
-## Now subset to only be WY2020 fish. This usually removes green sturgeon too
+## Now subset to only be WY2021 fish. This usually removes green sturgeon too
 benicia_rel <- benicia_rel[benicia_rel$RelDT > "2021-01-01" & benicia_rel$RelDT < "2021-12-01",]
 ## Remove any steelhead releases
 benicia_rel <- benicia_rel[grepl("_SH_", benicia_rel$StudyID) == F,]
+benicia_rel <- benicia_rel[grepl("Steelhead", benicia_rel$StudyID) == F,]
 ### Combine sutter bypass releases
 #benicia_rel <- benicia_rel[benicia_rel$StudyID != "SB_Spring_2019",]
 #benicia_rel <- rbind(benicia_rel, benicia[benicia$StudyID == "SB_Spring_2019" & benicia$Release == "ALL",])
