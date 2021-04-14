@@ -47,7 +47,7 @@ htmltools::img(src = knitr::image_uri("../data/logos.jpg"),
 <br/>
 
 ```{r sturgeon pic, echo=FALSE, cache=TRUE}
-htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#, 
+htmltools::img(src = knitr::image_uri("../data/butte_ck_crop.jpg"))#, 
                #alt = 'logo', 
                #style = 'position:absolute; top:0px; right:0px; width:100px;')
 ```
@@ -55,7 +55,7 @@ htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#,
 <br/>
 <br/>
 
-# **Mill and Deer Creek wild steelhead, Spring Releases**
+# **Butte Creek wild spring-run Chinook salmon**
 
 ## 2020-2021 Season (PROVISIONAL DATA)
 
@@ -65,7 +65,7 @@ htmltools::img(src = knitr::image_uri("../data/mill_ck1.jpg"))#,
 ## _1. Project Status_
 ***
 
-Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry_Study_Summary_Deer_Creek_Steelhead_Smolt.pdf?raw=true)
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry Study Summary Framework_Butte Creek_2021.pdf?raw=true)
 
 ```{r print table with fish release details, warning= F, message = F}
 
@@ -87,7 +87,7 @@ library(rerddap)
 
 ##################################################################################################################
 #### ASSIGN STUDY ID IN THIS NEXT LINE OF CODE ####
-study <- "MillDeerCK_SH_Wild_Spring2021"
+study <- "SB_Spring_2021"
 ##################################################################################################################
 
 detects_study <- fread("study_detections.csv", stringsAsFactors = F, colClasses = c(DateTime_PST = "character", RelDT = "character"))
@@ -132,8 +132,9 @@ if (nrow(detects_study) == 0){
   ########################################################################
   #### ASSIGN RELEASE GROUPS HERE ####
   #######################################################################
-    detects_study$Release <- detects_study$release_location
-    #detects_study[detects_study$release_time > as.POSIXct("2021-03-17"), "Release"] <- "Release 3"
+    detects_study$Release <- "Downstream Release"
+    #detects_study[detects_study$release_time > as.POSIXct("2021-03-09") & detects_study$release_time < as.POSIXct("2021-03-17"), "Release"] <- "Release 2"
+    #detects_study[detects_study$release_time > as.POSIXct("2021-04-01"), "Release"] <- "Release 2"
   #######################################################################
   
   study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
@@ -281,90 +282,7 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
 ```
 
 <br/>  
-
-```{r print figure of fish detections at Butte, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', fig.cap="2.1 Detections at Butte City Bridge versus Sacramento River flows at Bend Bridge"}
-
-try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
-
-detects_butte <- detects_study[detects_study$general_location == "ButteBrRT",]
-
-if (nrow(detects_butte) == 0){
-  plot(1:2, type = "n", xlab = "",xaxt = "n", yaxt = "n", ylab = "Number of fish arrivals per day")
-  text(1.5,1.5, labels = "NO DETECTIONS YET", cex = 2)
-} else {
-  
-  detects_butte <- merge(detects_butte,aggregate(list(first_detect = detects_butte$DateTime_PST), by = list(TagCode= detects_butte$TagCode), FUN = min))
-  
-  detects_butte$Day <- as.Date(detects_butte$first_detect, "Etc/GMT+8")
-  
-  starttime <- as.Date(min(detects_butte$release_time), "Etc/GMT+8")
-  ## Endtime should be either now, or end of predicted tag life, whichever comes first
-  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_butte$release_time)+(as.numeric(detects_butte$tag_life)*1.5)))
-  
-  
-  #BTC_flow <- cdec_query("BTC", "20", "H", starttime, endtime+1)
-  ## download bend bridge flow data
-
-  BTC_flow <- readNWISuv(siteNumbers = "11377100", parameterCd="00060", startDate = starttime, endDate = endtime+1)
-  
-  BTC_flow$datetime <- as.Date(format(BTC_flow$dateTime, "%Y-%m-%d"))
-  BTC_flow_day <- aggregate(list(parameter_value = BTC_flow$X_00060_00000),
-                            by = list(Day = BTC_flow$datetime),
-                            FUN = mean, na.rm = T)
-  
-  daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
-  
-  #rels <- unique(study_tagcodes[study_tagcodes$StudyID == unique(detects_butte$StudyID), "Release"])
-  rels <- unique(study_tagcodes$Release)
-  rel_num <- length(rels)
-  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_butte$Release))])
-  
-  tagcount <- aggregate(list(unique_tags = detects_butte$TagCode), by = list(Day = detects_butte$Day, Release = detects_butte$Release), FUN = function(x){length(unique(x))})
-  tagcount1 <- reshape2::dcast(tagcount, Day ~ Release)
-  
-  daterange1 <- merge(daterange, tagcount1, all.x=T)
-  
-  if(length(rels_no_detects)>0){
-    for(i in rels_no_detects){
-      daterange1 <- cbind(daterange1, x=NA)
-      names(daterange1)[names(daterange1) == 'x'] <- paste(i)
-    }
-  }
-  
-  ## reorder columns in alphabetical order so its coloring in barplots is consistent
-  daterange1 <- daterange1[,order(colnames(daterange1))]
-    
-  daterange2 <- merge(daterange1, BTC_flow_day, by = "Day", all.x = T)
-  
-  rownames(daterange2) <- daterange2$Day
-  daterange2$Day <- NULL
-  
-  par(mar=c(6, 5, 2, 5) + 0.1)
-  barp <- barplot(t(daterange2[,1:ncol(daterange2)-1]), plot = FALSE, beside = T)
-  barplot(t(daterange2[,1:ncol(daterange2)-1]), beside = T, col=viridis_pal()(rel_num),
-          xlab = "", ylab = "Number of fish arrivals per day",
-          ylim = c(0,max(daterange2[,1:ncol(daterange2)-1], na.rm = T)*1.2),
-          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt ="n")#,
-  #border=NA
-  #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
-  #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
-  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)-1], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
-  ybreaks <- if(max(daterange2[,1:ncol(daterange2)-1], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)-1], na.rm = T)} else {5}
-  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
-  barpmeans <- colMeans(barp)
-  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2[xbreaks,]), las = 2)
-  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)-1], na.rm = T), ybreaks))
-  
-  par(new=T)
-  
-  plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
-  axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
-  mtext("Flow (cfs) at Bend Bridge", side=4, line=3, cex=1.5, col="blue")
-}
-
-```
-<br/>
-
+      
 ```{r print figure of fish detections at Tower, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"',fig.cap="2.2 Detections at Tower Bridge (downtown Sacramento) versus Sacramento River flows at Wilkins Slough"}
 
 try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
@@ -1032,6 +950,7 @@ if (nrow(detects_benicia) == 0){
   }
 }
 ```
+
 
 ```{r print table of through-Delta survival, message = FALSE, results= "asis", warning=FALSE}
 try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
