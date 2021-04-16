@@ -1,0 +1,662 @@
+---
+title: CalFishTrack
+
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    includes:
+      in_header: GA_Script.html
+  #prettydoc::html_pretty:
+  #  theme: cayman
+  #  toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#library(tidyr)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+library(data.table)
+library(ggplot2)
+#library(xtable)
+#library(prettydoc)
+library(scales)
+library(viridis)
+library(forcats)
+
+```
+<style>
+p.caption {
+  font-size: 1.5em;
+}
+caption {
+      font-size: 1.5em;
+}
+</style>
+#  *Central Valley Enhanced*
+#  *Acoustic Tagging Project*
+```{r logos, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/logos.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:10px; right:0px; width:200px;')
+```
+
+<br/>
+<br/>
+
+```{r sturgeon pic, echo=FALSE, cache=TRUE}
+htmltools::img(src = knitr::image_uri("../data/Turner.JPG"))#, 
+               #alt = 'logo', 
+               #style = 'position:absolute; top:0px; right:0px; width:100px;')
+```
+
+<br/>
+<br/>
+
+# **6-Year Study San Joaquin River Steelhead - April Releases**
+
+## 2020-2021 Season (PROVISIONAL DATA)
+
+<br/>
+
+***
+## _1. Project Status_
+***
+
+Telemetry Study Template for this study can be found [here](https://github.com/CalFishTrack/real-time/blob/master/data/Telemetry Study Summary Framework_SJ_Steelhead_2021.pdf?raw=true)
+
+```{r print table with fish release details, warning= F, message = F}
+
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+
+library(knitr)
+library(kableExtra)
+library(lubridate)
+library(data.table)
+library(ggplot2)
+library(RMark)
+library(scales)
+library(viridis)
+library(forcats)
+library(reshape2)
+library(png)
+library(dataRetrieval)
+library(rerddap)
+
+##################################################################################################################
+#### ASSIGN STUDY ID IN THIS NEXT LINE OF CODE ####
+study <- "SJ_Steelhead_April_2021"
+##################################################################################################################
+
+detects_study <- fread("study_detections.csv", stringsAsFactors = F, colClasses = c(DateTime_PST = "character", RelDT = "character"))
+detects_study <- as.data.frame(detects_study[detects_study$Study_ID == study,])
+detects_study$DateTime_PST <- as.POSIXct(detects_study$DateTime_PST, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
+detects_study$release_time <- as.POSIXct(detects_study$RelDT, format = "%Y-%m-%d %H:%M:%S", tz="Etc/GMT+8")
+
+colnames(detects_study)[which(colnames(detects_study) == "Weight")] <- "weight"
+colnames(detects_study)[which(colnames(detects_study) == "Length")] <- "length"
+colnames(detects_study)[which(colnames(detects_study) == "Rel_rkm")] <- "release_rkm"
+colnames(detects_study)[which(colnames(detects_study) == "Rel_loc")] <- "release_location"
+colnames(detects_study)[which(colnames(detects_study) == "rkm")] <- "river_km"
+
+latest <- read.csv("latest_download.csv", stringsAsFactors = F)$x
+
+##################################################################################################################
+#### TO RUN THE FOLLOWING CODE CHUNKS FROM HERE ON DOWN USING R ERDDAP, UN-COMMENT THESE NEXT 9 LINES OF CODE ####
+##################################################################################################################
+#cache_delete_all()
+#varnames = "time,latitude,longitude,TagCode,general_location,river_km,local_time,Study_ID,release_time,weight,length,release_rkm,release_location,recv,location,tag_life"
+#query=paste('&',"Study_ID",'="',study,'"',sep = '')
+#datafile=URLencode(paste("http://oceanview.pfeg.noaa.gov/erddap/tabledap/","FEDcalFishTrack",".csv?",varnames,query,sep = ''))
+#detects_study <- data.frame(read.csv(datafile,row.names = NULL, stringsAsFactors = F))
+#detects_study <- detects_study[-1,]
+#detects_study$DateTime_PST <- as.POSIXct(detects_study$local_time, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+#detects_study$release_time <- as.POSIXct(detects_study$release_time, format = "%Y-%m-%d %H:%M:%S", "Etc/GMT+8")
+#detects_study$river_km <- as.numeric(detects_study$river_km)
+##################################################################################################################
+
+
+if (nrow(detects_study) == 0){
+  cat("Study has not yet begun")
+}else{
+  
+  if (min(detects_study$release_time) > Sys.time()){
+    cat("Study has not yet begun, below data is a placeholder:")
+  }
+  if (min(detects_study$release_time) < Sys.time()){
+    cat(paste("Study began on ", min(detects_study$release_time), ", see tagging details below:", sep = ""))
+  }
+  
+  ########################################################################
+  #### ASSIGN RELEASE GROUPS HERE ####
+  #######################################################################
+    detects_study$Release <- detects_study$release_location
+    #detects_study[detects_study$release_time > as.POSIXct("2021-03-09") & detects_study$release_time < as.POSIXct("2021-03-17"), "Release"] <- "Release 2"
+    #detects_study[detects_study$release_time > as.POSIXct("2021-03-17"), "Release"] <- "Release 3"
+  #######################################################################
+  
+  study_tagcodes <- unique(detects_study[,c("TagCode", "release_time", "weight", "length", "release_rkm", "release_location", "Release")])
+
+  
+  release_stats <- aggregate(list(First_release_time = study_tagcodes$release_time),
+                             by= list(Release = study_tagcodes$Release),
+                             FUN = min)
+  release_stats <- merge(release_stats,
+                         aggregate(list(Last_release_time = study_tagcodes$release_time),
+                                   by= list(Release = study_tagcodes$Release),
+                                   FUN = max),
+                         by = c("Release"))
+  
+  
+  release_stats <- merge(release_stats, aggregate(list(Number_fish_released =
+                                                         study_tagcodes$TagCode),
+                                                  by= list(Release = study_tagcodes$Release),
+                                                  FUN = function(x) {length(unique(x))}),
+                         by = c("Release"))
+  
+  release_stats <- merge(release_stats,
+                         aggregate(list(Release_location = study_tagcodes$release_location),
+                                   by= list(Release = study_tagcodes$Release),
+                                   FUN = function(x) {head(x,1)}),
+                         by = c("Release"))
+  release_stats <- merge(release_stats,
+                         aggregate(list(Release_rkm = study_tagcodes$release_rkm),
+                                   by= list(Release = study_tagcodes$Release),
+                                   FUN = function(x) {head(x,1)}),
+                         by = c("Release"))
+  release_stats <- merge(release_stats,
+                         aggregate(list(Mean_length = as.numeric(study_tagcodes$length)),
+                                   by= list(Release = study_tagcodes$Release),
+                                   FUN = mean, na.rm = T),
+                         by = c("Release"))
+  release_stats <- merge(release_stats,
+                         aggregate(list(Mean_weight = as.numeric(study_tagcodes$weight)),
+                                   by= list(Release = study_tagcodes$Release),
+                                   FUN = mean, na.rm = T),
+                         by = c("Release"))
+  
+
+  release_stats[,c("Mean_length", "Mean_weight")] <- round(release_stats[,c("Mean_length", "Mean_weight")],1)
+  
+  release_stats$First_release_time <- format(release_stats$First_release_time, tz = "Etc/GMT+8")
+  
+  release_stats$Last_release_time <- format(release_stats$Last_release_time, tz = "Etc/GMT+8")
+  
+  release_stats <- release_stats[order(release_stats$First_release_time),]
+  
+  kable(release_stats, format = "html", row.names = F) %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left")
+
+}                       
+
+```
+<br/>
+
+***
+## _2. Real-time Fish Detections_
+***
+
+***`r if (nrow(detects_study) == 0){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
+      }else if (min(detects_study$release_time) > Sys.time()){ anicon::nia("Study has not yet begun", size = 1, colour = "red")
+      }else if (max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)) < Sys.Date()) { anicon::nia(paste("Study is complete, all tags are no longer active as of",max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5))), size = 1, colour = "red")
+      }else{anicon::nia(paste("Study is in progress. Data current as of", latest), size = 1, colour = "red")
+      }`. All times in Pacific Standard Time.**
+
+```{r print map of fish detections, message = FALSE, results= "asis", warning=FALSE, fig.cap="2.1 Map of unique fish detections at operational realtime detection locations"}
+
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+
+## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
+  "No detections yet"
+} else {
+  arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+    
+  beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
+  beacon_by_day$day <- as.Date(beacon_by_day$day)
+  
+  gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+  
+  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d", tz = "Etc/GMT+8"))
+  
+  arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day <- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)))
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$release_time)) & beacon_by_day$day <= endtime,]  
+  
+  beacon_by_day <- merge(beacon_by_day, gen_locs[,c("location", "general_location","rkm")], by = "location", all.x = T)
+
+  arrivals_per_day <- merge(unique(beacon_by_day[,c("general_location", "day", "rkm")]), arrivals_per_day, all.x = T, by = c("general_location", "day"))
+  
+  arrivals_per_day$day <- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day <- arrivals_per_day[!arrivals_per_day$general_location == "Bench_test",]
+  arrivals_per_day <- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+
+  ## Remove sites that were not operation the whole time
+  gen_locs_days_in_oper <- aggregate(list(days_in_oper = arrivals_per_day$day), by = list(general_location = arrivals_per_day$general_location), FUN = length)
+  gen_locs_days_in_oper <- gen_locs_days_in_oper[gen_locs_days_in_oper$days_in_oper == max(gen_locs_days_in_oper$days_in_oper),]
+  
+  arrivals_per_day_in_oper <- arrivals_per_day[arrivals_per_day$general_location %in% gen_locs_days_in_oper$general_location,]
+  fish_per_site <- aggregate(list(fish_count = arrivals_per_day_in_oper$New_arrivals), by = list(general_location = arrivals_per_day_in_oper$general_location), FUN = sum, na.rm = T)
+  
+  active_gen_locs <- gen_locs[is.na(gen_locs$stop),]
+  active_gen_locs <- active_gen_locs[active_gen_locs$general_location %in% fish_per_site$general_location,]
+  ## estimate mean lat and lons for each genloc
+  gen_locs_mean_coords <- aggregate(list(latitude = active_gen_locs$latitude), by = list(general_location = active_gen_locs$general_location), FUN = mean)
+  gen_locs_mean_coords <- merge(gen_locs_mean_coords, aggregate(list(longitude = active_gen_locs$longitude), by = list(general_location = active_gen_locs$general_location), FUN = mean))
+  
+  fish_per_site <- merge(fish_per_site, gen_locs_mean_coords)
+  
+  library(leaflet)
+  library(maps)
+  library(htmlwidgets)
+  library(leaflet.extras)
+
+  icons <- awesomeIcons(iconColor = "lightblue",
+                      #library = "ion",
+                      text = fish_per_site$fish_count)
+  
+  leaflet(data = fish_per_site) %>%
+      # setView(-72.14600, 43.82977, zoom = 8) %>% 
+      addProviderTiles("Esri.WorldStreetMap", group = "Map") %>%
+      addProviderTiles("Esri.WorldImagery", group = "Satellite") %>% 
+      addProviderTiles("Esri.WorldShadedRelief", group = "Relief") %>%
+      # Marker data are from the sites data frame. We need the ~ symbols
+      # to indicate the columns of the data frame.
+      addMarkers(~longitude, ~latitude, label = ~fish_count, group = "Receiver Sites", popup = ~general_location, labelOptions = labelOptions(noHide = T, textsize = "15px")) %>% 
+      #addAwesomeMarkers(~longitude, ~latitude, icon = icons, labelOptions(textsize = "15px")) %>%
+      addScaleBar(position = "bottomleft") %>%
+      addLayersControl(
+          baseGroups = c("Street Map", "Satellite", "Relief"),
+          options = layersControlOptions(collapsed = FALSE))
+}
+
+```
+
+<br/>  
+
+```{r print figure of fish detections at Benicia, message = FALSE, fig.height = 6, fig.width = 10, out.extra='style="background-color: #000000; padding:3px"', ,fig.cap="2.3 Detections at Benicia Bridge"}
+
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+
+detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
+
+if (nrow(detects_benicia)>0) {
+  detects_benicia <- merge(detects_benicia,aggregate(list(first_detect = detects_benicia$DateTime_PST), by = list(TagCode= detects_benicia$TagCode), FUN = min))
+  
+  detects_benicia$Day <- as.Date(detects_benicia$first_detect, "Etc/GMT+8")
+  
+  starttime <- as.Date(min(detects_benicia$release_time), "Etc/GMT+8")
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_benicia$release_time)+(as.numeric(detects_benicia$tag_life)*1.5)))
+  #wlk_flow <- cdec_query("COL", "20", "H", starttime, endtime+1)
+  #wlk_flow$datetime <- as.Date(wlk_flow$datetime)
+  #wlk_flow_day <- aggregate(list(parameter_value = wlk_flow$parameter_value), by = list(Day = wlk_flow$datetime), FUN = mean, na.rm = T)
+  
+  daterange <- data.frame(Day = seq.Date(from = starttime, to = endtime, by = "day"))
+  
+  rels <- unique(study_tagcodes$Release)
+  rel_num <- length(rels)
+  rels_no_detects <- as.character(rels[!(rels %in% unique(detects_benicia$Release))])
+  
+  tagcount <- aggregate(list(unique_tags = detects_benicia$TagCode), by = list(Day = detects_benicia$Day, Release = detects_benicia$Release ), FUN = function(x){length(unique(x))})
+  tagcount1 <- reshape2::dcast(tagcount, Day ~ Release)
+                    
+  daterange1 <- merge(daterange, tagcount1, all.x=T)
+  
+  if(length(rels_no_detects)>0){
+    for(i in rels_no_detects){
+      daterange1 <- cbind(daterange1, x=NA)
+      names(daterange1)[names(daterange1) == 'x'] <- paste(i)
+    }
+  }
+  
+  ## reorder columns in alphabetical order so its coloring in barplots is consistent
+  daterange1 <- daterange1[,order(colnames(daterange1))]
+    
+  #daterange2 <- merge(daterange1, wlk_flow_day, by = "Day", all.x = T)
+  daterange2 <- daterange1
+  
+  rownames(daterange2) <- daterange2$Day
+  daterange2$Day <- NULL
+  
+  par(mar=c(6, 5, 2, 5) + 0.1)
+  barp <- barplot(t(daterange2[,1:ncol(daterange2)]), plot = FALSE, beside = T)
+  barplot(t(daterange2[,1:ncol(daterange2)]), beside = T, col=viridis_pal()(rel_num), 
+          xlab = "", ylab = "Number of fish arrivals per day", 
+          ylim = c(0,max(daterange2[,1:ncol(daterange2)], na.rm = T)*1.2), 
+          las = 2, xlim=c(0,max(barp)+1), cex.lab = 1.5, yaxt = "n", xaxt = "n")#, 
+          #legend.text = colnames(daterange2[,1:ncol(daterange2)-1]),
+          #args.legend = list(x ='topright', bty='n', inset=c(-0.2,0)), title = "Release Group")
+  legend(x ='topleft', legend = colnames(daterange2)[1:ncol(daterange2)], fill= viridis_pal()(rel_num), horiz = T, title = "Release")
+  ybreaks <- if(max(daterange2[,1:ncol(daterange2)], na.rm = T) < 4) {max(daterange2[,1:ncol(daterange2)], na.rm = T)} else {5}
+  xbreaks <- if(ncol(barp) > 10) {seq(1, ncol(barp), 2)} else {1:ncol(barp)}
+  barpmeans <- colMeans(barp)
+  axis(1, at = barpmeans[xbreaks], labels = rownames(daterange2)[xbreaks], las = 2)
+  axis(2, at = pretty(0:max(daterange2[,1:ncol(daterange2)], na.rm = T), ybreaks))
+  box()
+
+#par(new=T)
+
+#plot(x = barpmeans, daterange2$parameter_value, yaxt = "n", xaxt = "n", ylab = "", xlab = "", col = "blue", type = "l", lwd=2, xlim=c(0,max(barp)+1), ylim = c(min(daterange2$parameter_value, na.rm = T), max(daterange2$parameter_value, na.rm=T)*1.1))#, ylab = "Returning adults", xlab= "Outmigration year", yaxt="n", col="red", pch=20)
+#axis(side = 4)#, labels = c(2000:2016), at = c(2000:2016))
+#mtext("Flow (cfs) at Colusa Bridge", side=4, line=3, cex=1.5, col="blue")
+
+}else{
+  plot(1:2, type = "n", xlab = "",xaxt = "n", yaxt = "n", ylab = "Number of fish arrivals per day")
+  text(1.5,1.5, labels = "NO DETECTIONS YET", cex = 2)
+}
+
+```
+
+<br/>
+
+***
+
+## _3. Survival and Routing Probability_
+***
+
+```{r print table of survival to Benicia, message = FALSE, results= "asis", warning=FALSE}
+
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+  
+try(benicia <- read.csv("benicia_surv.csv", stringsAsFactors = F))
+
+detects_benicia <- detects_study[detects_study$general_location %in% c("Benicia_west", "Benicia_east"),]
+
+if (nrow(detects_benicia) == 0){
+  WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NO DETECTIONS YET", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
+  colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))  
+}else if (length(table(detects_benicia$general_location)) == 1){
+   WR.surv1 <- data.frame("Release Group"=NA, "Survival (%)"="NOT ENOUGH DETECTIONS", "SE"=NA, "95% lower C.I."=NA, "95% upper C.I."=NA, "Detection efficiency (%)"=NA)
+  colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+} else {
+  
+  ## Only do survival to Benicia here
+  test3 <- detects_study[which(detects_study$river_km < 53),]
+  
+  ## Create inp for survival estimation
+  
+  inp <- as.data.frame(reshape2::dcast(test3, TagCode ~ river_km, fun.aggregate = length))
+  
+  ## Sort columns by river km in descending order
+  # Count number of genlocs
+  gen_loc_sites <- ncol(inp)-1
+  
+  inp <- inp[,c(1,order(names(inp[,2:(gen_loc_sites+1)]), decreasing = T)+1)]
+
+  inp <- merge(study_tagcodes, inp, by = "TagCode", all.x = T)
+  
+  inp2 <- inp[,(ncol(inp)-gen_loc_sites+1):ncol(inp)]
+  inp2[is.na(inp2)] <- 0
+  inp2[inp2 > 0] <- 1
+  
+  inp <- cbind(inp, inp2)
+  groups <- as.character(sort(unique(inp$Release)))
+  groups_w_detects <- names(table(test3$Release))
+
+  inp[,groups] <- 0
+  for (i in groups) {
+    inp[as.character(inp$Release) == i, i] <- 1
+  }
+
+  inp$inp_final <- paste("1",apply(inp2, 1, paste, collapse=""),sep="")
+  
+  
+  if(length(groups) > 1){
+  ## make sure factor levels have a release that has detections first. if first release in factor order has zero #detectins, model goes haywire
+    inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, rel = inp$Release, stringsAsFactors = F)
+
+    WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
+    
+    WR.ddl <- make.design.data(WR.process)
+    
+    WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    
+    inp.df <- inp.df[inp.df$rel %in% groups_w_detects,]
+    inp.df$rel <- factor(inp.df$rel, levels = groups_w_detects)
+    if(length(groups_w_detects) > 1){
+      WR.process <- process.data(inp.df, model="CJS", begin.time=1, groups = "rel") 
+    
+      WR.ddl <- make.design.data(WR.process)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time*rel),p=list(formula=~time)), silent = T, output = F)
+    }else{  
+      WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
+    
+      WR.ddl <- make.design.data(WR.process)
+      WR.mark.rel <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+    }
+    WR.surv <- cbind(Release = "ALL",round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1))
+    WR.surv.rel <- cbind(Release = groups_w_detects, round(WR.mark.rel$results$real[seq(from=1,to=length(groups_w_detects)*2,by = 2),c("estimate", "se", "lcl", "ucl")] * 100,1))
+    WR.surv.rel <- merge(WR.surv.rel, data.frame(Release = groups), all.y = T)
+    WR.surv.rel[is.na(WR.surv.rel$estimate),"estimate"] <- 0
+    WR.surv <- rbind(WR.surv, WR.surv.rel)
+    
+  }else{
+    inp.df <- data.frame(ch = as.character(inp$inp_final), freq = 1, stringsAsFactors = F)
+
+    WR.process <- process.data(inp.df, model="CJS", begin.time=1) 
+    
+      
+    WR.ddl <- make.design.data(WR.process)
+    
+    WR.mark.all <- mark(WR.process, WR.ddl, model.parameters=list(Phi=list(formula=~time),p=list(formula=~time)), silent = T, output = F)
+
+    WR.surv <- cbind(Release = c("ALL", groups),round(WR.mark.all$results$real[1,c("estimate", "se", "lcl", "ucl")] * 100,1))
+    
+  }
+  WR.surv$Detection_efficiency <- NA
+  WR.surv[1,"Detection_efficiency"] <- round(WR.mark.all$results$real[gen_loc_sites+1,"estimate"] * 100,1)
+
+  WR.surv1 <- WR.surv
+  colnames(WR.surv1) <- c("Release Group", "Survival (%)", "SE", "95% lower C.I.", "95% upper C.I.", "Detection efficiency (%)")
+
+  print(kable(WR.surv1, row.names = F, "html", caption = "3.5 Minimum survival to Benicia Bridge East Span (using CJS survival model)") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))    
+  
+  
+  if(exists("benicia")==T){
+    ## Find mean release time per release group, and ALL
+    reltimes <- aggregate(list(RelDT = study_tagcodes$release_time), by = list(Release = study_tagcodes$Release), FUN = mean)
+    reltimes <- rbind(reltimes, data.frame(Release = "ALL", RelDT = mean(study_tagcodes$release_time)))
+
+    ## Assign whether the results are tentative or final
+    quality <- "tentative"
+    if(endtime < as.Date(format(Sys.time(), "%Y-%m-%d"))) { quality <- "final"}
+    WR.surv <- merge(WR.surv, reltimes, by = "Release", all.x = T)
+  
+    WR.surv$RelDT <- as.POSIXct(WR.surv$RelDT, origin = '1970-01-01')
+    benicia$RelDT <- as.POSIXct(benicia$RelDT)
+    ## remove old benicia record for this studyID
+    benicia <- benicia[!benicia$StudyID == unique(detects_benicia$Study_ID),]
+    
+    benicia <- rbind(benicia, data.frame(WR.surv, StudyID = unique(detects_benicia$Study_ID), data_quality = quality))
+    
+    write.csv(benicia, "benicia_surv.csv", row.names = F, quote = F) 
+  }
+}
+```
+
+<br/>
+
+***
+## _4. Detections statistics at all realtime receivers_
+***
+
+```{r print tables of fish detections, message = FALSE, results= "asis", warning=FALSE}
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
+  "No detections yet"
+} else {
+
+  arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+  
+  tag_stats <- aggregate(list(First_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = min)
+  tag_stats <- merge(tag_stats, 
+                     aggregate(list(Mean_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = mean), 
+                     by = c("general_location"))
+  tag_stats <- merge(tag_stats, 
+                     aggregate(list(Last_arrival = arrivals$DateTime_PST), 
+                         by= list(general_location = arrivals$general_location),
+                         FUN = max), 
+                     by = c("general_location"))
+  tag_stats <- merge(tag_stats, 
+                     aggregate(list(Fish_count = arrivals$TagCode), 
+                         by= list(general_location = arrivals$general_location), 
+                         FUN = function(x) {length(unique(x))}), 
+                     by = c("general_location"))
+  tag_stats$Percent_arrived <- round(tag_stats$Fish_count/nrow(study_tagcodes) * 100,2)
+      
+  tag_stats <- merge(tag_stats, unique(detects_study[,c("general_location", "river_km")]))
+  
+  tag_stats <- tag_stats[order(tag_stats$river_km, decreasing = T),]
+  
+  tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
+  
+  tag_stats <- tag_stats[is.na(tag_stats$First_arrival)==F,]
+
+  print(kable(tag_stats, row.names = F, 
+              caption = "4.1 Detections for all releases combined",
+              "html") %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+  
+  for (j in sort(unique(study_tagcodes$Release))) {
+    
+    if(nrow(detects_study[detects_study$Release == j,]) > 0 ) {
+    
+      temp <- detects_study[detects_study$Release == j,]
+      
+        arrivals1 <- aggregate(list(DateTime_PST = temp$DateTime_PST), by = list(general_location = temp$general_location, TagCode = temp$TagCode), FUN = min)
+  
+      rel_count <- nrow(study_tagcodes[study_tagcodes$Release == j,])
+  
+      tag_stats1 <- aggregate(list(First_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
+                             FUN = min)
+      tag_stats1 <- merge(tag_stats1, 
+                         aggregate(list(Mean_arrival = arrivals1$DateTime_PST), 
+                             by= list(general_location = arrivals1$general_location), 
+                             FUN = mean), 
+                         by = c("general_location"))
+      tag_stats1 <- merge(tag_stats1, 
+                   aggregate(list(Last_arrival = arrivals1$DateTime_PST), 
+                       by= list(general_location = arrivals1$general_location), 
+                       FUN = max), 
+                   by = c("general_location"))
+      tag_stats1 <- merge(tag_stats1, 
+                         aggregate(list(Fish_count = arrivals1$TagCode), 
+                                   by= list(general_location = arrivals1$general_location), 
+                                   FUN = function(x) {length(unique(x))}), 
+                         by = c("general_location"))
+      
+      tag_stats1$Percent_arrived <- round(tag_stats1$Fish_count/rel_count * 100,2)
+    
+      tag_stats1 <- merge(tag_stats1, unique(detects_study[,c("general_location", "river_km")]))
+    
+      tag_stats1 <- tag_stats1[order(tag_stats1$river_km, decreasing = T),]
+      
+      tag_stats1[,c("First_arrival", "Mean_arrival", "Last_arrival")] <- format(tag_stats1[,c("First_arrival", "Mean_arrival", "Last_arrival")], tz = "Etc/GMT+8")
+      
+      tag_stats1 <- tag_stats1[is.na(tag_stats1$First_arrival)==F,]
+      
+      final_stats <- kable(tag_stats1, row.names = F, 
+            caption = paste("4.2 Detections for",j,"release groups", sep = " "),
+            "html")
+      
+      print(kable_styling(final_stats, bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), full_width = F, position = "left"))
+      
+    } else {
+      cat("\n\n\\pagebreak\n")
+      print(paste("No detections for",j,"release group yet", sep=" "), quote = F)
+      cat("\n\n\\pagebreak\n")
+    }
+  }
+}
+
+```
+
+<br/>
+
+### 4.3 Fish arrivals per day ("NA" means receivers were non-operational)
+```{r print tables of fish detections per day, message = FALSE, results= "asis", warning=FALSE}
+
+try(setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-time data massaging\\products", sep = "")))
+
+## THIS CODE CHUNK WILL NOT WORK IF USING ONLY ERDDAP DATA, REQUIRES ACCESS TO LOCAL FILES
+if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
+  "No detections yet"
+} else {
+  arrivals <- aggregate(list(DateTime_PST = detects_study$DateTime_PST), by = list(general_location = detects_study$general_location, TagCode = detects_study$TagCode), FUN = min)
+    
+  beacon_by_day <- fread("beacon_by_day.csv", stringsAsFactors = F)
+  beacon_by_day$day <- as.Date(beacon_by_day$day)
+  
+  gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
+  
+  arrivals$day <- as.Date(format(arrivals$DateTime_PST, "%Y-%m-%d", tz = "Etc/GMT+8"))
+  
+  arrivals_per_day <- aggregate(list(New_arrivals = arrivals$TagCode), by = list(day = arrivals$day, general_location = arrivals$general_location), length)
+  arrivals_per_day$day <- as.Date(arrivals_per_day$day)
+
+  ## Now subset to only look at data for the correct beacon for that day
+  beacon_by_day <- as.data.frame(beacon_by_day[which(beacon_by_day$TagCode == beacon_by_day$beacon),])
+  
+  endtime <- min(as.Date(format(Sys.time(), "%Y-%m-%d")), max(as.Date(detects_study$release_time)+(as.numeric(detects_study$tag_life)*1.5)))
+  ## Now only keep beacon by day for days since fish were released
+  beacon_by_day <- beacon_by_day[beacon_by_day$day >= as.Date(min(study_tagcodes$release_time)) & beacon_by_day$day <= endtime,]  
+  
+  beacon_by_day <- merge(beacon_by_day, gen_locs[,c("location", "general_location","rkm")], by = "location", all.x = T)
+
+  arrivals_per_day <- merge(unique(beacon_by_day[,c("general_location", "day", "rkm")]), arrivals_per_day, all.x = T, by = c("general_location", "day"))
+  
+  arrivals_per_day$day <- factor(arrivals_per_day$day)
+  
+  ## Remove bench test and other NA locations
+  arrivals_per_day <- arrivals_per_day[!arrivals_per_day$general_location == "Bench_test",]
+  arrivals_per_day <- arrivals_per_day[is.na(arrivals_per_day$general_location) == F,]
+  
+  ## Change order of data to plot decreasing river_km
+  arrivals_per_day <- arrivals_per_day[order(arrivals_per_day$rkm, decreasing = T),]
+  arrivals_per_day$general_location <- factor(arrivals_per_day$general_location, unique(arrivals_per_day$general_location))
+  
+  # 
+  # ggplot(data=arrivals_per_day, aes(x=general_location, y=fct_rev(as_factor(day)))) +
+  # geom_tile(fill = "lightgray", color = "black") + 
+  # geom_text(aes(label=New_arrivals)) +
+  # labs(x="General Location", y = "Date") +
+  # theme(panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
+    crosstab <- xtabs(formula = arrivals_per_day$New_arrivals ~ arrivals_per_day$day + arrivals_per_day$general_location, addNA =T)
+  crosstab[is.na(crosstab)] <- ""
+  crosstab[crosstab==0] <- NA
+  crosstab <- as.data.frame.matrix(crosstab)
+  #colnames(crosstab) <- c("Butte Br", "Tower Br", "I8050 Br", "Old River", "Middle River", "CVP Tanks", "Georg Slough1", "Sac_Blw Georg1", "Georg Slough2", "Sac_Blw Georg2", "Benicia East", "Benicia West")
+
+ kable(crosstab, align = "c") %>%
+  kable_styling(c("striped", "condensed"), font_size = 11, full_width = F, position = "left") %>%
+  #row_spec(0, angle = -45) %>%
+  column_spec(column = 1:ncol(crosstab),width_min = "50px",border_left = T, border_right = T) %>%
+  column_spec(1, bold = T, width_min = "75px")%>%
+  scroll_box(height = "700px")
+}
+
+
+rm(list = ls())
+cleanup(ask = F)
+```

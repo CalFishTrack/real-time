@@ -15,8 +15,10 @@ navbar:
       href: pageBCJSWR_2021.html
     - text: Hatchery Feather River spring-run
       href: pageFHSR_2021.html
-    - text: San Joaquin River steelhead
+    - text: San Joaquin River steelhead March Releases
       href: pageSJSTH_2021.html
+    - text: San Joaquin River steelhead April Releases
+      href: pageSJSTH_April_2021.html
     - text: Hatchery fall-run paired release
       href: pageSLPRFR_2021.html
     - text: Mill/Deer Creek wild steelhead, spring releases
