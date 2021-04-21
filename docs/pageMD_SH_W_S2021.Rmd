@@ -1059,9 +1059,12 @@ if (nrow(detects_study[is.na(detects_study$DateTime_PST)==F,]) == 0){
   inp <- as.data.frame(reshape2::dcast(test4, TagCode ~ general_location, fun.aggregate = length))
   
   ## add together detections at Tower and I80 to ensure good detection entering Delta
-  if("I80-50_Br" %in% colnames(inp)){
+  if("I80-50_Br" %in% colnames(inp) & "TowerBridge" %in% colnames(inp)){
     inp$`I80-50_Br` <- inp$`I80-50_Br` + inp$TowerBridge
+  }else if("TowerBridge" %in% colnames(inp)){
+    inp$`I80-50_Br` <- inp$TowerBridge
   }
+
   ## Sort columns by river km in descending order, this also removes TowerBridge, no longer needed
   inp <- inp[,c("TagCode","I80-50_Br", "Benicia_east", "Benicia_west")]
   
