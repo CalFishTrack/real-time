@@ -54,6 +54,7 @@ setwd(paste(file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="\\"), "\\Real-ti
 ATS_processed_files <- fread("ATS_processed_files.csv", stringsAsFactors = F)
 TECKNO_processed_files <- fread("TECKNO_processed_files.csv", stringsAsFactors = F, sep = ",")
 UCD_processed_files <- fread("UCD_processed_files.csv", stringsAsFactors = F)
+Tekno_SUM_processed_files <- fread("Tekno_SUM_processed_files.csv", stringsAsFactors = F, sep = ",")
 gen_locs <- read.csv("realtime_locs.csv", stringsAsFactors = F)
 gen_locs$recv <- as.character(gen_locs$recv)
 gen_locs$start <- as.POSIXct(gen_locs$start, tz = "Etc/GMT+8")
@@ -161,8 +162,14 @@ UCD_all_files <- as.data.frame(list(x=UCD_all_files[substr(UCD_all_files$x, ncha
 UCD_files <- as.data.frame(list(x=UCD_all_files[!UCD_all_files$x %in% UCD_processed_files$x,]), stringsAsFactors = F)
 
 
+## Find all Tekno SUM files for processing
+Tekno_SUM_all_files <- as.data.frame(list(x=dir(pattern = ".SUM", path = "C:/Users/field/Desktop/Tekno_SUM_files", full.names = T)), stringsAsFactors = F)
+## Select only newest SUM files for massaging
+Tekno_SUM_files <- as.data.frame(list(x=Tekno_SUM_all_files[!Tekno_SUM_all_files$x %in% Tekno_SUM_processed_files$x,]), stringsAsFactors = F)
+
+
 #***********************************************************************************************
-# 4. Data massage new detections if in standard format. Do this for ATS, Tekno, and UCD separately ####
+# 4. Data massage new detections if in standard format. Do this for ATS, Tekno, Tekno_SUM and UCD separately ####
 #***********************************************************************************************
 
 #### 4.a. Data massage ATS files first ####
@@ -629,6 +636,127 @@ if (nrow(UCD_files) > 0) {
     
   }
 }
+
+
+
+
+
+
+
+#***********************************************************************************************
+#### 4.d. Now data massage Tekno SUM files ####
+## These are the root Tekno files from which hourly files are generated
+## When a receiver is manually downloaded in person, these are the files that come off the recv
+#***********************************************************************************************
+
+
+
+
+
+if (nrow(Tekno_SUM_files) > 0) {
+  
+  
+  ## First, find shortname for files
+  shortname <- regexpr(Tekno_SUM_files$x, pattern = "Tekno_SUM_files")[1]
+  Tekno_SUM_files$shortname  <- substr(Tekno_SUM_files$x, shortname+16, nchar(Tekno_SUM_files$x))
+  
+  downloads_new4 <- data.frame()
+  
+  for (i in 1:nrow(Tekno_SUM_files)) {
+    test <- try(read.csv(Tekno_SUM_files[i,"x"], header = T, skip =8, stringsAsFactors = F ), silent = T)
+    if (inherits(test, "try-error")) {
+      next
+    } else {
+      hour <- test[1,"Date.Time"]
+      recv <- gsub("-", "", test[1,"Serial.Number"])
+      test$Date.Time1 <- as.POSIXct(test$Date.Time, "%m/%d/%Y %H:%M:%OS", tz = "GMT")
+      downloads_new4 <- rbindlist(list(downloads_new4, data.frame(list(filename = Tekno_SUM_files[i,"shortname"], recv=recv, hour=hour, sun_volts = NA, bat_volts = NA, end = max(test$Date.Time1), start = min(test$Date.Time1)), stringsAsFactors = F)))
+    }
+  }
+
+  
+  ## Now change all times to PST to match ATS receivers
+  attributes(downloads_new4$start)$tzone <- "Etc/GMT+8"
+  attributes(downloads_new4$end)$tzone <- "Etc/GMT+8"
+  
+  downloads_new_all <- rbindlist(list(downloads_new_all, downloads_new4))
+  
+  detects_temp <- data.frame()
+  
+  ## Put in progress bar
+  #pb <- txtProgressBar(min = 0, max = nrow(TECKNO_files), style = 3)
+  
+  for (i in 1:nrow(Tekno_SUM_files)) {
+    res <- try(read.csv(Tekno_SUM_files[i,"x"], header = F), silent = T) 
+    if (inherits(res, "try-error")) {
+      corrupted_downloads <- rbind(corrupted_downloads,cbind(V1 = Tekno_SUM_files[i,"shortname"], download_attempts = 5, filename = Tekno_SUM_files[i,"x"]))
+      ## Also make corrupted downloads more palateable
+      next
+    } else {
+      test <- read.csv(Tekno_SUM_files[i,"x"], header = T, skip =8, stringsAsFactors = F )
+      test$filename <- Tekno_SUM_files[i,"shortname"]
+      detects_temp <- rbindlist(list(detects_temp, test[,c("Serial.Number", "Date.Time", "TagCode", "Temp", "filename")]))
+    }
+  }
+
+  
+  colnames(detects_temp) <- c("recv", "DateTime_Orig", "TagCode", "Temp", "filename")
+  ## Make DateTime_Orig in same format as other receiver outputs
+  ## Make a POSIX class, note that TECKNO detections are in GMT, will need to convert to local time
+  detects_temp$DateTime_PST <- as.POSIXct(detects_temp$DateTime_Orig, "%m/%d/%Y %H:%M:%OS", tz = "GMT")
+  ## Make DateTime_Orig in same format as other receiver outputs
+  detects_temp$DateTime_Orig <- format(detects_temp$DateTime_PST, "%Y-%m-%d %H:%M:%OS6")
+  ## convert to PST
+  attributes(detects_temp$DateTime_PST)$tzone <- "Etc/GMT+8"
+  ## remove dash from recv name
+  detects_temp$recv <- gsub("-", "", detects_temp$recv)
+  ## Now remove prefix and suffix of TagCode
+  detects_temp$TagCode <- substr(detects_temp$TagCode, start = 4, stop = 7)
+  ## Remove "ffff" detections
+  detects_temp <- detects_temp[!detects_temp$TagCode == "ffff",]
+  
+  
+  #***********************************************************************************************
+  # 5.d. Split detections based on whether they are from any of the known beacons, or other, append to respective dataset. Do this for Tekno files now ####
+  #***********************************************************************************************
+    
+  
+  ## Here, put only non-beacon detections in detection file
+  detects_new <- detects_temp[!detects_temp$TagCode %in% c(unique(beacon_deployments$beacon),"00CA","00C9", "F6AC", "006F", "006D"),]
+  ## And put beacon detections into seperate file
+  detects_beacon_new <- detects_temp[detects_temp$TagCode %in% c(unique(beacon_deployments$beacon),"00CA","00C9", "F6AC", "006F", "006D"),]
+  
+  
+  #***********************************************************************************************
+  # 6.d. Remove multipath detections for beacon detects. Do this for Teckno files now ####
+  #***********************************************************************************************
+  
+  ## Now remove multipath detections from detects_beacon_new
+  ## First reorder the data since the above steps may have jumbled things
+  detects_beacon_new <- detects_beacon_new[order(detects_beacon_new$recv, detects_beacon_new$TagCode, detects_beacon_new$DateTime_PST),]
+  detects_beacon_new$time_to_next <- as.numeric(difftime(shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lead"), detects_beacon_new$DateTime_PST, units = "hours"))
+  detects_beacon_new$time_from_previous <- as.numeric(difftime(detects_beacon_new$DateTime_PST, shift(detects_beacon_new$DateTime_PST, fill = NA, type = "lag"),  units = "hours"))
+  ## Now make NA the time diff values when it's between 2 different recvs or tagcodes
+  detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  detects_beacon_new[which(detects_beacon_new$recv != shift(detects_beacon_new$recv, fill = NA, type = "lead")), "time_to_next"] <- NA
+  detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lag")), "time_from_previous"] <- NA
+  detects_beacon_new[which(detects_beacon_new$TagCode != shift(detects_beacon_new$TagCode, fill = NA, type = "lead")), "time_to_next"] <- NA
+  ## Now remove the second detection every time the detection lag difftime is less than 0.3 sec (multipath)
+  detects_beacon_new <- detects_beacon_new[detects_beacon_new$time_from_previous > 0.000083 | is.na(detects_beacon_new$time_from_previous) == TRUE ,]
+
+  #***********************************************************************************************
+  # 7.d. Bind new detection data to historic data. Do this for Tekno files now ####
+  #***********************************************************************************************
+
+  
+  ## Now append these to existing datasets
+  detects <- rbindlist(list(detects, detects_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")]))
+  detects_beacon <- rbindlist(list(detects_beacon, detects_beacon_new[,c("recv", "DateTime_Orig", "TagCode", "DateTime_PST", "Temp", "filename")]))
+  
+}
+
+
+
 
 
 
@@ -1172,6 +1300,10 @@ fwrite(TECKNO_processed_files, "TECKNO_processed_files.csv", row.names = F, quot
 UCD_processed_files <- rbindlist(list(UCD_processed_files, data.frame(UCD_files[,"x"])))
 UCD_processed_files$x <- as.character(UCD_processed_files$x)
 fwrite(UCD_processed_files, "UCD_processed_files.csv", row.names = F, quote = T) 
+
+Tekno_SUM_processed_files <- rbindlist(list(Tekno_SUM_processed_files, data.frame(Tekno_SUM_files[,"x"])))
+Tekno_SUM_processed_files$x <- as.character(Tekno_SUM_processed_files$x)
+fwrite(Tekno_SUM_processed_files, "Tekno_SUM_processed_files.csv", row.names = F, quote = T)  
 
 ```
 ***Data current as of `r anicon::nia(latest, size = 1, colour = "red")`. Updates occur hourly. All times in Pacific Standard Time.***
