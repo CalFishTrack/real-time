@@ -30,7 +30,7 @@ navbar:
   - text: Real-time Receivers
     href: pageREAL.html
   - text: Autonomous Receivers
-    href: https://oceanview.pfeg.noaa.gov/test_CalFishTrack/pageDEPLOY.html
+    href: pageDEPLOY.html
   - text: Download data
     href: pageRealtime_download.html
   - text: Data Explorer
